@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#E9D083">
+  <title>Reading | Kolpotuli</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Hind+Siliguri:wght@300;400;600&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    /* =========================================================
+       KOLPOTULI V2 — READER DESIGN SYSTEM
+    ========================================================= */
+    :root {
+      --k-bg: #E9D083; --k-dark: #1E2D56; --k-accent: #FFBF00;
+      --k-grey: #B8C0CC; --k-outline: #000000;
+      --font-en-head: 'Playfair Display', serif; --font-en-body: 'Inter', sans-serif;
+      --font-bn-head: 'Noto Serif Bengali', serif; --font-bn-body: 'Hind Siliguri', sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    
+    body {
+      font-family: var(--font-en-body);
+      transition: background-color 0.5s ease, color 0.5s ease;
+      overflow-x: hidden;
+    }
+
+    /* THEMES */
+    .theme-paper { background-color: var(--k-bg); color: var(--k-dark); }
+    .theme-night { background-color: var(--k-dark); color: var(--k-bg); }
+    .theme-cinema { background-color: var(--k-outline); color: var(--k-grey); }
+
+    /* TOOLBAR */
+    .reader-toolbar {
+      position: fixed; top: 0; left: 0; width: 100%;
+      padding: 1rem 5%; display: flex; justify-content: space-between; align-items: center;
+      background-color: inherit; border-bottom: 1px solid currentColor;
+      z-index: 100; transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+    
+    .toolbar-group { display: flex; gap: 0.8rem; align-items: center; }
+    
+    .btn-reader {
+      background: transparent; border: 1px solid currentColor; color: inherit;
+      padding: 0.4rem 0.8rem; font-family: var(--font-en-body); font-size: 0.9rem;
+      cursor: pointer; border-radius: 2px; transition: opacity 0.2s ease;
+    }
+    .btn-reader:hover { opacity: 0.6; }
+
+    /* CANVAS (Where the text lives) */
+    .reader-canvas {
+      max-width: 700px;
+      margin: 100px auto 100px auto;
+      padding: 0 20px;
+      font-size: 1.25rem; 
+      line-height: 1.8;
+      transition: font-size 0.3s ease;
+    }
+
+    /* Markdown Element Styling */
+    .reader-canvas h1 { font-family: var(--font-bn-head); font-size: 2.5em; margin-bottom: 1.5rem; text-align: center; line-height: 1.2; }
+    .reader-canvas p { margin-bottom: 1.5rem; }
+    .reader-canvas hr { border: none; border-top: 1px solid currentColor; opacity: 0.3; margin: 3rem auto; width: 50%; }
+    .reader-canvas em { font-family: var(--font-en-head); font-size: 1.1em; }
+
+    /* PROGRESS BAR & FOOTER */
+    .reader-footer {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      padding: 1rem 5%; display: flex; align-items: center; justify-content: space-between;
+      background-color: inherit; border-top: 1px solid currentColor; z-index: 100;
+      font-family: var(--font-en-body); font-size: 0.85rem; opacity: 0.9;
+      transition: transform 0.4s ease, opacity 0.4s ease;
+    }
+
+    .progress-container { flex-grow: 1; margin: 0 1.5rem; height: 2px; background-color: var(--k-grey); }
+    #progress-fill { height: 100%; width: 0%; background-color: currentColor; transition: width 0.2s ease; }
+
+    /* DISTRACTION FREE MODE (Hides headers on scroll) */
+    .distraction-free .reader-toolbar { transform: translateY(-100%); opacity: 0; }
+    .distraction-free .reader-footer { transform: translateY(100%); opacity: 0; }
+  </style>
+</head>
+
+<body class="theme-paper" id="reader-body">
+
+  <header class="reader-toolbar" id="reader-header">
+    <button class="btn-reader" onclick="window.location.href='index.html'">← Library</button>
+    
+    <div class="toolbar-group">
+      <button class="btn-reader" id="btn-text-minus">A-</button>
+      <button class="btn-reader" id="btn-text-plus">A+</button>
+      <button class="btn-reader" id="btn-theme-paper">Paper</button>
+      <button class="btn-reader" id="btn-theme-night">Night</button>
+      <button class="btn-reader" id="btn-theme-cinema">Cinema</button>
+      <button class="btn-reader" id="btn-audio">🔈</button>
+    </div>
+  </header>
+
+  <main class="reader-canvas" id="reader-content">
+    </main>
+
+  <footer class="reader-footer" id="reader-footer">
+    <span id="reading-time">-- min read</span>
+    <div class="progress-container"><div id="progress-fill"></div></div>
+    <span id="progress-percent">0%</span>
+  </footer>
+
+  <audio id="ambient-player" loop>
+    <source src="assets/audio/rain.mp3" type="audio/mpeg">
+  </audio>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      
+      // 1. LOAD THE MANUSCRIPT
+      const mockMarkdown = `
+# The First Rain (প্রথম বৃষ্টি)
+
+The sky turned a deep shade of steel blue before the downpour started. It washed away the dust of the city, leaving behind only the scent of wet earth and forgotten memories.
+
+I sat by the window of the old projection room. The film had stopped rolling hours ago, but the rhythmic *click-clack* of the reels still echoed in my mind. 
+
+We used to believe that stories were just ink on paper. But they aren't. They are the quiet moments between heartbeats. They are the shadows dancing on a cinema screen when no one is watching.
+
+***
+
+*“Do you think we will remember this?”* you had asked, holding a cup of tea that was rapidly growing cold.
+
+I didn't answer then. But looking at the rain tracing paths down the glass, I finally knew the answer. We don't remember things. Things remember us.
+
+Just as the projectionist leaves a piece of his soul in every reel he plays, a writer leaves a fragment of their life in every sentence. And here, in this quiet sanctuary, those fragments breathe again.
+      `;
+
+      // Render Markdown to HTML
+      document.getElementById('reader-content').innerHTML = marked.parse(mockMarkdown);
+
+      // Calculate Reading Time
+      const words = mockMarkdown.split(' ').length;
+      document.getElementById('reading-time').innerText = \`\${Math.ceil(words / 200)} min read\`;
+
+      // 2. THEME ENGINE
+      const body = document.getElementById('reader-body');
+      const savedTheme = localStorage.getItem('k_theme') || 'theme-paper';
+      body.className = savedTheme;
+
+      const setTheme = (theme) => {
+        body.className = theme;
+        localStorage.setItem('k_theme', theme);
+      };
+
+      document.getElementById('btn-theme-paper').onclick = () => setTheme('theme-paper');
+      document.getElementById('btn-theme-night').onclick = () => setTheme('theme-night');
+      document.getElementById('btn-theme-cinema').onclick = () => setTheme('theme-cinema');
+
+      // 3. TYPOGRAPHY ENGINE (Zoom)
+      const canvas = document.getElementById('reader-content');
+      let fontSize = parseFloat(localStorage.getItem('k_font')) || 1.25;
+      canvas.style.fontSize = \`\${fontSize}rem\`;
+
+      document.getElementById('btn-text-plus').onclick = () => {
+        if (fontSize < 2.0) { fontSize += 0.1; updateFont(); }
+      };
+      document.getElementById('btn-text-minus').onclick = () => {
+        if (fontSize > 0.9) { fontSize -= 0.1; updateFont(); }
+      };
+      
+      const updateFont = () => {
+        canvas.style.fontSize = \`\${fontSize}rem\`;
+        localStorage.setItem('k_font', fontSize);
+      };
+
+      // 4. PROGRESS TRACKER
+      const fill = document.getElementById('progress-fill');
+      const percentText = document.getElementById('progress-percent');
+      
+      window.addEventListener('scroll', () => {
+        const scrollTop = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const percentage = docHeight > 0 ? Math.min(100, (scrollTop / docHeight) * 100) : 0;
+        
+        fill.style.width = \`\${percentage}%\`;
+        percentText.innerText = \`\${Math.round(percentage)}%\`;
+      });
+
+      // 5. DISTRACTION FREE MODE (Hide UI on scroll down)
+      let lastScroll = 0;
+      window.addEventListener('scroll', () => {
+        let currentScroll = window.scrollY;
+        if (currentScroll > lastScroll && currentScroll > 100) {
+          document.body.classList.add('distraction-free');
+        } else {
+          document.body.classList.remove('distraction-free');
+        }
+        lastScroll = currentScroll;
+      });
+
+      // 6. AMBIENT AUDIO
+      const audioBtn = document.getElementById('btn-audio');
+      const player = document.getElementById('ambient-player');
+      let isPlaying = false;
+
+      audioBtn.onclick = () => {
+        if (isPlaying) {
+          player.pause();
+          audioBtn.innerText = '🔈';
+          audioBtn.style.opacity = '1';
+        } else {
+          player.volume = 0.3;
+          player.play();
+          audioBtn.innerText = '🔊';
+          audioBtn.style.opacity = '0.5';
+        }
+        isPlaying = !isPlaying;
+      };
+
+    });
+  </script>
+
+</body>
+</html>

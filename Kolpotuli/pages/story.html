@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>Story</title>
+
+<link rel="stylesheet"
+href="style.css">
+
+</head>
+
+<body>
+
+<nav>
+
+<div class="logo-container">
+
+<img src="assets/logo.png"
+class="logo">
+
+<h2>Kolpotuli</h2>
+
+</div>
+
+</nav>
+
+
+<section>
+
+<div class="story-card"
+style="width:100%;max-width:900px;margin:auto;">
+
+<img id="storyImage"
+class="thumb">
+
+<h1 id="storyTitle">
+
+Loading...
+
+</h1>
+
+<p id="storyDescription">
+
+Loading story...
+
+</p>
+
+</div>
+
+</section>
+
+
+<section>
+
+<h1>
+
+Comments
+
+</h1>
+
+<div class="story-card"
+style="width:100%;max-width:900px;">
+
+<h3>
+
+Login required
+
+</h3>
+
+<p>
+
+Please login before commenting.
+
+</p>
+
+<br>
+
+<a href="login.html">
+
+<button>
+
+Login
+
+</button>
+
+</a>
+
+</div>
+
+</section>
+
+
+<script>
+
+const params=
+new URLSearchParams(
+window.location.search
+)
+
+document.getElementById(
+"storyTitle"
+).innerText=
+params.get("title")
+
+document.getElementById(
+"storyDescription"
+).innerText=
+params.get("description")
+
+document.getElementById(
+"storyImage"
+).src=
+params.get("image")
+
+
+document.getElementById(
+"postBtn"
+)
+
+.addEventListener(
+
+"click",
+
+()=>{
+
+let name=
+document.getElementById(
+"name"
+).value
+
+let comment=
+document.getElementById(
+"comment"
+).value
+
+if(name==="" || comment==="")
+return
+
+
+document.getElementById(
+"commentContainer"
+)
+
+.innerHTML+=`
+
+<div class="story-card"
+style="margin-top:15px;width:100%;">
+
+<h3>${name}</h3>
+
+<p>${comment}</p>
+
+</div>
+
+`
+
+}
+
+)
+
+</script>
+
+</body>
+</html>

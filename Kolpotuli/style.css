@@ -1,0 +1,389 @@
+ /* =========================================================
+   KOLPOTULI V2 — MASTER STYLESHEET
+   Design: Premium, Cinematic, Kindle-like, Literary Archive
+========================================================= */
+
+:root {
+  /* --- OFFICIAL BRAND COLORS (DO NOT CHANGE) --- */
+  --k-bg: #E9D083;         /* Primary Background (Canvas/Paper) */
+  --k-dark: #1E2D56;       /* Primary Dark (Midnight Ink) */
+  --k-accent: #FFBF00;     /* Primary Accent (Gold) */
+  --k-grey: #B8C0CC;       /* Secondary Grey */
+  --k-outline: #000000;    /* Absolute Black */
+
+  /* --- TYPOGRAPHY --- */
+  --font-en-head: 'Playfair Display', serif;
+  --font-en-body: 'Inter', sans-serif;
+  --font-bn-head: 'Noto Serif Bengali', serif;
+  --font-bn-body: 'Hind Siliguri', sans-serif;
+
+  /* --- SPACING & LAYOUT --- */
+  --max-width: 1200px;
+  --reader-max-width: 700px; /* Kindle-like narrow reading column */
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 4rem;
+}
+
+/* ==========================================
+   RESET & BASE
+========================================== */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--k-bg);
+  color: var(--k-dark);
+  font-family: var(--font-en-body);
+  line-height: 1.7;
+  overflow-x: hidden;
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+/* Base Bengali Typography support */
+body:lang(bn) {
+  font-family: var(--font-bn-body);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+a:hover {
+  opacity: 0.7;
+}
+
+ul {
+  list-style: none;
+}
+
+/* ==========================================
+   TEXTURES & MOTION
+========================================== */
+.texture-overlay {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  /* Connects to the paper.jpg in your assets folder */
+  background-image: url('assets/textures/paper.jpg'); 
+  opacity: 0.15; /* Subtle blend */
+  pointer-events: none;
+  z-index: 0;
+  mix-blend-mode: multiply;
+}
+
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 1.5s ease;
+}
+
+/* ==========================================
+   SPLASH SCREEN
+========================================== */
+#splash-screen {
+  position: fixed;
+  top: 0; left: 0; width: 100vw; height: 100vh;
+  background-color: var(--k-bg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  transition: opacity 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.splash-content {
+  text-align: center;
+  z-index: 1;
+}
+
+.splash-logo {
+  width: 120px;
+  opacity: 0;
+  animation: cinematicFadeIn 3s forwards 0.5s;
+}
+
+.splash-title {
+  font-family: var(--font-bn-head);
+  font-size: 3.5rem;
+  color: var(--k-dark);
+  margin-top: 1.5rem;
+  opacity: 0;
+  animation: cinematicFadeIn 3s forwards 1.5s;
+}
+
+.splash-subtitle {
+  font-family: var(--font-en-head);
+  letter-spacing: 3px;
+  font-size: 0.9rem;
+  color: var(--k-dark);
+  opacity: 0;
+  animation: cinematicFadeIn 3s forwards 2.5s;
+}
+
+@keyframes cinematicFadeIn {
+  0% { opacity: 0; filter: blur(10px); transform: translateY(10px); }
+  100% { opacity: 1; filter: blur(0); transform: translateY(0); }
+}
+
+/* ==========================================
+   NAVIGATION
+========================================== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md) 5%;
+  border-bottom: 1px solid var(--k-outline);
+  position: sticky;
+  top: 0;
+  background-color: var(--k-bg);
+  z-index: 1000;
+}
+
+.logo-container img {
+  height: 50px;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.nav-links ul {
+  display: flex;
+  gap: 1.5rem;
+  font-family: var(--font-en-head);
+  font-size: 1.1rem;
+}
+
+/* ==========================================
+   BUTTONS
+========================================== */
+.btn-primary, .btn-outline {
+  font-family: var(--font-bn-head);
+  padding: 0.8rem 2rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background-color: var(--k-dark);
+  color: var(--k-accent);
+  border: 1px solid var(--k-outline);
+}
+
+.btn-primary:hover {
+  background-color: var(--k-accent);
+  color: var(--k-dark);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--k-dark);
+  border: 1px solid var(--k-dark);
+  font-family: var(--font-en-body);
+}
+
+.btn-outline:hover {
+  background-color: var(--k-dark);
+  color: var(--k-bg);
+}
+
+/* ==========================================
+   HERO SECTION
+========================================== */
+.hero-section {
+  position: relative;
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  border-bottom: 2px solid var(--k-outline);
+  padding: var(--spacing-lg) 5%;
+}
+
+.hero-title {
+  font-family: var(--font-bn-head);
+  font-size: clamp(4rem, 8vw, 8rem);
+  color: var(--k-dark);
+  line-height: 1.1;
+  z-index: 1;
+}
+
+.hero-subtitle {
+  font-family: var(--font-bn-body);
+  font-size: 1.5rem;
+  color: var(--k-dark);
+  margin-top: 1rem;
+  z-index: 1;
+}
+
+.hero-description {
+  font-family: var(--font-en-head);
+  font-style: italic;
+  color: var(--k-outline);
+  margin-top: 0.5rem;
+  margin-bottom: 3rem;
+  z-index: 1;
+}
+
+.hero-divider {
+  font-size: 2rem;
+  color: var(--k-accent);
+  margin-top: 3rem;
+  z-index: 1;
+}
+
+/* ==========================================
+   LIBRARY & BOOKSHELF (Grid Systems)
+========================================== */
+.library-section {
+  padding: var(--spacing-lg) 5%;
+  max-width: var(--max-width);
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--k-outline);
+  padding-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.section-header h2 {
+  font-family: var(--font-en-head);
+  font-size: 2rem;
+  color: var(--k-dark);
+}
+
+.section-meta {
+  font-family: var(--font-en-body);
+  font-size: 0.85rem;
+  color: var(--k-grey);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* The Bookshelf Look */
+.view-bookshelf {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 2rem;
+  padding: 1rem 0;
+}
+
+/* Individual Book Card */
+.book-card {
+  aspect-ratio: 2 / 3;
+  background-color: var(--k-dark);
+  color: var(--k-bg);
+  border: 1px solid var(--k-outline);
+  border-left: 8px solid var(--k-accent); /* Spine of the book */
+  padding: 1.5rem 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: 4px 4px 15px rgba(0,0,0,0.1);
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease;
+}
+
+.book-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 8px 12px 20px rgba(0,0,0,0.2);
+  border-left-color: var(--k-grey);
+}
+
+.book-card h3 {
+  font-family: var(--font-bn-head);
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.book-card .author {
+  font-family: var(--font-en-body);
+  font-size: 0.8rem;
+  color: var(--k-grey);
+  margin-top: auto;
+}
+
+/* ==========================================
+   ABOUT & FOOTER
+========================================== */
+.about-section {
+  background-color: var(--k-dark);
+  color: var(--k-bg);
+  padding: var(--spacing-lg) 5%;
+  text-align: center;
+}
+
+.about-card {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.about-logo {
+  width: 80px;
+  margin-bottom: 1.5rem;
+}
+
+.site-footer {
+  background-color: var(--k-bg);
+  border-top: 1px solid var(--k-outline);
+  padding: 2rem 5%;
+  text-align: center;
+  font-family: var(--font-en-head);
+}
+
+/* ==========================================
+   KINDLE-LIKE READER UTILITIES 
+   (Prepared for when we build reader.html)
+========================================== */
+.reader-container {
+  max-width: var(--reader-max-width);
+  margin: 0 auto;
+  padding: 2rem;
+  font-size: 1.25rem; /* Large, highly readable text */
+  line-height: 1.8;
+}
+
+/* Reader Modes */
+.theme-paper {
+  background-color: var(--k-bg);
+  color: var(--k-dark);
+}
+
+.theme-night {
+  background-color: var(--k-dark);
+  color: var(--k-bg);
+}
+
+.theme-cinema {
+  background-color: var(--k-outline);
+  color: var(--k-grey);
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+  .nav-links ul { display: none; } /* Hide links on mobile, keep logo & auth */
+  .hero-title { font-size: 3.5rem; }
+  .view-bookshelf { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+}
