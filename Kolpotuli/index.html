@@ -1,164 +1,30 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!doctype html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#E9D083">
-  <title>Kolpotuli | কল্পতুলি</title>
-
-  <!-- Premium Typography: English & Bengali -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Hind+Siliguri:wght@300;400;600&family=Noto+Serif+Bengali:wght@400;700&display=swap" rel="stylesheet">
-
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json">
-
-  <!-- Main Stylesheet -->
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#E9D083"><meta name="description" content="Kolpotuli — a living literary and artistic archive.">
+  <title>Kolpotuli — কল্পতুলি</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="theme-paper">
-
-  <!-- ==========================================
-       1. CINEMATIC SPLASH SCREEN
-  =========================================== -->
-  <div id="splash-screen">
-    <div class="texture-overlay"></div>
-    <div class="splash-content">
-      <img src="assets/logo.png" alt="Kolpotuli Logo" class="splash-logo">
-      <h1 class="splash-title">কল্পতুলি</h1>
-      <p class="splash-subtitle">Stories. Films. Poems. Fragments.</p>
-    </div>
-  </div>
-
-  <!-- ==========================================
-       2. NAVIGATION
-  =========================================== -->
-  <header id="main-nav" class="navbar hidden">
-    <div class="logo-container">
-      <img src="assets/logo.png" alt="Kolpotuli" class="nav-logo">
-    </div>
-    
-    <nav class="nav-links">
-      <ul>
-        <li><a href="#stories">Stories</a></li>
-        <li><a href="#films">Films & Docs</a></li>
-        <li><a href="#art">Art</a></li>
-        <li><a href="#archive">Archive</a></li>
-        <li><a href="#about">About</a></li>
-      </ul>
-      
-      <!-- Firebase Authentication UI Prep -->
-      <div class="auth-container">
-        <a href="pages/profile.html" id="nav-profile" class="hidden">Profile</a>
-        <button id="auth-btn" class="btn-outline">Sign In</button>
-      </div>
-    </nav>
-  </header>
-
-  <!-- ==========================================
-       3. MAIN CONTENT
-  =========================================== -->
-  <main id="app-content" class="hidden">
-
-    <!-- HERO SECTION -->
-    <section id="hero" class="hero-section">
-      <div class="texture-overlay"></div>
-      <h1 class="hero-title">কল্পতুলি</h1>
-      <p class="hero-subtitle">গল্প। কবিতা। চলচ্চিত্র। স্মৃতি।</p>
-      <p class="hero-description">A forgotten archive where stories breathe.</p>
-      
-      <!-- Quote of the Day -->
-      <div class="quote-of-the-day" id="daily-quote">
-        <!-- Injected via JS -->
-      </div>
-
-      <button class="btn-primary" id="random-read-btn">আজ কী পড়বেন?</button>
-      
-      <div class="hero-divider">✦</div>
-    </section>
-
-    <!-- STORIES (BOOKSHELF MODE) -->
-    <section id="stories" class="library-section">
-      <div class="section-header">
-        <h2>Stories</h2>
-        <span class="section-meta">Selected Works</span>
-      </div>
-      <div id="storyContainer" class="view-bookshelf">
-        <!-- Rendered via script.js -->
-      </div>
-    </section>
-
-    <!-- FILMS & DOCUMENTARY -->
-    <section id="films" class="library-section cinema-bg">
-      <div class="section-header">
-        <h2>Films & Documentary</h2>
-        <span class="section-meta">Screenplays & Visuals</span>
-      </div>
-      <div id="filmContainer" class="view-grid">
-        <!-- Rendered via script.js -->
-      </div>
-    </section>
-
-    <!-- BLOGS / JOURNALS -->
-    <section id="blogs" class="library-section">
-      <div class="section-header">
-        <h2>Journals</h2>
-      </div>
-      <div id="blogContainer" class="view-list">
-        <!-- Rendered via script.js -->
-      </div>
-    </section>
-
-    <!-- ART / FRAGMENTS -->
-    <section id="art" class="library-section">
-      <div class="section-header">
-        <h2>Art & Fragments</h2>
-      </div>
-      <div id="artContainer" class="view-grid">
-        <!-- Rendered via script.js -->
-      </div>
-    </section>
-
-    <!-- ARCHIVE -->
-    <section id="archive" class="library-section minimal-bg">
-      <div class="section-header">
-        <h2>Archive</h2>
-      </div>
-      <div id="archiveContainer" class="archive-grid">
-        <!-- Rendered via script.js -->
-      </div>
-    </section>
-
-    <!-- ABOUT -->
-    <section id="about" class="about-section">
-      <div class="about-card">
-        <img src="assets/logo.png" alt="Kolpotuli Emblem" class="about-logo">
-        <h2>About</h2>
-        <p>Kolpotuli is a cinematic literary archive. A personal notebook left behind by a storyteller, waiting to be read in the quiet.</p>
-        <a href="https://www.instagram.com/kolpotuli/" target="_blank" class="btn-social">Instagram</a>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ==========================================
-       4. FOOTER
-  =========================================== -->
-  <footer class="site-footer">
-    <div class="footer-content">
-      <p>কল্পতুলি © <span id="current-year"></span></p>
-      <p class="footer-sub">A sanctuary for the quiet mind.</p>
-    </div>
-  </footer>
-
-  <!-- ==========================================
-       5. SCRIPTS (Firebase Modular Setup)
-  =========================================== -->
-  <!-- Auth and DB logic separated into module scripts based on your folder structure -->
-  <script type="module" src="js/firebase-config.js"></script>
-  <script type="module" src="js/auth.js"></script>
-  <script type="module" src="script.js"></script>
-
-</body>
-</html>
+<body>
+<div class="grain" aria-hidden="true"></div>
+<header class="site-nav">
+  <a class="brand" href="#home" aria-label="Kolpotuli home"><img src="assets/logo.png" alt="Kolpotuli logo"></a>
+  <nav aria-label="Primary navigation"><a href="#stories" data-i18n="stories">Stories</a><a href="#art" data-i18n="art">My Art</a><a href="#blogs" data-i18n="blogs">Blogs</a><a href="#about" data-i18n="about">About Me</a><a href="#contact" data-i18n="contact">Contact</a></nav>
+  <div class="nav-actions"><button id="lang" class="quiet-btn" type="button">বাংলা</button><a class="quiet-btn" href="https://www.instagram.com/kolpotuli/" target="_blank" rel="noreferrer">Instagram</a><button id="menu" class="menu-btn" type="button" aria-label="Open menu">☰</button></div>
+</header>
+<main id="home">
+  <section class="opening" aria-labelledby="opening-title"><div class="opening-art"><span class="ink-orbit"></span><span class="gold-stroke"></span><img src="assets/logo.png" alt=""></div><div class="opening-copy"><p class="eyebrow" data-i18n="eyebrow">A little place for imagined things</p><h1 id="opening-title">কল্পতুলি</h1><p class="lede" data-i18n="lede">Stories, pictures, notes, and unfinished dreams — kept here like pages inside a well-loved book.</p><div class="opening-links"><a href="#stories" class="ink-button" data-i18n="enterStories">Enter the library</a><a href="#art" class="text-link" data-i18n="seeArt">Wander through the art →</a></div></div></section>
+  <section id="stories" class="section paper-section"><div class="section-head"><div><p class="eyebrow" data-i18n="sectionStories">THE LIBRARY</p><h2 data-i18n="storiesTitle">Stories</h2></div><p data-i18n="storiesSub">A shelf for things meant to be read slowly.</p></div><div class="story-tools"><input id="storySearch" type="search" placeholder="Search stories…" aria-label="Search stories"><div id="storyFilters" class="filters"></div></div><div id="storyGrid" class="story-grid" aria-live="polite"></div><p id="storyEmpty" class="empty hidden">No stories yet. Add PDFs to <code>stories/english</code> or <code>stories/bengali</code>.</p></section>
+  <section id="art" class="section art-section"><div class="section-head"><div><p class="eyebrow" data-i18n="sectionArt">THE SKETCHBOOK</p><h2 data-i18n="artTitle">My Art</h2></div><p data-i18n="artSub">Images, studies, fragments, and accidents.</p></div><div id="artGrid" class="masonry"></div><p id="artEmpty" class="empty hidden">Drop JPG, JPEG, PNG or WEBP files into <code>art/</code>.</p></section>
+  <section id="blogs" class="section journal-section"><div class="section-head"><div><p class="eyebrow" data-i18n="sectionBlogs">THE JOURNAL</p><h2 data-i18n="blogsTitle">Blogs</h2></div><p data-i18n="blogsSub">Notes from the edges of the page.</p></div><div id="blogGrid" class="journal-list"></div><p id="blogEmpty" class="empty hidden">Add Markdown, HTML or TXT files to <code>blogs/</code>.</p></section>
+  <section id="about" class="section about-section"><div class="about-mark"><img src="assets/logo.png" alt="Kolpotuli emblem"></div><div><p class="eyebrow" data-i18n="sectionAbout">THE PERSON BEHIND THE PAGES</p><h2 data-i18n="aboutTitle">About Me</h2><p data-i18n="aboutText">Kolpotuli is a bilingual personal archive for stories, art, films, fragments, and the strange little things that refuse to disappear.</p><div class="about-notes"><span>Writing</span><span>Drawing</span><span>Looking</span><span>Making</span></div></div></section>
+  <section id="contact" class="section contact-section"><div><p class="eyebrow" data-i18n="sectionContact">LEAVE A NOTE</p><h2 data-i18n="contactTitle">Contact</h2><p data-i18n="contactText">For letters, collaborations, or simply saying hello.</p></div><form id="contactForm" class="contact-form"><label><span data-i18n="name">Name</span><input name="name" required></label><label><span data-i18n="email">Email</span><input name="email" type="email" required></label><label><span data-i18n="message">Message</span><textarea name="message" rows="5" required></textarea></label><button class="ink-button" data-i18n="send">Send note</button><p id="formStatus" class="form-status" role="status"></p></form></section>
+</main>
+<footer class="site-footer"><div><img src="assets/logo.png" alt="Kolpotuli" class="footer-logo"><p>© <span id="year"></span> Kolpotuli</p></div><div class="footer-quote"><p>ছাড়িয়া মোর পিছু,<br>যাও হেথা হতে সনাতন</p><p>Alone, abandoned, my heart did swoon,<br>In a city where even love had gone too soon.</p></div><a href="https://www.instagram.com/kolpotuli/" target="_blank" rel="noreferrer">@kolpotuli</a></footer>
+<div id="reader" class="reader" aria-hidden="true"><div class="reader-bar"><button id="readerClose" class="quiet-btn">← Back</button><div id="readerTitle"></div><div class="reader-tools"><button id="readerSave" class="quiet-btn">☆</button><button id="readerSepia" class="quiet-btn">Sepia</button></div></div><div class="reader-progress"><span id="readerProgress"></span></div><iframe id="pdfFrame" title="Story reader"></iframe></div>
+<div id="lightbox" class="lightbox" aria-hidden="true"><button id="lightboxClose" class="close-btn" aria-label="Close">×</button><img id="lightboxImg" alt=""></div>
+<script type="module" src="script.js"></script>
+</body></html>
