@@ -1,1 +1,0 @@
-Kolpotuli frontend reset. New frontend and database schema will be designed from scratch.
