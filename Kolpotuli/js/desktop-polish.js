@@ -139,6 +139,7 @@ function setupWindowDragging() {
       dragging = false;
       pointerId = null;
       win.classList.remove('is-dragging');
+      win.classList.add('user-positioned');
       win.style.transition = '';
       try { bar.releasePointerCapture(event.pointerId); } catch (_) {}
     };
@@ -146,6 +147,7 @@ function setupWindowDragging() {
     bar.addEventListener('pointerup', stopDragging);
     bar.addEventListener('pointercancel', stopDragging);
     bar.addEventListener('lostpointercapture', () => {
+      if (dragging) win.classList.add('user-positioned');
       dragging = false;
       pointerId = null;
       win.classList.remove('is-dragging');
@@ -164,7 +166,8 @@ style.textContent = `
 .window-bar { cursor: grab; user-select: none; }
 .window-bar:active { cursor: grabbing; }
 .app-window.window-focused { box-shadow: 0 42px 105px rgba(0,0,0,.42), 0 10px 28px rgba(4,18,29,.25), inset 0 1px rgba(255,255,255,.7); }
-.window-layer .app-window.is-dragging { left: var(--drag-x) !important; top: var(--drag-y) !important; right: auto !important; bottom: auto !important; transform: none !important; }
+.window-layer .app-window.is-dragging,
+.window-layer .app-window.user-positioned { left: var(--drag-x) !important; top: var(--drag-y) !important; right: auto !important; bottom: auto !important; transform: none !important; }
 @keyframes kolpotuli-drift { from { background-position: 48% 48%; } to { background-position: 54% 52%; } }
 @keyframes kolpotuli-glow { from { opacity: .55; transform: scale(1); } to { opacity: 1; transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .desktop[data-wallpaper-mode="dynamic"] .desktop-wallpaper, .desktop[data-wallpaper-mode="dynamic"]::after { animation: none; } }
