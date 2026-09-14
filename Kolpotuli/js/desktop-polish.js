@@ -108,11 +108,13 @@ function setupWindowDragging() {
       grabOffsetY = event.clientY - winRect.top;
 
       win.style.transition = 'none';
-      win.style.transform = 'none';
+      win.classList.add('is-dragging');
       win.style.right = 'auto';
       win.style.bottom = 'auto';
       win.style.left = `${winRect.left - layerRect.left}px`;
       win.style.top = `${winRect.top - layerRect.top}px`;
+      win.style.setProperty('--drag-x', `${winRect.left - layerRect.left}px`);
+      win.style.setProperty('--drag-y', `${winRect.top - layerRect.top}px`);
 
       bar.setPointerCapture(pointerId);
     });
@@ -126,6 +128,8 @@ function setupWindowDragging() {
       const nextX = Math.max(0, Math.min(maxX, event.clientX - layerRect.left - grabOffsetX));
       const nextY = Math.max(0, Math.min(maxY, event.clientY - layerRect.top - grabOffsetY));
 
+      win.style.setProperty('--drag-x', `${nextX}px`);
+      win.style.setProperty('--drag-y', `${nextY}px`);
       win.style.left = `${nextX}px`;
       win.style.top = `${nextY}px`;
     });
@@ -134,6 +138,7 @@ function setupWindowDragging() {
       if (!dragging || (event.pointerId !== undefined && event.pointerId !== pointerId)) return;
       dragging = false;
       pointerId = null;
+      win.classList.remove('is-dragging');
       win.style.transition = '';
       try { bar.releasePointerCapture(event.pointerId); } catch (_) {}
     };
@@ -143,6 +148,7 @@ function setupWindowDragging() {
     bar.addEventListener('lostpointercapture', () => {
       dragging = false;
       pointerId = null;
+      win.classList.remove('is-dragging');
       win.style.transition = '';
     });
   });
@@ -158,6 +164,7 @@ style.textContent = `
 .window-bar { cursor: grab; user-select: none; }
 .window-bar:active { cursor: grabbing; }
 .app-window.window-focused { box-shadow: 0 42px 105px rgba(0,0,0,.42), 0 10px 28px rgba(4,18,29,.25), inset 0 1px rgba(255,255,255,.7); }
+.window-layer .app-window.is-dragging { left: var(--drag-x) !important; top: var(--drag-y) !important; right: auto !important; bottom: auto !important; transform: none !important; }
 @keyframes kolpotuli-drift { from { background-position: 48% 48%; } to { background-position: 54% 52%; } }
 @keyframes kolpotuli-glow { from { opacity: .55; transform: scale(1); } to { opacity: 1; transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .desktop[data-wallpaper-mode="dynamic"] .desktop-wallpaper, .desktop[data-wallpaper-mode="dynamic"]::after { animation: none; } }
