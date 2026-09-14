@@ -150,7 +150,7 @@ function setupWindowDragging() {
 
 const style = document.createElement('style');
 style.textContent = `
-.desktop[data-wallpaper-mode="dynamic"] { animation: kolpotuli-drift 22s ease-in-out infinite alternate; background-size: 110% 110% !important; }
+.desktop[data-wallpaper-mode="dynamic"] .desktop-wallpaper { animation: kolpotuli-drift 22s ease-in-out infinite alternate; background-size: 110% 110% !important; }
 .desktop[data-wallpaper-mode="dynamic"]::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(circle at 72% 18%, rgba(255,232,164,.14), transparent 32%), linear-gradient(180deg, transparent 55%, rgba(5,25,39,.12)); animation: kolpotuli-glow 10s ease-in-out infinite alternate; }
 .wallpaper-mode-row { display: flex; gap: 8px; margin-top: 14px; }
 .wallpaper-mode-row button { flex: 1; border: 1px solid rgba(20,32,42,.12); border-radius: 10px; padding: 9px 11px; background: rgba(255,255,255,.45); color: var(--ink); cursor: pointer; font-weight: 700; }
@@ -160,7 +160,7 @@ style.textContent = `
 .app-window.window-focused { box-shadow: 0 42px 105px rgba(0,0,0,.42), 0 10px 28px rgba(4,18,29,.25), inset 0 1px rgba(255,255,255,.7); }
 @keyframes kolpotuli-drift { from { background-position: 48% 48%; } to { background-position: 54% 52%; } }
 @keyframes kolpotuli-glow { from { opacity: .55; transform: scale(1); } to { opacity: 1; transform: scale(1.04); } }
-@media (prefers-reduced-motion: reduce) { .desktop[data-wallpaper-mode="dynamic"], .desktop[data-wallpaper-mode="dynamic"]::after { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .desktop[data-wallpaper-mode="dynamic"] .desktop-wallpaper, .desktop[data-wallpaper-mode="dynamic"]::after { animation: none; } }
 `;
 document.head.appendChild(style);
 
