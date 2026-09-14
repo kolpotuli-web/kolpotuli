@@ -24,6 +24,18 @@ const translations={
   'No published content yet.':'এখনও কোনো প্রকাশিত লেখা নেই।','Sign in to keep your history.':'ইতিহাস রাখতে সাইন ইন করুন।','Nothing opened yet.':'এখনও কিছু খোলা হয়নি।'
  }
 };
-export function t(key,lang=document.documentElement.lang||'en'){return translations[lang]?.[key]??translations.en[key]??key}
+
+const aliases={
+ 'menu.file':'File','menu.explore':'Explore','menu.create':'Create','menu.view':'View','menu.window':'Window','menu.help':'Help',
+ 'nav.stories':'Stories','nav.library':'Library','nav.art':'Art','nav.blogs':'Blogs','nav.search':'Search','nav.profile':'Profile','nav.settings':'Settings','nav.trash':'Trash','nav.notes':'Notes',
+ 'widget.localTime':'LOCAL TIME','widget.weather':'WEATHER','widget.nowPlaying':'NOW PLAYING','widget.recent':'RECENTLY OPENED',
+ 'music.add':'Add to playlist','search.stories':'Search stories…','search.art':'Search art…','notes.title':'Untitled Note','notes.body':'Start writing…','notes.new':'New note','notes.save':'Save',
+ 'settings.title':'Settings','settings.heading':'Kolpotuli Settings','settings.intro':'Choose the atmosphere for your desktop.','settings.wallpaper':'Wallpaper'
+};
+
+export function t(key,lang=document.documentElement.lang||'en'){
+  const resolved=aliases[key]||key;
+  return translations[lang]?.[resolved]??translations.en[resolved]??key;
+}
 export function setLanguage(lang){document.documentElement.lang=lang;document.documentElement.dataset.lang=lang;localStorage.setItem('kolpotuli-language',lang);document.querySelectorAll('[data-i18n]').forEach(el=>{const key=el.dataset.i18n;el.textContent=t(key,lang)});document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{el.placeholder=t(el.dataset.i18nPlaceholder,lang)});window.dispatchEvent(new CustomEvent('kolpotuli-language-changed',{detail:{lang}}))}
 export function initLanguage(){const saved=localStorage.getItem('kolpotuli-language')||'en';setLanguage(saved);return saved}
