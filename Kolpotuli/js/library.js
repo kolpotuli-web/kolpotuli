@@ -1,6 +1,6 @@
 import { supabase } from './supabase.js';
 
-const esc=s=>String(s??'').replace(/[&<>\"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[m]));
+const esc=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');
 let activeTab='saved';
 const panel=()=>document.querySelector('[data-library-panel]');
 const user=async()=>{const{data:{user}}=await supabase.auth.getUser();return user};
