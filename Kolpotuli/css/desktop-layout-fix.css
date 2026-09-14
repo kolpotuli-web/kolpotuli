@@ -1,22 +1,25 @@
-/* Keep the desktop folders in a protected vertical OS-style column. */
+/* Keep desktop folders in one protected vertical OS-style column. */
 .desktop-icons{
   position:absolute!important;
   left:14px!important;
   top:20px!important;
   width:104px!important;
-  display:grid!important;
-  grid-template-columns:1fr!important;
-  grid-auto-rows:minmax(72px,auto)!important;
-  align-content:start!important;
-  justify-items:center!important;
-  align-items:start!important;
+  height:auto!important;
+  display:flex!important;
   flex-direction:column!important;
+  flex-wrap:nowrap!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
   gap:9px!important;
   z-index:40!important;
   pointer-events:auto!important;
 }
-/* The page has a legacy inline display:flex rule; keep the folder children vertically stacked. */
-.desktop-icons > .desktop-icon{display:flex!important;flex-direction:column!important}
+.desktop-icons > .desktop-icon{
+  flex:0 0 auto!important;
+  display:flex!important;
+  flex-direction:column!important;
+  width:92px!important;
+}
 .desktop-icon{
   width:92px!important;
   min-height:72px!important;
@@ -31,17 +34,12 @@
   cursor:pointer;
   text-align:center!important;
 }
-.desktop-icon:hover{
-  background:rgba(255,255,255,.10);
-  backdrop-filter:blur(6px);
-}
+.desktop-icon:hover{background:rgba(255,255,255,.10);backdrop-filter:blur(6px)}
 .desktop-icon .icon{flex:0 0 39px}
 .desktop-icon .icon.file{flex-basis:45px}
-/* Keep every desktop app window in a top-to-bottom stack, never side-by-side. */
-.window-layer{
-  left:132px!important;
-  right:22px!important;
-}
+
+/* Every desktop app window opens in a centered top-to-bottom stack. */
+.window-layer{left:132px!important;right:22px!important}
 .window-layer .app-window{
   left:50%!important;
   right:auto!important;
@@ -53,8 +51,10 @@
 .window-layer .app-window:nth-child(3){top:144px!important;bottom:auto!important}
 .window-layer .app-window:nth-child(4){top:210px!important;bottom:auto!important}
 .window-layer .app-window:nth-child(5){top:276px!important;bottom:auto!important}
-.window-layer .note-window{top:342px!important;bottom:auto!important;left:50%!important}
-/* The explicit wallpaper layer sits above the desktop background and below the OS UI. */
+.window-layer .app-window:nth-child(6){top:342px!important;bottom:auto!important}
+.window-layer .app-window.note-window{top:408px!important;bottom:auto!important;left:50%!important;right:auto!important}
+
+/* Explicit wallpaper layer sits above the desktop background and below the OS UI. */
 .desktop-wallpaper{
   position:absolute!important;
   inset:0!important;
@@ -65,6 +65,7 @@
   background-repeat:no-repeat!important;
 }
 .desktop-stage{z-index:1!important}
+
 @media (max-width:1100px){
   .desktop-icons{left:7px!important;width:96px!important;gap:8px!important}
   .desktop-icon{width:88px!important}
