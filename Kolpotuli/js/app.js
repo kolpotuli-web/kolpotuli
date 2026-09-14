@@ -15,7 +15,28 @@ const openWindow = id => {
 const closeWindow = id => document.getElementById(id)?.classList.add('hidden');
 const openReader = id => { if (id) location.href = `read.html?id=${encodeURIComponent(id)}`; };
 
+async function openCreator(target) {
+  const user = await currentUser();
+  if (user) {
+    location.href = target;
+    return;
+  }
+  try {
+    const auth = await import('./auth-ui.js');
+    auth.openAuth();
+  } catch (error) {
+    console.warn('Auth UI unavailable:', error);
+    location.href = 'index.html?auth=1';
+  }
+}
+
 document.addEventListener('click', event => {
+  const creator = event.target.closest('[data-create]');
+  if (creator) {
+    event.preventDefault();
+    openCreator(creator.dataset.create || 'admin.html');
+    return;
+  }
   const link = event.target.closest('[data-link]');
   if (link) {
     event.preventDefault();
