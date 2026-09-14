@@ -73,12 +73,8 @@ function setupWindowDragging() {
     let grabOffsetY = 0;
 
     const focusWindow = () => {
-      document.querySelectorAll('.app-window').forEach(other => {
-        if (other !== win) other.classList.remove('window-focused');
-      });
       const highest = Math.max(10, ...Array.from(document.querySelectorAll('.app-window')).map(item => Number(item.style.zIndex) || 10));
       win.style.zIndex = highest + 1;
-      win.classList.add('window-focused');
     };
 
     win.addEventListener('pointerdown', focusWindow);
@@ -98,14 +94,12 @@ function setupWindowDragging() {
       grabOffsetX = event.clientX - winRect.left;
       grabOffsetY = event.clientY - winRect.top;
 
-      const startX = winRect.left - layerRect.left;
-      const startY = winRect.top - layerRect.top;
       win.style.transition = 'none';
       win.style.right = 'auto';
       win.style.bottom = 'auto';
       win.style.transform = 'none';
-      win.style.left = `${startX}px`;
-      win.style.top = `${startY}px`;
+      win.style.left = `${winRect.left - layerRect.left}px`;
+      win.style.top = `${winRect.top - layerRect.top}px`;
 
       try { bar.setPointerCapture(pointerId); } catch (_) {}
     });
