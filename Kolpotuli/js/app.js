@@ -1,5 +1,6 @@
 import { supabase } from './supabase.js';
 import { t, setLanguage, initLanguage } from './i18n.js';
+import { openAuth, refreshAuthUI } from './auth-ui.js';
 
 const desktop = document.getElementById('desktop');
 let z = 20;
@@ -15,39 +16,34 @@ const openWindow = id => {
 const closeWindow = id => document.getElementById(id)?.classList.add('hidden');
 const openReader = id => { if (id) location.href = `read.html?id=${encodeURIComponent(id)}`; };
 
-async function openCreator(target) {
-  const user = await currentUser();
-  if (user) {
-    location.href = target;
-    return;
-  }
-  try {
-    const auth = await import('./auth-ui.js');
-    auth.openAuth();
-  } catch (error) {
-    console.warn('Auth UI unavailable:', error);
-    location.href = 'index.html?auth=1';
-  }
+async function currentUser() {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
 }
 
-document.addEventListener('click', event => {
+document.addEventListener('click', async event => {
   const creator = event.target.closest('[data-create]');
   if (creator) {
     event.preventDefault();
-    openCreator(creator.dataset.create || 'admin.html');
+    const user = await currentUser();
+    if (user) location.href = creator.dataset.create || 'admin.html';
+    else openAuth();
     return;
   }
+
   const link = event.target.closest('[data-link]');
   if (link) {
     event.preventDefault();
     location.href = link.dataset.link;
     return;
   }
+
   const win = event.target.closest('[data-window]');
   if (win) {
     event.preventDefault();
     openWindow(win.dataset.window);
   }
+
   const close = event.target.closest('[data-close]');
   if (close) {
     event.preventDefault();
@@ -115,11 +111,6 @@ if (play) play.addEventListener('click', () => {
 });
 
 const esc = value => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
-
-async function currentUser() {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
-}
 
 async function loadContent() {
   const { data, error } = await supabase.from('content_items')
@@ -309,35 +300,38 @@ async function boot() {
     } catch {}
     await renderRecent();
   });
-  try {
-    const auth = await import('./auth-ui.js');
-    window.addEventListener('kolpotuli-open-auth', auth.openAuth);
-    await auth.refreshAuthUI();
-    document.querySelectorAll('.dock button').forEach(button => {
-      const label = button.querySelector('small')?.textContent;
-      if (label === 'Profile' || label === 'প্রোফাইল') button.onclick = async () => {
-        const user = await auth.refreshAuthUI();
+
+  await refreshAuthUI();
+  window.addEventListener('kolpotuli-open-auth', openAuth);
+
+  document.querySelectorAll('.dock button').forEach(button => {
+    const label = button.querySelector('small')?.textContent;
+    if (label === 'Profile' || label === 'প্রোফাইল') {
+      button.onclick = async () => {
+        const user = await refreshAuthUI();
         if (user) location.href = 'profile.html';
-        else auth.openAuth();
+        else openAuth();
       };
-      if (label === 'Search' || label === 'খোঁজ') button.onclick = () => {
+    }
+    if (label === 'Search' || label === 'খোঁজ') {
+      button.onclick = () => {
         openWindow('stories');
         document.querySelector('#stories .search-row input')?.focus();
       };
-    });
-    window.addEventListener('kolpotuli-auth-changed', async () => {
-      await auth.refreshAuthUI();
-      try {
-        const lib = await import('./library.js');
-        await lib.loadLibrary();
-      } catch {}
-      await renderRecent();
-    });
-    const params = new URLSearchParams(location.search);
-    if (params.get('auth') === '1') auth.openAuth();
-  } catch (error) {
-    console.warn('Auth UI unavailable:', error);
-  }
+    }
+  });
+
+  window.addEventListener('kolpotuli-auth-changed', async () => {
+    await refreshAuthUI();
+    try {
+      const lib = await import('./library.js');
+      await lib.loadLibrary();
+    } catch {}
+    await renderRecent();
+  });
+
+  const params = new URLSearchParams(location.search);
+  if (params.get('auth') === '1') openAuth();
 }
 
 boot();
