@@ -65,40 +65,92 @@ function setupBengaliDate() {
 
 function setupWindowDragging() {
   if (!window.PointerEvent) return;
+
+  const layer = document.querySelector('.window-layer');
+  if (!layer) return;
+
   document.querySelectorAll('.app-window').forEach(win => {
     const bar = win.querySelector('.window-bar');
     if (!bar || win.dataset.dragReady) return;
+
     win.dataset.dragReady = '1';
+    bar.style.touchAction = 'none';
+
     let dragging = false;
-    let startX = 0;
-    let startY = 0;
-    let originX = 0;
-    let originY = 0;
+    let pointerId = null;
+    let grabOffsetX = 0;
+    let grabOffsetY = 0;
+    let previousZ = 10;
+
+    const focusWindow = () => {
+      document.querySelectorAll('.app-window').forEach(other => {
+        if (other !== win) other.classList.remove('window-focused');
+      });
+      const highest = Math.max(10, ...Array.from(document.querySelectorAll('.app-window')).map(item => Number(item.style.zIndex) || 10));
+      previousZ = highest + 1;
+      win.style.zIndex = previousZ;
+      win.classList.add('window-focused');
+    };
+
+    win.addEventListener('pointerdown', focusWindow);
 
     bar.addEventListener('pointerdown', event => {
+      if (event.button !== undefined && event.button !== 0) return;
       if (event.target.closest('button')) return;
+      if (window.matchMedia('(max-width: 800px)').matches) return;
+
+      event.preventDefault();
+      focusWindow();
       dragging = true;
-      bar.setPointerCapture(event.pointerId);
-      const rect = win.getBoundingClientRect();
-      startX = event.clientX;
-      startY = event.clientY;
-      originX = rect.left;
-      originY = rect.top;
-      win.style.left = `${originX}px`;
-      win.style.top = `${originY}px`;
+      pointerId = event.pointerId;
+
+      const layerRect = layer.getBoundingClientRect();
+      const winRect = win.getBoundingClientRect();
+
+      // Store the exact point grabbed inside the window. This prevents the
+      // window from jumping when its original right/bottom positioning is
+      // converted to movable left/top coordinates.
+      grabOffsetX = event.clientX - winRect.left;
+      grabOffsetY = event.clientY - winRect.top;
+
+      win.style.transition = 'none';
       win.style.transform = 'none';
+      win.style.right = 'auto';
+      win.style.bottom = 'auto';
+      win.style.left = `${winRect.left - layerRect.left}px`;
+      win.style.top = `${winRect.top - layerRect.top}px`;
+
+      bar.setPointerCapture(pointerId);
     });
 
     bar.addEventListener('pointermove', event => {
-      if (!dragging) return;
-      const nextX = Math.max(8, Math.min(window.innerWidth - 80, originX + event.clientX - startX));
-      const nextY = Math.max(34, Math.min(window.innerHeight - 90, originY + event.clientY - startY));
+      if (!dragging || event.pointerId !== pointerId) return;
+
+      const layerRect = layer.getBoundingClientRect();
+      const maxX = Math.max(0, layerRect.width - win.offsetWidth);
+      const maxY = Math.max(0, layerRect.height - win.offsetHeight);
+      const nextX = Math.max(0, Math.min(maxX, event.clientX - layerRect.left - grabOffsetX));
+      const nextY = Math.max(0, Math.min(maxY, event.clientY - layerRect.top - grabOffsetY));
+
       win.style.left = `${nextX}px`;
       win.style.top = `${nextY}px`;
     });
 
-    bar.addEventListener('pointerup', () => { dragging = false; });
-    bar.addEventListener('pointercancel', () => { dragging = false; });
+    const stopDragging = event => {
+      if (!dragging || (event.pointerId !== undefined && event.pointerId !== pointerId)) return;
+      dragging = false;
+      pointerId = null;
+      win.style.transition = '';
+      try { bar.releasePointerCapture(event.pointerId); } catch (_) {}
+    };
+
+    bar.addEventListener('pointerup', stopDragging);
+    bar.addEventListener('pointercancel', stopDragging);
+    bar.addEventListener('lostpointercapture', () => {
+      dragging = false;
+      pointerId = null;
+      win.style.transition = '';
+    });
   });
 }
 
@@ -109,8 +161,10 @@ style.textContent = `
 .wallpaper-mode-row { display: flex; gap: 8px; margin-top: 14px; }
 .wallpaper-mode-row button { flex: 1; border: 1px solid rgba(20,32,42,.12); border-radius: 10px; padding: 9px 11px; background: rgba(255,255,255,.45); color: var(--ink); cursor: pointer; font-weight: 700; }
 .wallpaper-mode-row button.selected { background: var(--navy); color: #fff; border-color: var(--navy); }
+.desktop-icons { display: none !important; }
 .window-bar { cursor: grab; user-select: none; }
 .window-bar:active { cursor: grabbing; }
+.app-window.window-focused { box-shadow: 0 42px 105px rgba(0,0,0,.42), 0 10px 28px rgba(4,18,29,.25), inset 0 1px rgba(255,255,255,.7); }
 @keyframes kolpotuli-drift { from { background-position: 48% 48%; } to { background-position: 54% 52%; } }
 @keyframes kolpotuli-glow { from { opacity: .55; transform: scale(1); } to { opacity: 1; transform: scale(1.04); } }
 @media (prefers-reduced-motion: reduce) { .desktop[data-wallpaper-mode="dynamic"], .desktop[data-wallpaper-mode="dynamic"]::after { animation: none; } }
