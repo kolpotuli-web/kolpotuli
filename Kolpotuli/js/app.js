@@ -1,47 +1,322 @@
 import { supabase } from './supabase.js';
 import { t, setLanguage, initLanguage } from './i18n.js';
-const desktop=document.getElementById('desktop');let z=20;
-const openWindow=id=>{const el=document.getElementById(id);if(!el)return;el.classList.remove('hidden');z++;el.style.zIndex=z;if(id==='library')loadLibrary()};const closeWindow=id=>document.getElementById(id)?.classList.add('hidden');const openReader=id=>{if(id)location.href=`read.html?id=${encodeURIComponent(id)}`};
 
-document.addEventListener('click',e=>{const link=e.target.closest('[data-link]');if(link){e.preventDefault();location.href=link.dataset.link;return}const w=e.target.closest('[data-window]');if(w){e.preventDefault();openWindow(w.dataset.window)}const c=e.target.closest('[data-close]');if(c){e.preventDefault();closeWindow(c.dataset.close)}});
+const desktop = document.getElementById('desktop');
+let z = 20;
 
-function addDesktopFolders(){
-  const area=document.querySelector('.desktop-icons');
-  if(!area||area.dataset.ready)return;
-  area.dataset.ready='1';
-  const folders=[
-    ['stories','Stories','▦'],['library','Library','▤'],['art','Art','◆'],['blogs','Blogs','▱'],
-    ['notes','Notes','✎'],['admin.html','Create','✦','link'],['profile.html','Profile','●','link'],['settings','Settings','⚙']
+const openWindow = id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('hidden');
+  z += 1;
+  el.style.zIndex = z;
+  if (id === 'library') loadLibrary();
+};
+const closeWindow = id => document.getElementById(id)?.classList.add('hidden');
+const openReader = id => { if (id) location.href = `read.html?id=${encodeURIComponent(id)}`; };
+
+document.addEventListener('click', event => {
+  const link = event.target.closest('[data-link]');
+  if (link) {
+    event.preventDefault();
+    location.href = link.dataset.link;
+    return;
+  }
+  const win = event.target.closest('[data-window]');
+  if (win) {
+    event.preventDefault();
+    openWindow(win.dataset.window);
+  }
+  const close = event.target.closest('[data-close]');
+  if (close) {
+    event.preventDefault();
+    closeWindow(close.dataset.close);
+  }
+});
+
+function addDesktopFolders() {
+  const area = document.querySelector('.desktop-icons');
+  if (!area || area.dataset.ready) return;
+  area.dataset.ready = '1';
+  const folders = [
+    ['stories', 'Stories', '▦'], ['library', 'Library', '▤'], ['art', 'Art', '◆'], ['blogs', 'Blogs', '▱'],
+    ['notes', 'Notes', '✎'], ['admin.html', 'Create', '✦', 'link'], ['profile.html', 'Profile', '●', 'link'], ['settings', 'Settings', '⚙']
   ];
-  area.innerHTML=folders.map(([target,label,icon,type])=>type==='link'
+  area.innerHTML = folders.map(([target, label, icon, type]) => type === 'link'
     ? `<button class="desktop-icon" data-link="${target}"><span class="icon folder"><b>${icon}</b></span><span>${label}</span></button>`
-    : `<button class="desktop-icon" data-window="${target}"><span class="icon folder"><b>${icon}</b></span><span>${label}</span></button>`).join('');
+    : `<button class="desktop-icon" data-window="${target}"><span class="icon folder"><b>${icon}</b></span><span>${label}</span></button>`
+  ).join('');
 }
 addDesktopFolders();
 
-function setupWallpaper(){
-  if(!desktop)return;
-  const wallpapers={main:"url('assets/wallpapers/kolpotuli-main.png')",dusk:"url('assets/wallpapers/kolpotuli-dusk.svg')",paper:"url('assets/wallpapers/kolpotuli-paper.svg')"};
-  let layer=desktop.querySelector('.desktop-wallpaper');
-  if(!layer){layer=document.createElement('div');layer.className='desktop-wallpaper';layer.setAttribute('aria-hidden','true');desktop.prepend(layer)}
-  const apply=k=>{const value=wallpapers[k]||wallpapers.main;layer.style.backgroundImage=value;desktop.style.setProperty('--wallpaper',value);desktop.style.setProperty('background-image','none','important');document.querySelectorAll('[data-wallpaper]').forEach(x=>x.classList.toggle('selected',x.dataset.wallpaper===k));localStorage.setItem('kolpotuli-wallpaper',k)};
-  const saved=localStorage.getItem('kolpotuli-wallpaper')||'main';apply(saved);
-  document.querySelectorAll('[data-wallpaper]').forEach(b=>b.addEventListener('click',()=>apply(b.dataset.wallpaper)));
+function setupWallpaper() {
+  if (!desktop) return;
+  const wallpapers = {
+    main: "url('assets/wallpapers/kolpotuli-main.png')",
+    dusk: "url('assets/wallpapers/kolpotuli-dusk.svg')",
+    paper: "url('assets/wallpapers/kolpotuli-paper.svg')"
+  };
+  let layer = desktop.querySelector('.desktop-wallpaper');
+  if (!layer) {
+    layer = document.createElement('div');
+    layer.className = 'desktop-wallpaper';
+    layer.setAttribute('aria-hidden', 'true');
+    desktop.prepend(layer);
+  }
+  const apply = key => {
+    const value = wallpapers[key] || wallpapers.main;
+    layer.style.backgroundImage = value;
+    desktop.style.setProperty('--wallpaper', value);
+    desktop.style.setProperty('background-image', 'none', 'important');
+    document.querySelectorAll('[data-wallpaper]').forEach(item => item.classList.toggle('selected', item.dataset.wallpaper === key));
+    localStorage.setItem('kolpotuli-wallpaper', key);
+  };
+  apply(localStorage.getItem('kolpotuli-wallpaper') || 'main');
+  document.querySelectorAll('[data-wallpaper]').forEach(button => button.addEventListener('click', () => apply(button.dataset.wallpaper)));
 }
 setupWallpaper();
 
-function updateClock(){const n=new Date(),time=new Intl.DateTimeFormat('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).format(n),date=new Intl.DateTimeFormat('en-IN',{weekday:'long',day:'numeric',month:'long'}).format(n);document.getElementById('clockTime')?.replaceChildren(time);document.getElementById('menuTime')?.replaceChildren(time);document.getElementById('clockDate')?.replaceChildren(date)}updateClock();setInterval(updateClock,1000);
-const style=document.createElement('style');style.textContent=`.settings-window{width:520px;left:50%;top:12%;transform:translateX(-50%);z-index:50}.settings-window h2{margin:0;color:var(--navy);font-size:25px}.settings-intro{margin:5px 0 22px;opacity:.65}.settings-window h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;margin:18px 0 10px;color:var(--teal)}.wallpaper-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.wallpaper-card{padding:8px;border:1px solid rgba(20,32,42,.12);border-radius:14px;background:rgba(255,255,255,.45);color:var(--ink);text-align:left;box-shadow:0 8px 20px rgba(20,32,42,.08);transition:.18s}.wallpaper-card:hover,.wallpaper-card.selected{transform:translateY(-3px);border-color:var(--gold);box-shadow:0 12px 24px rgba(20,32,42,.14)}.wallpaper-preview{display:block;height:78px;border-radius:9px;margin-bottom:8px;background-size:cover;background-position:center}.main-preview{background-image:url('../assets/wallpapers/kolpotuli-main.png')}.dusk-preview{background-image:url('../assets/wallpapers/kolpotuli-dusk.svg')}.paper-preview{background-image:url('../assets/wallpapers/kolpotuli-paper.svg')}.wallpaper-card strong,.wallpaper-card small{display:block}.wallpaper-card strong{font-size:12px}.wallpaper-card small{font-size:10px;opacity:.62;margin-top:2px}.db-thumb{background-size:cover;background-position:center;background-color:rgba(255,255,255,.08)}.library-empty{padding:25px;opacity:.6;text-align:center}.content-card{position:relative;cursor:pointer}.save-content{position:absolute;right:10px;top:150px;border:0;border-radius:50%;width:30px;height:30px;background:rgba(20,40,61,.82);color:#fff;cursor:pointer}.search-results{position:absolute;z-index:80;left:50%;top:55px;transform:translateX(-50%);width:min(560px,calc(100vw - 30px));background:rgba(255,250,238,.97);border-radius:16px;padding:12px;box-shadow:0 20px 60px rgba(0,0,0,.3);display:none}.search-results.show{display:block}.search-result{display:flex;gap:10px;align-items:center;width:100%;border:0;background:transparent;text-align:left;padding:10px;border-radius:10px;cursor:pointer}.search-result:hover{background:rgba(20,40,61,.07)}.search-result small{display:block;opacity:.55}`;document.head.appendChild(style);
-const play=document.querySelector('.music-controls .play');if(play)play.addEventListener('click',()=>{play.classList.toggle('playing');play.textContent=play.classList.contains('playing')?'Ⅱ':'▶'});const esc=s=>String(s??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#39;');async function currentUser(){const{data:{user}}=await supabase.auth.getUser();return user}
-async function loadContent(){const{data,error}=await supabase.from('content_items').select('id,type,title,excerpt,cover_image_url,language,featured,read_time_minutes,published_at').eq('status','published').order('featured',{ascending:false}).order('published_at',{ascending:false}).limit(60);if(error){console.warn('Kolpotuli content load:',error.message);return}window.kolpotuliContent=data||[];const grouped={story:[],art:[],blog:[]};(data||[]).forEach(item=>grouped[item.type]?.push(item));renderContent('stories',grouped.story,'story');renderContent('art',grouped.art,'art');renderBlogs(grouped.blog);await renderRecent()}
-function renderContent(windowId,items,type){const win=document.getElementById(windowId),grid=win?.querySelector('.card-grid');if(!grid)return;if(!items.length){grid.innerHTML=`<div class="library-empty">${t('No published content yet.')}</div>`;return}grid.innerHTML=items.slice(0,12).map(x=>`<article class="content-card" data-content-id="${esc(x.id)}"><div class="thumb db-thumb" style="${x.cover_image_url?`background-image:url('${esc(x.cover_image_url)}')`:''}"></div><h3>${esc(x.title)}</h3><p>${esc(type==='story'?t('Stories'):t('Art'))}${x.read_time_minutes?` · ${x.read_time_minutes} min`:''}</p><button class="save-content" data-save="${esc(x.id)}" aria-label="${t('Save')}">♡</button></article>`).join('');grid.querySelectorAll('[data-content-id]').forEach(card=>card.addEventListener('click',e=>{if(e.target.closest('[data-save]'))return;markOpened(card.dataset.contentId);openReader(card.dataset.contentId)}));grid.querySelectorAll('[data-save]').forEach(b=>b.addEventListener('click',async e=>{e.stopPropagation();await toggleFavorite(b.dataset.save,b)}))}
-function renderBlogs(items){const links=document.querySelector('.blog-links');if(!links)return;if(!items.length){links.innerHTML=`<span style="opacity:.55">${t('No published content yet.')}</span>`;return}links.innerHTML=items.slice(0,8).map(x=>`<button data-content-id="${esc(x.id)}">${esc(x.title)}</button>`).join('');links.querySelectorAll('[data-content-id]').forEach(b=>b.addEventListener('click',()=>{markOpened(b.dataset.contentId);openReader(b.dataset.contentId)}))}
-async function renderRecent(){const box=document.querySelector('.recent-widget');if(!box)return;const user=await currentUser();if(!user){box.innerHTML=`<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">${t('Sign in to keep your history.')}</div>`;return}const{data}=await supabase.from('recently_opened').select('opened_at,content_items(id,title,type)').eq('user_id',user.id).order('opened_at',{ascending:false}).limit(3);box.innerHTML=`<div class="widget-kicker">${t('RECENTLY OPENED')}</div>`+((data||[]).filter(x=>x.content_items).map(x=>`<button class="recent-item" data-content-id="${esc(x.content_items.id)}"><span>${x.content_items.type==='art'?'◆':x.content_items.type==='blog'?'▤':'▣'}</span><span><strong>${esc(x.content_items.title)}</strong><small>${esc(x.content_items.type)}</small></span></button>`).join('')||`<div class="widget-sub">${t('Nothing opened yet.')}</div>`);box.querySelectorAll('[data-content-id]').forEach(b=>b.addEventListener('click',()=>openReader(b.dataset.contentId)))}
-async function markOpened(contentId){const user=await currentUser();if(!user)return;await supabase.from('recently_opened').upsert({user_id:user.id,content_id:contentId,opened_at:new Date().toISOString()},{onConflict:'user_id,content_id'});renderRecent()}
-async function toggleFavorite(contentId,button){const user=await currentUser();if(!user){window.dispatchEvent(new Event('kolpotuli-open-auth'));return}const{data}=await supabase.from('favorites').select('content_id').eq('user_id',user.id).eq('content_id',contentId).maybeSingle();if(data){await supabase.from('favorites').delete().eq('user_id',user.id).eq('content_id',contentId);button.textContent='♡'}else{await supabase.from('favorites').insert({user_id:user.id,content_id:contentId});button.textContent='♥'}loadLibrary()}
-async function loadLibrary(){const panel=document.querySelector('[data-library-panel]');if(!panel)return;panel.innerHTML=`<div class="library-empty">${t('Loading…')}</div>`;try{const lib=await import('./library.js');await lib.loadLibrary()}catch(e){console.warn('Library unavailable:',e);panel.innerHTML=`<div class="library-empty">${t('Unable to load Library.')}</div>`}}
-function setupSearch(){document.querySelectorAll('.search-row').forEach(row=>{const input=row.querySelector('input'),button=row.querySelector('button');if(!input)return;const run=async()=>{const q=input.value.trim();if(!q)return;const safe=q.replace(/[%_]/g,m=>`\\${m}`);const{data}=await supabase.from('content_items').select('id,type,title,excerpt,cover_image_url,language,read_time_minutes').eq('status','published').or(`title.ilike.%${safe}%,excerpt.ilike.%${safe}%`).order('published_at',{ascending:false}).limit(30);renderSearchResults(data||[],row.parentElement)};button?.addEventListener('click',run);input.addEventListener('keydown',e=>{if(e.key==='Enter')run()})})}
-function renderSearchResults(items,area){let box=area.querySelector('.search-results');if(!box){box=document.createElement('div');box.className='search-results';area.appendChild(box)}box.innerHTML=items.length?items.map(x=>`<button class="search-result" data-content-id="${esc(x.id)}"><span>${x.type==='art'?'◆':x.type==='blog'?'▤':'▣'}</span><span><strong>${esc(x.title)}</strong><small>${esc(x.type)}${x.read_time_minutes?` · ${x.read_time_minutes} min`:''}</small></span></button>`).join(''):`<div class="widget-sub" style="padding:10px">${t('No matching published content.')}</div>`;box.classList.add('show');box.querySelectorAll('[data-content-id]').forEach(b=>b.onclick=()=>openReader(b.dataset.contentId))}
-function translateStatic(){const els=document.querySelectorAll('.menu-left button,.desktop-icon>span:last-child,.dock small,.widget-kicker,.sidebar button,.playlist-button,.blog-hero .tag,.settings-window h2,.settings-intro,.settings-window h3,.wallpaper-card strong,.wallpaper-card small,.note-toolbar button');els.forEach(el=>{const key=el.dataset.i18n||el.textContent.trim();if(key)el.dataset.i18n=key;el.textContent=t(key)});document.querySelectorAll('.search-row input').forEach(el=>{const key=el.dataset.i18nPlaceholder||el.placeholder;el.dataset.i18nPlaceholder=key;el.placeholder=t(key)});document.querySelectorAll('.library-tabs button').forEach(b=>{const key=b.dataset.i18n||({saved:'Saved',reading:'Reading',collections:'Collections',recent:'Recently Opened'}[b.dataset.libraryTab]);b.dataset.i18n=key;b.textContent=t(key)})}
-function setupLanguage(){const current=initLanguage();translateStatic();const button=document.getElementById('languageToggle');button&&(button.textContent=current==='bn'?'বাংলা / EN':'EN / বাংলা',button.onclick=()=>{const next=(document.documentElement.lang||current)==='bn'?'en':'bn';setLanguage(next);translateStatic();button.textContent=next==='bn'?'বাংলা / EN':'EN / বাংলা';loadContent()})}
-async function boot(){const{data:{session}}=await supabase.auth.getSession();document.documentElement.dataset.auth=session?'signed-in':'signed-out';setupLanguage();await loadContent();setupSearch();try{const lib=await import('./library.js');lib.setupLibrary();if(session)await lib.loadLibrary()}catch(e){console.warn('Library setup unavailable:',e)}supabase.auth.onAuthStateChange(async(_event,newSession)=>{document.documentElement.dataset.auth=newSession?'signed-in':'signed-out';try{const lib=await import('./library.js');await lib.loadLibrary()}catch{}await renderRecent()});try{const auth=await import('./auth-ui.js');window.addEventListener('kolpotuli-open-auth',auth.openAuth);await auth.refreshAuthUI();document.querySelectorAll('.dock button').forEach(b=>{const label=b.querySelector('small')?.textContent;if(label==='Profile'||label==='প্রোফাইল')b.onclick=async()=>{const u=await auth.refreshAuthUI();if(u)location.href='profile.html';else auth.openAuth()};if(label==='Search'||label==='খোঁজ')b.onclick=()=>{openWindow('stories');document.querySelector('#stories .search-row input')?.focus()}});window.addEventListener('kolpotuli-auth-changed',async()=>{await auth.refreshAuthUI();try{const lib=await import('./library.js');await lib.loadLibrary()}catch{}await renderRecent()});const qp=new URLSearchParams(location.search);if(qp.get('auth')==='1')auth.openAuth()}catch(e){console.warn('Auth UI unavailable:',e)}}boot();
+function updateClock() {
+  const now = new Date();
+  const time = new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true }).format(now);
+  const date = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
+  document.getElementById('clockTime')?.replaceChildren(time);
+  document.getElementById('menuTime')?.replaceChildren(time);
+  document.getElementById('clockDate')?.replaceChildren(date);
+}
+updateClock();
+setInterval(updateClock, 1000);
+
+const play = document.querySelector('.music-controls .play');
+if (play) play.addEventListener('click', () => {
+  play.classList.toggle('playing');
+  play.textContent = play.classList.contains('playing') ? 'Ⅱ' : '▶';
+});
+
+const esc = value => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+
+async function currentUser() {
+  const { data: { user } } = await supabase.auth.getUser();
+  return user;
+}
+
+async function loadContent() {
+  const { data, error } = await supabase.from('content_items')
+    .select('id,type,title,excerpt,cover_image_url,language,featured,read_time_minutes,published_at')
+    .eq('status', 'published')
+    .order('featured', { ascending: false })
+    .order('published_at', { ascending: false })
+    .limit(60);
+  if (error) {
+    console.warn('Kolpotuli content load:', error.message);
+    return;
+  }
+  window.kolpotuliContent = data || [];
+  const grouped = { story: [], art: [], blog: [] };
+  (data || []).forEach(item => grouped[item.type]?.push(item));
+  renderContent('stories', grouped.story, 'story');
+  renderContent('art', grouped.art, 'art');
+  renderBlogs(grouped.blog);
+  await renderRecent();
+}
+
+function renderContent(windowId, items, type) {
+  const win = document.getElementById(windowId);
+  const grid = win?.querySelector('.card-grid');
+  if (!grid) return;
+  if (!items.length) {
+    grid.innerHTML = `<div class="library-empty">${t('No published content yet.')}</div>`;
+    return;
+  }
+  grid.innerHTML = items.slice(0, 12).map(item => `<article class="content-card" data-content-id="${esc(item.id)}"><div class="thumb db-thumb" style="${item.cover_image_url ? `background-image:url('${esc(item.cover_image_url)}')` : ''}"></div><h3>${esc(item.title)}</h3><p>${esc(type === 'story' ? t('Stories') : t('Art'))}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</p><button class="save-content" data-save="${esc(item.id)}" aria-label="${t('Save')}">♡</button></article>`).join('');
+  grid.querySelectorAll('[data-content-id]').forEach(card => card.addEventListener('click', event => {
+    if (event.target.closest('[data-save]')) return;
+    markOpened(card.dataset.contentId);
+    openReader(card.dataset.contentId);
+  }));
+  grid.querySelectorAll('[data-save]').forEach(button => button.addEventListener('click', async event => {
+    event.stopPropagation();
+    await toggleFavorite(button.dataset.save, button);
+  }));
+}
+
+function renderBlogs(items) {
+  const links = document.querySelector('.blog-links');
+  if (!links) return;
+  if (!items.length) {
+    links.innerHTML = `<span style="opacity:.55">${t('No published content yet.')}</span>`;
+    return;
+  }
+  links.innerHTML = items.slice(0, 8).map(item => `<button data-content-id="${esc(item.id)}">${esc(item.title)}</button>`).join('');
+  links.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => {
+    markOpened(button.dataset.contentId);
+    openReader(button.dataset.contentId);
+  }));
+}
+
+async function renderRecent() {
+  const box = document.querySelector('.recent-widget');
+  if (!box) return;
+  const user = await currentUser();
+  if (!user) {
+    box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">${t('Sign in to keep your history.')}</div>`;
+    return;
+  }
+  const { data } = await supabase.from('recently_opened').select('opened_at,content_items(id,title,type)').eq('user_id', user.id).order('opened_at', { ascending: false }).limit(3);
+  box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + ((data || []).filter(item => item.content_items).map(item => `<button class="recent-item" data-content-id="${esc(item.content_items.id)}"><span>${item.content_items.type === 'art' ? '◆' : item.content_items.type === 'blog' ? '▤' : '▣'}</span><span><strong>${esc(item.content_items.title)}</strong><small>${esc(item.content_items.type)}</small></span></button>`).join('') || `<div class="widget-sub">${t('Nothing opened yet.')}</div>`);
+  box.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => openReader(button.dataset.contentId)));
+}
+
+async function markOpened(contentId) {
+  const user = await currentUser();
+  if (!user) return;
+  await supabase.from('recently_opened').upsert({ user_id: user.id, content_id: contentId, opened_at: new Date().toISOString() }, { onConflict: 'user_id,content_id' });
+  renderRecent();
+}
+
+async function toggleFavorite(contentId, button) {
+  const user = await currentUser();
+  if (!user) {
+    window.dispatchEvent(new Event('kolpotuli-open-auth'));
+    return;
+  }
+  const { data } = await supabase.from('favorites').select('content_id').eq('user_id', user.id).eq('content_id', contentId).maybeSingle();
+  if (data) {
+    await supabase.from('favorites').delete().eq('user_id', user.id).eq('content_id', contentId);
+    button.textContent = '♡';
+  } else {
+    await supabase.from('favorites').insert({ user_id: user.id, content_id: contentId });
+    button.textContent = '♥';
+  }
+  loadLibrary();
+}
+
+async function loadLibrary() {
+  const panel = document.querySelector('[data-library-panel]');
+  if (!panel) return;
+  panel.innerHTML = `<div class="library-empty">${t('Loading…')}</div>`;
+  try {
+    const lib = await import('./library.js');
+    await lib.loadLibrary();
+  } catch (error) {
+    console.warn('Library unavailable:', error);
+    panel.innerHTML = `<div class="library-empty">${t('Unable to load Library.')}</div>`;
+  }
+}
+
+function setupSearch() {
+  document.querySelectorAll('.search-row').forEach(row => {
+    const input = row.querySelector('input');
+    const button = row.querySelector('button');
+    if (!input) return;
+    const run = async () => {
+      const query = input.value.trim();
+      if (!query) return;
+      const safe = query.replace(/[%_]/g, match => `\\${match}`);
+      const { data } = await supabase.from('content_items').select('id,type,title,excerpt,cover_image_url,language,read_time_minutes').eq('status', 'published').or(`title.ilike.%${safe}%,excerpt.ilike.%${safe}%`).order('published_at', { ascending: false }).limit(30);
+      renderSearchResults(data || [], row.parentElement);
+    };
+    button?.addEventListener('click', run);
+    input.addEventListener('keydown', event => { if (event.key === 'Enter') run(); });
+  });
+}
+
+function renderSearchResults(items, area) {
+  let box = area.querySelector('.search-results');
+  if (!box) {
+    box = document.createElement('div');
+    box.className = 'search-results';
+    area.appendChild(box);
+  }
+  box.innerHTML = items.length ? items.map(item => `<button class="search-result" data-content-id="${esc(item.id)}"><span>${item.type === 'art' ? '◆' : item.type === 'blog' ? '▤' : '▣'}</span><span><strong>${esc(item.title)}</strong><small>${esc(item.type)}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</small></span></button>`).join('') : `<div class="widget-sub" style="padding:10px">${t('No matching published content.')}</div>`;
+  box.classList.add('show');
+  box.querySelectorAll('[data-content-id]').forEach(button => { button.onclick = () => openReader(button.dataset.contentId); });
+}
+
+function translateStatic() {
+  const elements = document.querySelectorAll('.menu-left button,.desktop-icon>span:last-child,.dock small,.widget-kicker,.sidebar button,.playlist-button,.blog-hero .tag,.settings-window h2,.settings-intro,.settings-window h3,.wallpaper-card strong,.wallpaper-card small,.note-toolbar button');
+  elements.forEach(element => {
+    const key = element.dataset.i18n || element.textContent.trim();
+    if (key) element.dataset.i18n = key;
+    element.textContent = t(key);
+  });
+  document.querySelectorAll('.search-row input').forEach(element => {
+    const key = element.dataset.i18nPlaceholder || element.placeholder;
+    element.dataset.i18nPlaceholder = key;
+    element.placeholder = t(key);
+  });
+  document.querySelectorAll('.library-tabs button').forEach(button => {
+    const key = button.dataset.i18n || ({ saved: 'Saved', reading: 'Reading', collections: 'Collections', recent: 'Recently Opened' }[button.dataset.libraryTab]);
+    button.dataset.i18n = key;
+    button.textContent = t(key);
+  });
+}
+
+function setupLanguage() {
+  const current = initLanguage();
+  translateStatic();
+  const button = document.getElementById('languageToggle');
+  if (!button) return;
+  button.textContent = current === 'bn' ? 'বাংলা / EN' : 'EN / বাংলা';
+  button.onclick = () => {
+    const next = (document.documentElement.lang || current) === 'bn' ? 'en' : 'bn';
+    setLanguage(next);
+    translateStatic();
+    button.textContent = next === 'bn' ? 'বাংলা / EN' : 'EN / বাংলা';
+    loadContent();
+  };
+}
+
+async function boot() {
+  const { data: { session } } = await supabase.auth.getSession();
+  document.documentElement.dataset.auth = session ? 'signed-in' : 'signed-out';
+  setupLanguage();
+  await loadContent();
+  setupSearch();
+  try {
+    const lib = await import('./library.js');
+    lib.setupLibrary();
+    if (session) await lib.loadLibrary();
+  } catch (error) {
+    console.warn('Library setup unavailable:', error);
+  }
+  supabase.auth.onAuthStateChange(async (_event, newSession) => {
+    document.documentElement.dataset.auth = newSession ? 'signed-in' : 'signed-out';
+    try {
+      const lib = await import('./library.js');
+      await lib.loadLibrary();
+    } catch {}
+    await renderRecent();
+  });
+  try {
+    const auth = await import('./auth-ui.js');
+    window.addEventListener('kolpotuli-open-auth', auth.openAuth);
+    await auth.refreshAuthUI();
+    document.querySelectorAll('.dock button').forEach(button => {
+      const label = button.querySelector('small')?.textContent;
+      if (label === 'Profile' || label === 'প্রোফাইল') button.onclick = async () => {
+        const user = await auth.refreshAuthUI();
+        if (user) location.href = 'profile.html';
+        else auth.openAuth();
+      };
+      if (label === 'Search' || label === 'খোঁজ') button.onclick = () => {
+        openWindow('stories');
+        document.querySelector('#stories .search-row input')?.focus();
+      };
+    });
+    window.addEventListener('kolpotuli-auth-changed', async () => {
+      await auth.refreshAuthUI();
+      try {
+        const lib = await import('./library.js');
+        await lib.loadLibrary();
+      } catch {}
+      await renderRecent();
+    });
+    const params = new URLSearchParams(location.search);
+    if (params.get('auth') === '1') auth.openAuth();
+  } catch (error) {
+    console.warn('Auth UI unavailable:', error);
+  }
+}
+
+boot();
