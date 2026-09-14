@@ -40,7 +40,7 @@ function addDesktopFolders() {
   area.dataset.ready = '1';
   const folders = [
     ['stories', 'Stories', '▦'], ['library', 'Library', '▤'], ['art', 'Art', '◆'], ['blogs', 'Blogs', '▱'],
-    ['notes', 'Notes', '✎'], ['admin.html', 'Create', '✦', 'link'], ['profile.html', 'Profile', '●', 'link'], ['settings', 'Settings', '⚙']
+    ['notes', 'Notes', '✎']
   ];
   area.innerHTML = folders.map(([target, label, icon, type]) => type === 'link'
     ? `<button class="desktop-icon" data-link="${target}"><span class="icon folder"><b>${icon}</b></span><span>${label}</span></button>`
@@ -299,7 +299,7 @@ async function boot() {
         if (user) location.href = 'profile.html';
         else auth.openAuth();
       };
-      if (label === 'Search' || label === 'খোঁজ') button.onclick = () => {
+      if (label === 'Search' || label === 'খোঁज') button.onclick = () => {
         openWindow('stories');
         document.querySelector('#stories .search-row input')?.focus();
       };
