@@ -299,7 +299,7 @@ async function boot() {
         if (user) location.href = 'profile.html';
         else auth.openAuth();
       };
-      if (label === 'Search' || label === 'খোঁज') button.onclick = () => {
+      if (label === 'Search' || label === 'খোঁজ') button.onclick = () => {
         openWindow('stories');
         document.querySelector('#stories .search-row input')?.focus();
       };
