@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14283D">
+  <title>Kolpotuli — Desktop</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/desktop.css">
+</head>
+<body>
+  <div id="desktop" class="desktop">
+    <header class="menu-bar">
+      <div class="menu-left">
+        <button class="brand-menu" data-window="welcome" aria-label="Open Kolpotuli">K</button>
+        <span class="brand-name">Kolpotuli</span>
+        <button>File</button><button>Explore</button><button>Create</button><button>View</button><button>Window</button><button>Help</button>
+      </div>
+      <div class="menu-right">
+        <button id="languageToggle" class="pill">EN / বাংলা</button>
+        <span>◔</span><span>⌁</span><span id="menuTime">--:--</span>
+      </div>
+    </header>
+
+    <main class="desktop-stage">
+      <section class="desktop-icons" aria-label="Kolpotuli folders">
+        <button class="desktop-icon" data-window="stories"><span class="icon folder">📁</span><span>Stories</span></button>
+        <button class="desktop-icon" data-window="library"><span class="icon folder">📁</span><span>Library</span></button>
+        <button class="desktop-icon" data-window="art"><span class="icon folder">📁</span><span>Art</span></button>
+        <button class="desktop-icon" data-window="blogs"><span class="icon folder">📁</span><span>Blogs</span></button>
+        <button class="desktop-icon" data-window="notes"><span class="icon file">📄</span><span>Notes</span></button>
+      </section>
+
+      <section class="desktop-widgets" aria-label="Kolpotuli widgets">
+        <article class="widget glass clock-widget">
+          <div class="widget-kicker">LOCAL TIME</div>
+          <div id="clockTime" class="clock-time">--:--</div>
+          <div id="clockDate" class="widget-sub">Loading date…</div>
+        </article>
+        <article class="widget glass weather-widget">
+          <div class="widget-kicker">WEATHER</div>
+          <div class="widget-main"><strong>27°</strong><span>☁</span></div>
+          <div class="widget-sub">Gurugram · H 32° · L 24°</div>
+        </article>
+        <article class="widget paper-widget">
+          <div class="bengali-date">আজ</div>
+          <div class="bengali-date small">১৪ ভাদ্র</div>
+          <div class="widget-sub">14 September 2026</div>
+        </article>
+        <article class="widget glass music-widget">
+          <div class="widget-row"><span class="widget-kicker">NOW PLAYING</span><span>♡</span></div>
+          <strong>Saving Grace</strong>
+          <span class="widget-sub">KIRBY</span>
+          <input type="range" min="0" max="100" value="36" aria-label="Track progress">
+          <div class="music-controls"><button>◀</button><button class="play">▶</button><button>▶|</button></div>
+          <button class="playlist-button">＋ Add to playlist</button>
+        </article>
+        <article class="widget glass recent-widget">
+          <div class="widget-kicker">RECENTLY OPENED</div>
+          <button class="recent-item"><span>🖼️</span><span><strong>The River Remembers</strong><small>Story</small></span></button>
+          <button class="recent-item"><span>🎨</span><span><strong>Monsoon Song</strong><small>Art</small></span></button>
+          <button class="recent-item"><span>📄</span><span><strong>Notes on Folk Culture</strong><small>Blog</small></span></button>
+        </article>
+      </section>
+
+      <section class="window-layer" aria-label="Open applications">
+        <article id="welcome" class="app-window welcome-window glass active">
+          <div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span>Welcome to Kolpotuli</span><div></div></div>
+          <div class="window-body welcome-body">
+            <div class="welcome-logo">কল্পতুলি</div>
+            <div class="welcome-title">Kolpotuli</div>
+            <div class="welcome-bengali">গল্পের আড্ডা</div>
+            <p>Stories · Art · Culture · People · Places</p>
+            <button class="primary-button" data-window="stories">Enter Kolpotuli →</button>
+          </div>
+        </article>
+
+        <article id="stories" class="app-window glass hidden">
+          <div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span>Stories</span><button class="window-close" data-close="stories">×</button></div>
+          <div class="window-body content-window">
+            <aside class="sidebar"><button class="active">All Stories</button><button>Bengali</button><button>English</button><button>Featured</button><button>New</button><button>Most Read</button><button>Poetry</button><button>Short Reads</button></aside>
+            <section class="content-area"><div class="search-row"><input placeholder="Search stories…"><button>⌗</button></div><div class="card-grid"><article class="content-card"><div class="thumb scene-one"></div><h3>The River Remembers</h3><p>Arka Sen</p></article><article class="content-card"><div class="thumb scene-two"></div><h3>কলকাতার চিঠি</h3><p>Mira Dutta</p></article><article class="content-card"><div class="thumb scene-three"></div><h3>নিশির ডাক</h3><p>আদিত্য মুখার্জী</p></article></div></section>
+          </div>
+        </article>
+
+        <article id="library" class="app-window glass hidden">
+          <div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span>Library</span><button class="window-close" data-close="library">×</button></div>
+          <div class="window-body content-window"><aside class="sidebar"><button class="active">Saved Stories</button><button>Saved Art</button><button>Reading</button><button>Collections</button><button>Recently Opened</button></aside><section class="content-area list-area"><div class="library-item"><div class="mini-thumb"></div><div><strong>A Summer in Santiniketan</strong><small>Story · 12 min left</small></div></div><div class="library-item"><div class="mini-thumb"></div><div><strong>Monsoon Song</strong><small>Art · Saved</small></div></div><div class="library-item"><div class="mini-thumb"></div><div><strong>The Last Tram</strong><small>Blog · 5 min read</small></div></div><div class="library-item"><div class="mini-thumb"></div><div><strong>Pattachitra: A Living Tradition</strong><small>Art · Saved</small></div></div></section></div>
+        </article>
+
+        <article id="art" class="app-window glass hidden">
+          <div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span>Art</span><button class="window-close" data-close="art">×</button></div>
+          <div class="window-body content-window"><aside class="sidebar"><button class="active">All Art</button><button>Pattachitra</button><button>Illustration</button><button>Photography</button><button>Posters</button><button>Experimental</button></aside><section class="content-area"><div class="search-row"><input placeholder="Search art…"><button>⌗</button></div><div class="card-grid"><article class="content-card"><div class="thumb art-one"></div><h3>Monsoon Song</h3><p>Tiasha Roy</p></article><article class="content-card"><div class="thumb art-two"></div><h3>City Fragments</h3><p>Ritwik Das</p></article><article class="content-card"><div class="thumb art-three"></div><h3>Fisherman's Dream</h3><p>Collective</p></article></div></section></div>
+        </article>
+
+        <article id="blogs" class="app-window glass hidden">
+          <div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span>Blogs</span><button class="window-close" data-close="blogs">×</button></div>
+          <div class="window-body simple-body"><div class="blog-hero"><span class="tag">FEATURED</span><h2>Notes from the edges of the page.</h2><p>Culture, literature, places and people from Kolpotuli.</p></div><div class="blog-links"><button>Culture</button><button>Literature</button><button>People</button><button>Places</button><button>Art</button></div></div>
+        </article>
+
+        <article id="notes" class="app-window note-window paper-widget hidden">
+          <div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span>Notes</span><button class="window-close" data-close="notes">×</button></div>
+          <div class="note-body">Good stories<br>make ordinary days<br>feel larger.</div>
+        </article>
+      </section>
+
+      <div class="quote quote-one">“Stories live in the spaces between us.”<span>— Kolpotuli</span></div>
+      <div class="quote quote-two">“A small corner on the internet for a larger Bengal.”</div>
+    </main>
+
+    <nav class="dock glass" aria-label="Main navigation">
+      <button data-window="stories"><span>📁</span><small>Stories</small></button>
+      <button data-window="library"><span>📚</span><small>Library</small></button>
+      <button data-window="art"><span>🎨</span><small>Art</small></button>
+      <button data-window="blogs"><span>📄</span><small>Blogs</small></button>
+      <button><span>⌕</span><small>Search</small></button>
+      <button><span>◯</span><small>Profile</small></button>
+      <button id="settingsButton"><span>⚙</span><small>Settings</small></button>
+      <button><span>🗑</span><small>Trash</small></button>
+    </nav>
+  </div>
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
