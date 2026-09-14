@@ -9,10 +9,14 @@
   grid-auto-rows:minmax(72px,auto)!important;
   align-content:start!important;
   justify-items:center!important;
+  align-items:start!important;
+  flex-direction:column!important;
   gap:9px!important;
   z-index:40!important;
   pointer-events:auto!important;
 }
+/* The page has a legacy inline display:flex rule; keep the folder children vertically stacked. */
+.desktop-icons > .desktop-icon{display:flex!important;flex-direction:column!important}
 .desktop-icon{
   width:92px!important;
   min-height:72px!important;
