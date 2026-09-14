@@ -33,8 +33,23 @@
 }
 .desktop-icon .icon{flex:0 0 39px}
 .desktop-icon .icon.file{flex-basis:45px}
-/* Never let an app window occupy the folder column. */
-.window-layer{left:132px!important}
+/* Keep every desktop app window in a top-to-bottom stack, never side-by-side. */
+.window-layer{
+  left:132px!important;
+  right:22px!important;
+}
+.window-layer .app-window{
+  left:50%!important;
+  right:auto!important;
+  width:min(600px,calc(100% - 24px))!important;
+  transform:translateX(-50%)!important;
+}
+.window-layer .app-window:nth-child(1){top:12px!important;bottom:auto!important}
+.window-layer .app-window:nth-child(2){top:78px!important;bottom:auto!important}
+.window-layer .app-window:nth-child(3){top:144px!important;bottom:auto!important}
+.window-layer .app-window:nth-child(4){top:210px!important;bottom:auto!important}
+.window-layer .app-window:nth-child(5){top:276px!important;bottom:auto!important}
+.window-layer .note-window{top:342px!important;bottom:auto!important;left:50%!important}
 /* The explicit wallpaper layer sits above the desktop background and below the OS UI. */
 .desktop-wallpaper{
   position:absolute!important;
@@ -49,10 +64,11 @@
 @media (max-width:1100px){
   .desktop-icons{left:7px!important;width:96px!important;gap:8px!important}
   .desktop-icon{width:88px!important}
-  .window-layer{left:116px!important}
+  .window-layer{left:116px!important;right:12px!important}
 }
 @media (max-width:800px){
   .desktop-icons{display:none!important}
-  .window-layer{left:auto!important}
+  .window-layer{left:auto!important;right:auto!important}
   .desktop-wallpaper{position:fixed!important}
+  .window-layer .app-window,.window-layer .note-window{left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%!important;transform:none!important}
 }
