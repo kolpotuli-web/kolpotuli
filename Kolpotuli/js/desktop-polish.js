@@ -80,15 +80,13 @@ function setupWindowDragging() {
     let pointerId = null;
     let grabOffsetX = 0;
     let grabOffsetY = 0;
-    let previousZ = 10;
 
     const focusWindow = () => {
       document.querySelectorAll('.app-window').forEach(other => {
         if (other !== win) other.classList.remove('window-focused');
       });
       const highest = Math.max(10, ...Array.from(document.querySelectorAll('.app-window')).map(item => Number(item.style.zIndex) || 10));
-      previousZ = highest + 1;
-      win.style.zIndex = previousZ;
+      win.style.zIndex = highest + 1;
       win.classList.add('window-focused');
     };
 
@@ -106,10 +104,6 @@ function setupWindowDragging() {
 
       const layerRect = layer.getBoundingClientRect();
       const winRect = win.getBoundingClientRect();
-
-      // Store the exact point grabbed inside the window. This prevents the
-      // window from jumping when its original right/bottom positioning is
-      // converted to movable left/top coordinates.
       grabOffsetX = event.clientX - winRect.left;
       grabOffsetY = event.clientY - winRect.top;
 
@@ -161,7 +155,6 @@ style.textContent = `
 .wallpaper-mode-row { display: flex; gap: 8px; margin-top: 14px; }
 .wallpaper-mode-row button { flex: 1; border: 1px solid rgba(20,32,42,.12); border-radius: 10px; padding: 9px 11px; background: rgba(255,255,255,.45); color: var(--ink); cursor: pointer; font-weight: 700; }
 .wallpaper-mode-row button.selected { background: var(--navy); color: #fff; border-color: var(--navy); }
-.desktop-icons { display: none !important; }
 .window-bar { cursor: grab; user-select: none; }
 .window-bar:active { cursor: grabbing; }
 .app-window.window-focused { box-shadow: 0 42px 105px rgba(0,0,0,.42), 0 10px 28px rgba(4,18,29,.25), inset 0 1px rgba(255,255,255,.7); }
