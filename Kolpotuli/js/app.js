@@ -7,7 +7,7 @@ let z = 20;
 
 const ICONS = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
-  sparkle: '<path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/>',
+  sparkle: '<path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z"/><path d="m19 16 .7 2.3L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/>',
   profile: '<circle cx="12" cy="8" r="3.4"/><path d="M5.5 21c.7-3.7 3-5.7 6.5-5.7s5.8 2 6.5 5.7"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1-1.8 1.8-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2h-2.6v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1-1.8-1.8.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H6.5v-2.6h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1 1.8-1.8.1.1a1.6 1.6 0 0 0 1.8.3 1.6 1.6 0 0 0 1-1.5v-.2h2.6v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1 1.8 1.8-.1.1a1.6 1.6 0 0 0-.3 1.8 1.6 1.6 0 0 0 1.5 1h.2V14h-.2a1.6 1.6 0 0 0-1.5 1Z"/>',
   trash: '<path d="M5 7h14M9 7V5h6v2M8 10v8M12 10v8M16 10v8"/><path d="M6.5 7.5 7.2 20h9.6l.7-12.5"/>',
@@ -115,45 +115,22 @@ function setupWallpaper() {
 setupWallpaper();
 
 function setupIconography() {
-  const menuIcons = document.querySelectorAll('.menu-right > span:not(#menuTime)');
-  if (menuIcons[0]) menuIcons[0].innerHTML = svgIcon('signal', 16);
-  if (menuIcons[1]) menuIcons[1].innerHTML = svgIcon('search', 16);
-
-  document.querySelector('.weather-widget .widget-main > span')?.replaceChildren();
-  const weatherIcon = document.querySelector('.weather-widget .widget-main > span');
-  if (weatherIcon) weatherIcon.innerHTML = svgIcon('cloud', 27);
-
-  const favorite = document.querySelector('.music-widget .widget-row > span:last-child');
-  if (favorite) favorite.innerHTML = svgIcon('heart', 18);
-
-  document.querySelector('.music-controls button:nth-child(1)')?.replaceChildren();
-  document.querySelector('.music-controls button:nth-child(1)')?.insertAdjacentHTML('afterbegin', svgIcon('previous', 17));
-  document.querySelector('.music-controls button:nth-child(3)')?.replaceChildren();
-  document.querySelector('.music-controls button:nth-child(3)')?.insertAdjacentHTML('afterbegin', svgIcon('next', 17));
-
-  document.querySelectorAll('.search-row button').forEach(button => { button.innerHTML = svgIcon('search', 18); });
-  document.querySelectorAll('.window-close').forEach(button => { button.innerHTML = svgIcon('close', 18); });
-  document.querySelectorAll('.dock button').forEach(button => {
-    const label = button.querySelector('small')?.textContent.trim();
-    const name = label === 'Search' ? 'search' : label === 'Create' ? 'sparkle' : label === 'Profile' ? 'profile' : label === 'Settings' ? 'settings' : 'trash';
-    const span = button.querySelector('span');
-    if (span) span.innerHTML = svgIcon(name, 24);
+  document.querySelectorAll('[data-icon]').forEach(element => {
+    const name = element.dataset.icon;
+    if (!ICONS[name]) return;
+    element.replaceChildren();
+    element.appendChild(new DOMParser().parseFromString(svgIcon(name, element.dataset.iconSize || 20), 'image/svg+xml').documentElement);
   });
+
   document.querySelectorAll('.playlist-button').forEach(button => {
     if (!button.dataset.iconReady) {
       button.dataset.iconReady = '1';
       button.innerHTML = `${svgIcon('sparkle', 14)} <span>${t('Add to playlist')}</span>`;
     }
   });
-
-  document.querySelectorAll('.desktop-icon').forEach(button => {
-    const mark = button.querySelector('.ko-folder-mark');
-    if (!mark) return;
-    const target = button.dataset.window;
-    const icon = target === 'stories' ? 'folderStories' : target === 'library' ? 'folderLibrary' : target === 'art' ? 'folderArt' : target === 'blogs' ? 'folderBlogs' : 'note';
-    mark.innerHTML = svgIcon(icon, 20);
-  });
 }
+
+setupIconography();
 
 function updateClock() {
   const now = new Date();
@@ -221,183 +198,96 @@ function renderBlogs(items) {
   const links = document.querySelector('.blog-links');
   if (!links) return;
   if (!items.length) {
-    links.innerHTML = `<span style="opacity:.55">${t('No published content yet.')}</span>`;
+    links.innerHTML = `<div class="library-empty">${t('No published content yet.')}</div>`;
     return;
   }
-  links.innerHTML = items.slice(0, 8).map(item => `<button data-content-id="${esc(item.id)}">${esc(item.title)}</button>`).join('');
-  links.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => {
-    markOpened(button.dataset.contentId);
-    openReader(button.dataset.contentId);
+  links.innerHTML = items.slice(0, 12).map(item => `<button class="blog-link" data-content-id="${esc(item.id)}"><span>${esc(item.title)}</span><small>${item.read_time_minutes ? `${item.read_time_minutes} min` : t('Read')}</small></button>`).join('');
+  links.querySelectorAll('[data-content-id]').forEach(link => link.addEventListener('click', () => {
+    markOpened(link.dataset.contentId);
+    openReader(link.dataset.contentId);
   }));
 }
 
-async function renderRecent() {
-  const box = document.querySelector('.recent-widget');
-  if (!box) return;
+async function markOpened(id) {
   const user = await currentUser();
-  if (!user) {
-    box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">${t('Sign in to keep your history.')}</div>`;
-    return;
-  }
-  const { data } = await supabase.from('recently_opened').select('opened_at,content_items(id,title,type)').eq('user_id', user.id).order('opened_at', { ascending: false }).limit(3);
-  box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + ((data || []).filter(item => item.content_items).map(item => `<button class="recent-item" data-content-id="${esc(item.content_items.id)}"><span>${svgIcon(item.content_items.type === 'art' ? 'folderArt' : item.content_items.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.content_items.title)}</strong><small>${esc(item.content_items.type)}</small></span></button>`).join('') || `<div class="widget-sub">${t('Nothing opened yet.')}</div>`);
-  box.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => openReader(button.dataset.contentId)));
+  if (!user || !id) return;
+  await supabase.from('recently_opened').upsert({ user_id: user.id, content_id: id, opened_at: new Date().toISOString() }, { onConflict: 'user_id,content_id' });
 }
 
-async function markOpened(contentId) {
-  const user = await currentUser();
-  if (!user) return;
-  await supabase.from('recently_opened').upsert({ user_id: user.id, content_id: contentId, opened_at: new Date().toISOString() }, { onConflict: 'user_id,content_id' });
-  renderRecent();
-}
-
-async function toggleFavorite(contentId, button) {
+async function toggleFavorite(id, button) {
   const user = await currentUser();
   if (!user) {
-    window.dispatchEvent(new Event('kolpotuli-open-auth'));
+    openAuth();
     return;
   }
-  const { data } = await supabase.from('favorites').select('content_id').eq('user_id', user.id).eq('content_id', contentId).maybeSingle();
-  if (data) {
-    await supabase.from('favorites').delete().eq('user_id', user.id).eq('content_id', contentId);
+  const { data: existing } = await supabase.from('favorites').select('id').eq('user_id', user.id).eq('content_id', id).maybeSingle();
+  if (existing?.id) {
+    await supabase.from('favorites').delete().eq('id', existing.id);
     button.innerHTML = svgIcon('heart', 16);
   } else {
-    await supabase.from('favorites').insert({ user_id: user.id, content_id: contentId });
+    await supabase.from('favorites').insert({ user_id: user.id, content_id: id });
     button.innerHTML = svgIcon('heartFilled', 16);
   }
-  loadLibrary();
 }
 
-async function loadLibrary() {
-  const panel = document.querySelector('[data-library-panel]');
-  if (!panel) return;
-  panel.innerHTML = `<div class="library-empty">${t('Loading…')}</div>`;
-  try {
-    const lib = await import('./library.js');
-    await lib.loadLibrary();
-  } catch (error) {
-    console.warn('Library unavailable:', error);
-    panel.innerHTML = `<div class="library-empty">${t('Unable to load Library.')}</div>`;
+async function renderRecent() {
+  const slot = document.querySelector('.recent-list');
+  if (!slot) return;
+  const user = await currentUser();
+  if (!user) {
+    slot.innerHTML = `<div class="library-empty">${t('Sign in to see recently opened.')}</div>`;
+    return;
   }
-}
-
-function setupSearch() {
-  document.querySelectorAll('.search-row').forEach(row => {
-    const input = row.querySelector('input');
-    const button = row.querySelector('button');
-    if (!input) return;
-    const run = async () => {
-      const query = input.value.trim();
-      if (!query) return;
-      const safe = query.replace(/[%_]/g, match => `\\${match}`);
-      const { data } = await supabase.from('content_items').select('id,type,title,excerpt,cover_image_url,language,read_time_minutes').eq('status', 'published').or(`title.ilike.%${safe}%,excerpt.ilike.%${safe}%`).order('published_at', { ascending: false }).limit(30);
-      renderSearchResults(data || [], row.parentElement);
-    };
-    button?.addEventListener('click', run);
-    input.addEventListener('keydown', event => { if (event.key === 'Enter') run(); });
-  });
-}
-
-function renderSearchResults(items, area) {
-  let box = area.querySelector('.search-results');
-  if (!box) {
-    box = document.createElement('div');
-    box.className = 'search-results';
-    area.appendChild(box);
+  const { data, error } = await supabase.from('recently_opened').select('content_id,opened_at,content_items(title,type,cover_image_url)').eq('user_id', user.id).order('opened_at', { ascending: false }).limit(6);
+  if (error || !data?.length) {
+    slot.innerHTML = `<div class="library-empty">${t('Nothing opened yet.')}</div>`;
+    return;
   }
-  box.innerHTML = items.length ? items.map(item => `<button class="search-result" data-content-id="${esc(item.id)}"><span>${svgIcon(item.type === 'art' ? 'folderArt' : item.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.title)}</strong><small>${esc(item.type)}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</small></span></button>`).join('') : `<div class="widget-sub" style="padding:10px">${t('No matching published content.')}</div>`;
-  box.classList.add('show');
-  box.querySelectorAll('[data-content-id]').forEach(button => { button.onclick = () => openReader(button.dataset.contentId); });
+  slot.innerHTML = data.map(row => `<button class="recent-item" data-content-id="${esc(row.content_id)}"><span class="mini-thumb" style="${row.content_items?.cover_image_url ? `background-image:url('${esc(row.content_items.cover_image_url)}')` : ''}"></span><span><strong>${esc(row.content_items?.title || t('Untitled'))}</strong><small>${esc(row.content_items?.type || '')}</small></span></button>`).join('');
+  slot.querySelectorAll('[data-content-id]').forEach(item => item.addEventListener('click', () => openReader(item.dataset.contentId)));
 }
 
 function translateStatic() {
-  const elements = document.querySelectorAll('.menu-left button,.desktop-icon>span:last-child,.dock small,.widget-kicker,.sidebar button,.playlist-button,.blog-hero .tag,.settings-window h2,.settings-intro,.settings-window h3,.wallpaper-card strong,.wallpaper-card small,.note-toolbar button');
-  elements.forEach(element => {
-    const key = element.dataset.i18n || element.textContent.trim();
-    if (key) element.dataset.i18n = key;
-    element.textContent = t(key);
-  });
-  document.querySelectorAll('.search-row input').forEach(element => {
-    const key = element.dataset.i18nPlaceholder || element.placeholder;
-    element.dataset.i18nPlaceholder = key;
-    element.placeholder = t(key);
-  });
-  document.querySelectorAll('.library-tabs button').forEach(button => {
-    const key = button.dataset.i18n || ({ saved: 'Saved', reading: 'Reading', collections: 'Collections', recent: 'Recently Opened' }[button.dataset.libraryTab]);
-    button.dataset.i18n = key;
-    button.textContent = t(key);
-  });
+  document.querySelectorAll('[data-i18n]').forEach(node => { node.textContent = t(node.dataset.i18n); });
   setupIconography();
-}
-
-function setupLanguage() {
-  const current = initLanguage();
-  translateStatic();
-  const button = document.getElementById('languageToggle');
-  if (!button) return;
-  button.textContent = current === 'bn' ? 'বাংলা / EN' : 'EN / বাংলা';
-  button.onclick = () => {
-    const next = (document.documentElement.lang || current) === 'bn' ? 'en' : 'bn';
-    setLanguage(next);
-    translateStatic();
-    button.textContent = next === 'bn' ? 'বাংলা / EN' : 'EN / বাংলা';
-    loadContent();
-  };
-}
-
-async function boot() {
-  const { data: { session } } = await supabase.auth.getSession();
-  document.documentElement.dataset.auth = session ? 'signed-in' : 'signed-out';
-  setupLanguage();
-  await loadContent();
-  setupSearch();
-  try {
-    const lib = await import('./library.js');
-    lib.setupLibrary();
-    if (session) await lib.loadLibrary();
-  } catch (error) {
-    console.warn('Library setup unavailable:', error);
+  if (window.kolpotuliContent) {
+    const grouped = { story: [], art: [], blog: [] };
+    window.kolpotuliContent.forEach(item => grouped[item.type]?.push(item));
+    renderContent('stories', grouped.story, 'story');
+    renderContent('art', grouped.art, 'art');
+    renderBlogs(grouped.blog);
   }
-  supabase.auth.onAuthStateChange(async (_event, newSession) => {
-    document.documentElement.dataset.auth = newSession ? 'signed-in' : 'signed-out';
-    try {
-      const lib = await import('./library.js');
-      await lib.loadLibrary();
-    } catch {}
-    await renderRecent();
-  });
-
-  await refreshAuthUI();
-  window.addEventListener('kolpotuli-open-auth', openAuth);
-
-  document.querySelectorAll('.dock button').forEach(button => {
-    const label = button.querySelector('small')?.textContent;
-    if (label === 'Profile' || label === 'প্রোফাইল') {
-      button.onclick = async () => {
-        const user = await refreshAuthUI();
-        if (user) location.href = 'profile.html';
-        else openAuth();
-      };
-    }
-    if (label === 'Search' || label === 'খোঁজ') {
-      button.onclick = () => {
-        openWindow('stories');
-        document.querySelector('#stories .search-row input')?.focus();
-      };
-    }
-  });
-
-  window.addEventListener('kolpotuli-auth-changed', async () => {
-    await refreshAuthUI();
-    try {
-      const lib = await import('./library.js');
-      await lib.loadLibrary();
-    } catch {}
-    await renderRecent();
-  });
-
-  const params = new URLSearchParams(location.search);
-  if (params.get('auth') === '1') openAuth();
 }
 
-boot();
+const lang = initLanguage();
+setLanguage(lang);
+translateStatic();
+window.addEventListener('kolpotuli-language-changed', translateStatic);
+window.addEventListener('kolpotuli-auth-changed', () => { refreshAuthUI(); renderRecent(); });
+refreshAuthUI();
+loadContent();
+
+let searchTimer;
+const searchInput = document.querySelector('[data-search-input]');
+const searchResults = document.querySelector('.search-results');
+searchInput?.addEventListener('input', event => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(() => {
+    const q = event.target.value.trim().toLowerCase();
+    if (!searchResults) return;
+    if (!q) {
+      searchResults.classList.add('hidden');
+      searchResults.innerHTML = '';
+      return;
+    }
+    const results = (window.kolpotuliContent || []).filter(item => `${item.title} ${item.excerpt || ''}`.toLowerCase().includes(q)).slice(0, 10);
+    searchResults.classList.remove('hidden');
+    searchResults.innerHTML = results.length ? results.map(item => `<button class="search-result" data-content-id="${esc(item.id)}"><strong>${esc(item.title)}</strong><small>${esc(item.type)}</small></button>`).join('') : `<div class="library-empty">${t('No results.')}</div>`;
+    searchResults.querySelectorAll('[data-content-id]').forEach(item => item.addEventListener('click', () => openReader(item.dataset.contentId)));
+  }, 120);
+});
+searchInput?.closest('form')?.addEventListener('submit', event => event.preventDefault());
+
+window.addEventListener('click', event => {
+  if (!event.target.closest('.search-area')) searchResults?.classList.add('hidden');
+});
