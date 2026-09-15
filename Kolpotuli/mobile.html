@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081725">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kolpotuli — Mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+<main class="mobile-app">
+  <div class="mobile-wallpaper" aria-hidden="true"></div>
+  <div class="mobile-content">
+    <header class="mobile-topbar">
+      <div class="mobile-brand"><span class="mobile-mark" aria-hidden="true">ক</span><div><strong>Kolpotuli</strong><small>Stories · Art · Memory</small></div></div>
+      <div class="mobile-top-actions">
+        <button class="mobile-icon-btn" data-sheet-open="search" aria-label="Search"><svg class="mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+        <button class="mobile-icon-btn" data-language aria-label="Change language">EN</button>
+      </div>
+    </header>
+
+    <section class="mobile-view active" data-view="home" aria-label="Home">
+      <section class="mobile-hero" data-mobile-featured>
+        <span class="mobile-kicker">Kolpotuli</span><h1>Stories, art, memory.</h1><p>Explore the living archive.</p>
+      </section>
+      <section class="mobile-stat-row">
+        <article class="mobile-stat"><small>Local time</small><strong data-mobile-time>--:--</strong><span data-mobile-date>Loading…</span></article>
+        <article class="mobile-stat"><small>Jaipur weather</small><strong data-mobile-temp>--°</strong><span>Live temperature</span></article>
+      </section>
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Recently opened</h2><button data-view="library">Library</button></div>
+        <div data-mobile-recent></div>
+      </section>
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>For you</h2><button data-view="explore">Explore all</button></div>
+        <div class="mobile-grid" data-mobile-home-grid></div>
+      </section>
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Now playing</h2><span class="mobile-kicker">Kolpotuli radio</span></div>
+        <article class="mobile-note-preview"><strong>Saving Grace</strong><span>KIRBY · A quiet track for a long page.</span><button class="mobile-note-action" data-play aria-label="Play">▶</button></article>
+      </section>
+    </section>
+
+    <section class="mobile-view" data-view="explore" aria-label="Explore">
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Explore</h2><button data-sheet-open="search">Search</button></div>
+        <div class="mobile-tabs" aria-label="Content filters"><button class="mobile-tab active" data-filter="all">All</button><button class="mobile-tab" data-filter="story">Stories</button><button class="mobile-tab" data-filter="art">Art</button><button class="mobile-tab" data-filter="blog">Blogs</button></div>
+      </section>
+      <section class="mobile-section"><div class="mobile-grid" data-mobile-explore-grid></div></section>
+    </section>
+
+    <section class="mobile-view" data-view="library" aria-label="Library">
+      <section class="mobile-section" data-mobile-library><div class="mobile-spinner" aria-label="Loading"></div></section>
+    </section>
+
+    <section class="mobile-view" data-view="profile" aria-label="Profile">
+      <section class="mobile-section" data-mobile-profile><div class="mobile-spinner" aria-label="Loading"></div></section>
+    </section>
+  </div>
+
+  <div class="mobile-sheet-backdrop"></div>
+
+  <section class="mobile-sheet" data-sheet="search" aria-hidden="true" aria-label="Search">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Search Kolpotuli</h3><button class="mobile-close" data-sheet-close aria-label="Close search">×</button></div>
+    <div class="mobile-sheet-body"><div class="mobile-search"><input data-mobile-search type="search" placeholder="Search stories, art, blogs…" aria-label="Search content"><button data-mobile-search-btn aria-label="Search"><svg class="mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button></div><div data-mobile-search-results></div></div>
+  </section>
+
+  <section class="mobile-sheet" data-sheet="library" aria-hidden="true" aria-label="Library options">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Library</h3><button class="mobile-close" data-sheet-close aria-label="Close library">×</button></div>
+    <div class="mobile-sheet-body"><button class="mobile-list-item" data-view="library"><span class="mobile-list-icon">♡</span><span class="mobile-list-copy"><strong>Saved</strong><small>Your favorite pieces</small></span><span>›</span></button><button class="mobile-list-item" data-view="library"><span class="mobile-list-icon">◷</span><span class="mobile-list-copy"><strong>Reading</strong><small>Your in-progress pieces</small></span><span>›</span></button><button class="mobile-list-item" data-view="library"><span class="mobile-list-icon">▤</span><span class="mobile-list-copy"><strong>Collections</strong><small>Organize what you keep</small></span><span>›</span></button></div>
+  </section>
+
+  <section class="mobile-sheet" data-sheet="notes" aria-hidden="true" aria-label="Notes">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Notes</h3><button class="mobile-close" data-sheet-close aria-label="Close notes">×</button></div>
+    <div class="mobile-sheet-body"><div class="mobile-note-preview"><strong>Your Notes</strong><span>Open the full Notes workspace to continue writing.</span><button class="mobile-note-action" onclick="location.href='index.html'">Open Notes</button></div></div>
+  </section>
+
+  <section class="mobile-sheet" data-sheet="settings" aria-hidden="true" aria-label="Settings">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Atmosphere</h3><button class="mobile-close" data-sheet-close aria-label="Close settings">×</button></div>
+    <div class="mobile-sheet-body">
+      <button class="mobile-list-item mobile-wallpaper-choice" data-wallpaper="main"><span class="mobile-list-icon">◎</span><span class="mobile-list-copy"><strong>Ganga Ghat</strong><small>Original Kolpotuli</small></span><span>›</span></button>
+      <button class="mobile-list-item mobile-wallpaper-choice" data-wallpaper="dusk"><span class="mobile-list-icon">◐</span><span class="mobile-list-copy"><strong>Dusk</strong><small>Blue hour</small></span><span>›</span></button>
+      <button class="mobile-list-item mobile-wallpaper-choice" data-wallpaper="paper"><span class="mobile-list-icon">▱</span><span class="mobile-list-copy"><strong>Paper</strong><small>Quiet morning</small></span><span>›</span></button>
+    </div>
+  </section>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <button class="mobile-nav-item active" data-view="home"><span>⌂</span><small>Home</small></button>
+    <button class="mobile-nav-item" data-view="explore"><span>⌕</span><small>Explore</small></button>
+    <button class="mobile-nav-item primary" data-create><span>✦</span><small>Create</small></button>
+    <button class="mobile-nav-item" data-view="library"><span>▤</span><small>Library</small></button>
+    <button class="mobile-nav-item" data-view="profile"><span>●</span><small>Profile</small></button>
+  </nav>
+</main>
+<script type="module" src="js/mobile-app.js"></script>
+</body>
+</html>
