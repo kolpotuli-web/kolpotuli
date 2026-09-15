@@ -7,9 +7,9 @@ let z = 20;
 
 const ICONS = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
-  sparkle: '<path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z"/><path d="m19 16 .7 2.3L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/>',
+  sparkle: '<path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/>',
   profile: '<circle cx="12" cy="8" r="3.4"/><path d="M5.5 21c.7-3.7 3-5.7 6.5-5.7s5.8 2 6.5 5.7"/>',
-  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1-1.8 1.8-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2h-2.6v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1-1.8-1.8.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H6.5v-2.6h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1 1.8-1.8.1.1a1.6 1.6 0 0 0 1.8.3 1.6 1.6 0 0 0 1-1.5v-.2h2.6v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1 1.8 1.8-.1.1a1.6 1.6 0 0 0-.3 1.8 1.6 1.6 0 0 0 1.5 1h.2V14h-.2a1.6 1.6 0 0 0-1.5 1Z"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1-1.8 1.8-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2h-2.6v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1-1.8-1.8.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H6.5v-2.6h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1 1.8-1.8.1.1a1.6 1.6 0 0 0 1.8.3 1.6 1.6 0 0 0 1-1.5v-.2h2.6v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1 1.8 1.8-.1.1a1.6 1.6 0 0 0-.3 1.8 1.6 1.6 0 0 0 1.5 1h.2V14h-.2a1.6 1.6 0 0 0-1.5 1Z"/>',
   trash: '<path d="M5 7h14M9 7V5h6v2M8 10v8M12 10v8M16 10v8"/><path d="M6.5 7.5 7.2 20h9.6l.7-12.5"/>',
   cloud: '<path d="M7.2 18.5h9.3a4.3 4.3 0 0 0 .4-8.6 5.8 5.8 0 0 0-11.1 1.6 3.6 3.6 0 0 0 1.4 7Z"/>',
   heart: '<path d="M20.4 8.8c0 5.1-8.4 9.7-8.4 9.7S3.6 13.9 3.6 8.8A4.5 4.5 0 0 1 12 6.2a4.5 4.5 0 0 1 8.4 2.6Z"/>',
@@ -123,9 +123,13 @@ function setupIconography() {
     if (target) target.innerHTML = svgIcon(name, size);
   });
 
-  document.querySelectorAll('.search-row button[data-icon], .window-close[data-icon]').forEach(button => {
-    const name = button.dataset.icon;
-    button.innerHTML = svgIcon(name, Number(button.dataset.iconSize || 18));
+  document.querySelectorAll('.search-row button').forEach(button => {
+    const icon = button.querySelector('[data-icon]');
+    if (icon) icon.innerHTML = svgIcon(icon.dataset.icon, Number(icon.dataset.iconSize || 18));
+  });
+  document.querySelectorAll('.window-close').forEach(button => {
+    const icon = button.querySelector('[data-icon]');
+    if (icon) icon.innerHTML = svgIcon(icon.dataset.icon, Number(icon.dataset.iconSize || 18));
   });
 
   document.querySelectorAll('.playlist-button').forEach(button => {
@@ -151,10 +155,10 @@ setInterval(updateClock, 1000);
 
 const play = document.querySelector('.music-controls .play');
 if (play) {
-  play.innerHTML = svgIcon('play', 18);
   play.addEventListener('click', () => {
     play.classList.toggle('playing');
-    play.innerHTML = svgIcon(play.classList.contains('playing') ? 'pause' : 'play', 18);
+    const icon = play.querySelector('[data-icon]');
+    if (icon) icon.innerHTML = svgIcon(play.classList.contains('playing') ? 'pause' : 'play', 18);
   });
 }
 
