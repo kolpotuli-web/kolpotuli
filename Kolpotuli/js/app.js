@@ -5,6 +5,30 @@ import { openAuth, refreshAuthUI } from './auth-ui.js';
 const desktop = document.getElementById('desktop');
 let z = 20;
 
+const ICONS = {
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
+  sparkle: '<path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7L19 16Z"/>',
+  profile: '<circle cx="12" cy="8" r="3.4"/><path d="M5.5 21c.7-3.7 3-5.7 6.5-5.7s5.8 2 6.5 5.7"/>',
+  settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1-1.8 1.8-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2h-2.6v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1-1.8-1.8.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H6.5v-2.6h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1 1.8-1.8.1.1a1.6 1.6 0 0 0 1.8.3 1.6 1.6 0 0 0 1-1.5v-.2h2.6v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1 1.8 1.8-.1.1a1.6 1.6 0 0 0-.3 1.8 1.6 1.6 0 0 0 1.5 1h.2V14h-.2a1.6 1.6 0 0 0-1.5 1Z"/>',
+  trash: '<path d="M5 7h14M9 7V5h6v2M8 10v8M12 10v8M16 10v8"/><path d="M6.5 7.5 7.2 20h9.6l.7-12.5"/>',
+  cloud: '<path d="M7.2 18.5h9.3a4.3 4.3 0 0 0 .4-8.6 5.8 5.8 0 0 0-11.1 1.6 3.6 3.6 0 0 0 1.4 7Z"/>',
+  heart: '<path d="M20.4 8.8c0 5.1-8.4 9.7-8.4 9.7S3.6 13.9 3.6 8.8A4.5 4.5 0 0 1 12 6.2a4.5 4.5 0 0 1 8.4 2.6Z"/>',
+  heartFilled: '<path fill="currentColor" stroke="none" d="M12 20.4S3.4 15.7 3.4 9a4.7 4.7 0 0 1 8.6-2.8A4.7 4.7 0 0 1 20.6 9c0 6.7-8.6 11.4-8.6 11.4Z"/>',
+  previous: '<path d="m15 6-6 6 6 6M7 6v12"/>',
+  next: '<path d="m9 6 6 6-6 6M17 6v12"/>',
+  play: '<path fill="currentColor" stroke="none" d="m9 6 9 6-9 6V6Z"/>',
+  pause: '<path fill="currentColor" stroke="none" d="M8 6.5h3v11H8zm5 0h3v11h-3z"/>',
+  close: '<path d="m7 7 10 10M17 7 7 17"/>',
+  folderStories: '<path d="M7 7h10M7 11h10M7 15h6"/>',
+  folderLibrary: '<path d="M7 7h10M7 11h10M7 15h10"/><path d="M9 5v14"/>',
+  folderArt: '<path d="m12 6 6 6-6 6-6-6 6-6Z"/><circle cx="12" cy="12" r="1.4"/>',
+  folderBlogs: '<path d="M7 7h10M7 11h10M7 15h7"/><path d="m16 14 3 3-3 3"/>',
+  note: '<path d="M7 5.5h7l3 3V19H7z"/><path d="M14 5.5V9h3M9.5 12h5M9.5 15h5"/>',
+  signal: '<path d="M5 18v-3M9 18v-5M13 18v-8M17 18V7M21 18V4"/>'
+};
+
+const svgIcon = (name, size = 20, className = '') => `<svg class="ko-icon${className ? ` ${className}` : ''}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+
 const openWindow = id => {
   const el = document.getElementById(id);
   if (!el) return;
@@ -56,13 +80,10 @@ function addDesktopFolders() {
   if (!area || area.dataset.ready) return;
   area.dataset.ready = '1';
   const folders = [
-    ['stories', 'Stories', '▦'], ['library', 'Library', '▤'], ['art', 'Art', '◆'], ['blogs', 'Blogs', '▱'],
-    ['notes', 'Notes', '✎']
+    ['stories', 'Stories', 'folderStories'], ['library', 'Library', 'folderLibrary'], ['art', 'Art', 'folderArt'], ['blogs', 'Blogs', 'folderBlogs'],
+    ['notes', 'Notes', 'note']
   ];
-  area.innerHTML = folders.map(([target, label, icon, type]) => type === 'link'
-    ? `<button class="desktop-icon" data-link="${target}"><span class="icon folder"><b>${icon}</b></span><span>${label}</span></button>`
-    : `<button class="desktop-icon" data-window="${target}"><span class="icon folder"><b>${icon}</b></span><span>${label}</span></button>`
-  ).join('');
+  area.innerHTML = folders.map(([target, label, icon]) => `<button class="desktop-icon" data-window="${target}"><span class="icon folder"><span class="ko-folder-mark">${svgIcon(icon, 20)}</span></span><span>${label}</span></button>`).join('');
 }
 addDesktopFolders();
 
@@ -93,6 +114,47 @@ function setupWallpaper() {
 }
 setupWallpaper();
 
+function setupIconography() {
+  const menuIcons = document.querySelectorAll('.menu-right > span:not(#menuTime)');
+  if (menuIcons[0]) menuIcons[0].innerHTML = svgIcon('signal', 16);
+  if (menuIcons[1]) menuIcons[1].innerHTML = svgIcon('search', 16);
+
+  document.querySelector('.weather-widget .widget-main > span')?.replaceChildren();
+  const weatherIcon = document.querySelector('.weather-widget .widget-main > span');
+  if (weatherIcon) weatherIcon.innerHTML = svgIcon('cloud', 27);
+
+  const favorite = document.querySelector('.music-widget .widget-row > span:last-child');
+  if (favorite) favorite.innerHTML = svgIcon('heart', 18);
+
+  document.querySelector('.music-controls button:nth-child(1)')?.replaceChildren();
+  document.querySelector('.music-controls button:nth-child(1)')?.insertAdjacentHTML('afterbegin', svgIcon('previous', 17));
+  document.querySelector('.music-controls button:nth-child(3)')?.replaceChildren();
+  document.querySelector('.music-controls button:nth-child(3)')?.insertAdjacentHTML('afterbegin', svgIcon('next', 17));
+
+  document.querySelectorAll('.search-row button').forEach(button => { button.innerHTML = svgIcon('search', 18); });
+  document.querySelectorAll('.window-close').forEach(button => { button.innerHTML = svgIcon('close', 18); });
+  document.querySelectorAll('.dock button').forEach(button => {
+    const label = button.querySelector('small')?.textContent.trim();
+    const name = label === 'Search' ? 'search' : label === 'Create' ? 'sparkle' : label === 'Profile' ? 'profile' : label === 'Settings' ? 'settings' : 'trash';
+    const span = button.querySelector('span');
+    if (span) span.innerHTML = svgIcon(name, 24);
+  });
+  document.querySelectorAll('.playlist-button').forEach(button => {
+    if (!button.dataset.iconReady) {
+      button.dataset.iconReady = '1';
+      button.innerHTML = `${svgIcon('sparkle', 14)} <span>${t('Add to playlist')}</span>`;
+    }
+  });
+
+  document.querySelectorAll('.desktop-icon').forEach(button => {
+    const mark = button.querySelector('.ko-folder-mark');
+    if (!mark) return;
+    const target = button.dataset.window;
+    const icon = target === 'stories' ? 'folderStories' : target === 'library' ? 'folderLibrary' : target === 'art' ? 'folderArt' : target === 'blogs' ? 'folderBlogs' : 'note';
+    mark.innerHTML = svgIcon(icon, 20);
+  });
+}
+
 function updateClock() {
   const now = new Date();
   const time = new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true }).format(now);
@@ -105,10 +167,13 @@ updateClock();
 setInterval(updateClock, 1000);
 
 const play = document.querySelector('.music-controls .play');
-if (play) play.addEventListener('click', () => {
-  play.classList.toggle('playing');
-  play.textContent = play.classList.contains('playing') ? 'Ⅱ' : '▶';
-});
+if (play) {
+  play.innerHTML = svgIcon('play', 18);
+  play.addEventListener('click', () => {
+    play.classList.toggle('playing');
+    play.innerHTML = svgIcon(play.classList.contains('playing') ? 'pause' : 'play', 18);
+  });
+}
 
 const esc = value => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 
@@ -140,7 +205,7 @@ function renderContent(windowId, items, type) {
     grid.innerHTML = `<div class="library-empty">${t('No published content yet.')}</div>`;
     return;
   }
-  grid.innerHTML = items.slice(0, 12).map(item => `<article class="content-card" data-content-id="${esc(item.id)}"><div class="thumb db-thumb" style="${item.cover_image_url ? `background-image:url('${esc(item.cover_image_url)}')` : ''}"></div><h3>${esc(item.title)}</h3><p>${esc(type === 'story' ? t('Stories') : t('Art'))}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</p><button class="save-content" data-save="${esc(item.id)}" aria-label="${t('Save')}">♡</button></article>`).join('');
+  grid.innerHTML = items.slice(0, 12).map(item => `<article class="content-card" data-content-id="${esc(item.id)}"><div class="thumb db-thumb" style="${item.cover_image_url ? `background-image:url('${esc(item.cover_image_url)}')` : ''}"></div><h3>${esc(item.title)}</h3><p>${esc(type === 'story' ? t('Stories') : t('Art'))}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</p><button class="save-content" data-save="${esc(item.id)}" aria-label="${t('Save')}">${svgIcon('heart', 16)}</button></article>`).join('');
   grid.querySelectorAll('[data-content-id]').forEach(card => card.addEventListener('click', event => {
     if (event.target.closest('[data-save]')) return;
     markOpened(card.dataset.contentId);
@@ -175,7 +240,7 @@ async function renderRecent() {
     return;
   }
   const { data } = await supabase.from('recently_opened').select('opened_at,content_items(id,title,type)').eq('user_id', user.id).order('opened_at', { ascending: false }).limit(3);
-  box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + ((data || []).filter(item => item.content_items).map(item => `<button class="recent-item" data-content-id="${esc(item.content_items.id)}"><span>${item.content_items.type === 'art' ? '◆' : item.content_items.type === 'blog' ? '▤' : '▣'}</span><span><strong>${esc(item.content_items.title)}</strong><small>${esc(item.content_items.type)}</small></span></button>`).join('') || `<div class="widget-sub">${t('Nothing opened yet.')}</div>`);
+  box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + ((data || []).filter(item => item.content_items).map(item => `<button class="recent-item" data-content-id="${esc(item.content_items.id)}"><span>${svgIcon(item.content_items.type === 'art' ? 'folderArt' : item.content_items.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.content_items.title)}</strong><small>${esc(item.content_items.type)}</small></span></button>`).join('') || `<div class="widget-sub">${t('Nothing opened yet.')}</div>`);
   box.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => openReader(button.dataset.contentId)));
 }
 
@@ -195,10 +260,10 @@ async function toggleFavorite(contentId, button) {
   const { data } = await supabase.from('favorites').select('content_id').eq('user_id', user.id).eq('content_id', contentId).maybeSingle();
   if (data) {
     await supabase.from('favorites').delete().eq('user_id', user.id).eq('content_id', contentId);
-    button.textContent = '♡';
+    button.innerHTML = svgIcon('heart', 16);
   } else {
     await supabase.from('favorites').insert({ user_id: user.id, content_id: contentId });
-    button.textContent = '♥';
+    button.innerHTML = svgIcon('heartFilled', 16);
   }
   loadLibrary();
 }
@@ -240,7 +305,7 @@ function renderSearchResults(items, area) {
     box.className = 'search-results';
     area.appendChild(box);
   }
-  box.innerHTML = items.length ? items.map(item => `<button class="search-result" data-content-id="${esc(item.id)}"><span>${item.type === 'art' ? '◆' : item.type === 'blog' ? '▤' : '▣'}</span><span><strong>${esc(item.title)}</strong><small>${esc(item.type)}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</small></span></button>`).join('') : `<div class="widget-sub" style="padding:10px">${t('No matching published content.')}</div>`;
+  box.innerHTML = items.length ? items.map(item => `<button class="search-result" data-content-id="${esc(item.id)}"><span>${svgIcon(item.type === 'art' ? 'folderArt' : item.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.title)}</strong><small>${esc(item.type)}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</small></span></button>`).join('') : `<div class="widget-sub" style="padding:10px">${t('No matching published content.')}</div>`;
   box.classList.add('show');
   box.querySelectorAll('[data-content-id]').forEach(button => { button.onclick = () => openReader(button.dataset.contentId); });
 }
@@ -262,6 +327,7 @@ function translateStatic() {
     button.dataset.i18n = key;
     button.textContent = t(key);
   });
+  setupIconography();
 }
 
 function setupLanguage() {
