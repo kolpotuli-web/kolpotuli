@@ -21,6 +21,12 @@ const ICONS = {
 };
 const icon = (name,size=18) => `<svg class="mobile-icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name]||''}</svg>`;
 
+const WALLPAPERS = {
+  main:"url('assets/wallpapers/kolpotuli-main.png')",
+  dusk:"url('assets/wallpapers/kolpotuli-dusk.svg')",
+  paper:"url('assets/wallpapers/kolpotuli-paper.svg')"
+};
+
 let content = [];
 let currentFilter = 'all';
 let activeView = 'home';
@@ -36,34 +42,43 @@ function showView(name){
   if(name === 'explore') renderExplore();
   if(name === 'library') loadLibrary();
   if(name === 'profile') loadProfile();
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 function openSheet(name){
   activeSheet = name;
   const sheet = $(`[data-sheet="${name}"]`);
   const backdrop = $('.mobile-sheet-backdrop');
   if(!sheet || !backdrop) return;
-  sheet.classList.add('open'); backdrop.classList.add('open');
+  sheet.classList.add('open');
+  backdrop.classList.add('open');
   sheet.setAttribute('aria-hidden','false');
+  document.body.classList.add('mobile-sheet-open');
 }
 function closeSheet(){
-  activeSheet = null; $$('.mobile-sheet').forEach(sheet => sheet.classList.remove('open'));
-  $('.mobile-sheet-backdrop')?.classList.remove('open'); $$('.mobile-sheet').forEach(sheet => sheet.setAttribute('aria-hidden','true'));
+  activeSheet = null;
+  $$('.mobile-sheet').forEach(sheet => { sheet.classList.remove('open'); sheet.setAttribute('aria-hidden','true'); });
+  $('.mobile-sheet-backdrop')?.classList.remove('open');
+  document.body.classList.remove('mobile-sheet-open');
 }
 
 function formatMeta(item){ return `${item.type}${item.language ? ` · ${item.language}`:''}${item.read_time_minutes ? ` · ${item.read_time_minutes} min`:''}`; }
 function card(item){
   const bg = item.cover_image_url ? ` style="background-image:url('${esc(item.cover_image_url)}')"` : '';
-  return `<article class="mobile-card"><button class="mobile-card-media" data-open="${esc(item.id)}" aria-label="Open ${esc(item.title)}"${bg}></button><div class="mobile-card-body"><h3>${esc(item.title)}</h3><p>${esc(formatMeta(item))}</p><div class="mobile-card-actions"><button class="mobile-open" data-open="${esc(item.id)}">Read ${icon('chevron',13)}</button><button class="mobile-save" data-save="${esc(item.id)}" aria-label="Save ${esc(item.title)}">${icon('heart',16)}</button></div></div></article>`;
+  return `<article class="mobile-card"><button class="mobile-card-media" data-open="${esc(item.id)}" aria-label="Open ${esc(item.title)}"${bg}></button><div class="mobile-card-body"><h3>${esc(item.title)}</h3><p>${esc(formatMeta(item))}</p><div class="mobile-card-actions"><button class="mobile-open" data-open="${esc(item.id)}">${esc(t('Read'))} ${icon('chevron',13)}</button><button class="mobile-save" data-save="${esc(item.id)}" aria-label="Save ${esc(item.title)}">${icon('heart',16)}</button></div></div></article>`;
 }
 function listItem(item){
   const itemIcon = item.type === 'art' ? 'sparkle' : item.type === 'blog' ? 'note' : 'library';
   return `<button class="mobile-list-item" data-open="${esc(item.id)}"><span class="mobile-list-icon">${icon(itemIcon,18)}</span><span class="mobile-list-copy"><strong>${esc(item.title)}</strong><small>${esc(formatMeta(item))}</small></span>${icon('chevron',16)}</button>`;
 }
 function bindContentActions(root=document){
-  root.querySelectorAll('[data-open]').forEach(button => button.addEventListener('click',()=>openReader(button.dataset.open)));
-  root.querySelectorAll('[data-save]').forEach(button => button.addEventListener('click',async event=>{event.stopPropagation();await toggleFavorite(button.dataset.save,button)}));
+  root.querySelectorAll('[data-open]').forEach(button => { if(button.dataset.bound==='true') return; button.dataset.bound='true'; button.addEventListener('click',()=>openReader(button.dataset.open)); });
+  root.querySelectorAll('[data-save]').forEach(button => { if(button.dataset.bound==='true') return; button.dataset.bound='true'; button.addEventListener('click',async event=>{event.stopPropagation();await toggleFavorite(button.dataset.save,button)}); });
 }
-function openReader(id){ if(id) location.href=`read.html?id=${encodeURIComponent(id)}`; }
+async function openReader(id){
+  if(!id)return;
+  await markOpened(id);
+  location.href=`read.html?id=${encodeURIComponent(id)}`;
+}
 
 async function loadContent(){
   const {data,error}=await supabase.from('content_items').select('id,type,title,excerpt,cover_image_url,language,featured,read_time_minutes,published_at').eq('status','published').order('featured',{ascending:false}).order('published_at',{ascending:false}).limit(60);
@@ -77,68 +92,76 @@ function renderHome(){
   const hero=$('[data-mobile-featured]');
   if(hero){
     if(featured){
-      hero.innerHTML=`<span class="mobile-kicker">Featured ${esc(featured.type)}</span><h1>${esc(featured.title)}</h1><p>${esc(featured.excerpt||'A new piece from Kolpotuli.')}</p><div class="mobile-hero-actions"><button class="mobile-primary" data-open="${esc(featured.id)}">Open piece</button><button class="mobile-secondary" data-sheet-open="search">Explore</button></div>`;
-    } else hero.innerHTML='<span class="mobile-kicker">Kolpotuli</span><h1>Stories, art, memory.</h1><p>Explore the living archive.</p><div class="mobile-hero-actions"><button class="mobile-primary" data-view="explore">Explore</button></div>';
+      hero.innerHTML=`<span class="mobile-kicker">${esc(t('Featured'))} ${esc(featured.type)}</span><h1>${esc(featured.title)}</h1><p>${esc(featured.excerpt||t('Stories live in the spaces between us.'))}</p><div class="mobile-hero-actions"><button class="mobile-primary" data-open="${esc(featured.id)}">${esc(t('Open piece'))}</button><button class="mobile-secondary" data-view="explore">${esc(t('Explore'))}</button></div>`;
+    } else hero.innerHTML=`<span class="mobile-kicker">Kolpotuli</span><h1>Stories, art, memory.</h1><p>${esc(t('Culture, literature, people and places.'))}</p><div class="mobile-hero-actions"><button class="mobile-primary" data-view="explore">${esc(t('Explore'))}</button></div>`;
     bindContentActions(hero);
   }
-  const recent=$('[data-mobile-home-grid]'); if(recent) recent.innerHTML=others.length?others.map(card).join(''):'<div class="mobile-empty">No published content yet.</div>';
+  const recent=$('[data-mobile-home-grid]'); if(recent) recent.innerHTML=others.length?others.map(card).join(''):`<div class="mobile-empty">${esc(t('No published content yet.'))}</div>`;
   if(recent) bindContentActions(recent);
   updateClockWeather(); renderRecent();
 }
 function renderExplore(){
   const grid=$('[data-mobile-explore-grid]'); if(!grid)return;
   const items=currentFilter==='all'?content:content.filter(item=>item.type===currentFilter);
-  grid.innerHTML=items.length?items.slice(0,24).map(card).join(''):'<div class="mobile-empty">No published content in this section.</div>';
+  grid.innerHTML=items.length?items.slice(0,24).map(card).join(''):`<div class="mobile-empty">${esc(t('No published content yet.'))}</div>`;
   bindContentActions(grid);
 }
 
 async function renderRecent(){
   const slot=$('[data-mobile-recent]'); if(!slot)return;
   const u=await user();
-  if(!u){slot.innerHTML='<div class="mobile-empty">Sign in to keep your reading history.</div>';return;}
+  if(!u){slot.innerHTML=`<div class="mobile-empty">${esc(t('Sign in to keep your history.'))}</div>`;return;}
   const {data}=await supabase.from('recently_opened').select('opened_at,content_items(id,title,type,language,read_time_minutes)').eq('user_id',u.id).order('opened_at',{ascending:false}).limit(4);
   const rows=(data||[]).filter(row=>row.content_items).map(row=>row.content_items);
-  slot.innerHTML=rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:'<div class="mobile-empty">Nothing opened yet.</div>';
+  slot.innerHTML=rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:`<div class="mobile-empty">${esc(t('Nothing opened yet.'))}</div>`;
   bindContentActions(slot);
 }
 
-async function markOpened(id){const u=await user();if(!u)return;await supabase.from('recently_opened').upsert({user_id:u.id,content_id:id,opened_at:new Date().toISOString()},{onConflict:'user_id,content_id'});}
+async function markOpened(id){
+  const u=await user();
+  if(!u)return;
+  await supabase.from('recently_opened').upsert({user_id:u.id,content_id:id,opened_at:new Date().toISOString()},{onConflict:'user_id,content_id'});
+}
 async function toggleFavorite(id,button){
-  const u=await user(); if(!u){openAuth();return;}
+  const u=await user();
+  if(!u){openAuth();return;}
   const {data}=await supabase.from('favorites').select('content_id').eq('user_id',u.id).eq('content_id',id).maybeSingle();
-  if(data){await supabase.from('favorites').delete().eq('user_id',u.id).eq('content_id',id);button.innerHTML=icon('heart',16)}
-  else{await supabase.from('favorites').insert({user_id:u.id,content_id:id});button.innerHTML=icon('heartFilled',16)}
+  if(data){await supabase.from('favorites').delete().eq('user_id',u.id).eq('content_id',id);button.innerHTML=icon('heart',16);button.setAttribute('aria-pressed','false');}
+  else{await supabase.from('favorites').insert({user_id:u.id,content_id:id});button.innerHTML=icon('heartFilled',16);button.setAttribute('aria-pressed','true');}
 }
 
 async function loadLibrary(){
   const panel=$('[data-mobile-library]'); if(!panel)return;
   const u=await user();
-  if(!u){panel.innerHTML='<div class="mobile-empty">Sign in to access Saved, Reading, Collections, and your history.</div>';return;}
+  if(!u){panel.innerHTML='<div class="mobile-empty">Sign in to access your saved pieces and reading history.</div>';return;}
   const {data}=await supabase.from('favorites').select('created_at,content_items(id,title,type,language,read_time_minutes)').eq('user_id',u.id).order('created_at',{ascending:false}).limit(20);
   const rows=(data||[]).filter(row=>row.content_items).map(row=>row.content_items);
-  panel.innerHTML=`<div class="mobile-section-head"><h2>Saved</h2><button data-sheet-open="library">More</button></div>${rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:'<div class="mobile-empty">Nothing saved yet.</div>'}`;
+  panel.innerHTML=`<div class="mobile-section-head"><h2>${esc(t('Saved'))}</h2><button data-sheet-open="library">${esc(t('More'))}</button></div>${rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:`<div class="mobile-empty">${esc(t('Nothing saved yet.'))}</div>`}`;
   bindContentActions(panel);
 }
 
 async function loadProfile(){
   const u=await user(); const panel=$('[data-mobile-profile]'); if(!panel)return;
-  if(!u){panel.innerHTML='<div class="mobile-hero"><span class="mobile-kicker">Profile</span><h1>Make Kolpotuli yours.</h1><p>Sign in to save pieces, keep notes, and continue reading across devices.</p><div class="mobile-hero-actions"><button class="mobile-primary" data-auth>Sign in</button></div></div>';return;}
+  if(!u){
+    panel.innerHTML=`<div class="mobile-hero"><span class="mobile-kicker">${esc(t('Profile'))}</span><h1>Make Kolpotuli yours.</h1><p>Sign in to save pieces, keep notes, and continue reading across devices.</p><div class="mobile-hero-actions"><button class="mobile-primary" data-auth>${esc(t('Sign in'))}</button></div></div>`;
+    return;
+  }
   const {data}=await supabase.from('profiles').select('display_name,username,bio,role').eq('id',u.id).single();
-  panel.innerHTML=`<div class="mobile-hero"><span class="mobile-kicker">Profile</span><h1>${esc(data?.display_name||'Kolpotuli reader')}</h1><p>${esc(data?.bio||u.email||'')}</p><div class="mobile-hero-actions"><button class="mobile-primary" data-profile>Edit profile</button><button class="mobile-secondary" data-signout>Sign out</button></div></div><div class="mobile-stat-row"><div class="mobile-stat"><small>Username</small><strong>${esc(data?.username||'—')}</strong><span>${esc(data?.role||'user')}</span></div><div class="mobile-stat"><small>Account</small><strong>${u.email?'Active':'—'}</strong><span>Kolpotuli Auth</span></div></div>`;
+  panel.innerHTML=`<div class="mobile-hero"><span class="mobile-kicker">${esc(t('Profile'))}</span><h1>${esc(data?.display_name||'Kolpotuli reader')}</h1><p>${esc(data?.bio||u.email||'')}</p><div class="mobile-hero-actions"><button class="mobile-primary" data-profile>${esc(t('Edit profile'))}</button><button class="mobile-secondary" data-signout>${esc(t('Sign out'))}</button></div></div><div class="mobile-stat-row"><div class="mobile-stat"><small>${esc(t('Username'))}</small><strong>${esc(data?.username||'—')}</strong><span>${esc(data?.role||'user')}</span></div><div class="mobile-stat"><small>${esc(t('Account'))}</small><strong>${u.email?t('Active'):'—'}</strong><span>Kolpotuli Auth</span></div></div>`;
   panel.querySelector('[data-profile]')?.addEventListener('click',()=>location.href='profile.html');
-  panel.querySelector('[data-signout]')?.addEventListener('click',async()=>{await supabase.auth.signOut();loadProfile();renderRecent()});
+  panel.querySelector('[data-signout]')?.addEventListener('click',async()=>{await supabase.auth.signOut();loadProfile();renderRecent();});
 }
 
 function setupSearch(){
   const input=$('[data-mobile-search]'),button=$('[data-mobile-search-btn]'),results=$('[data-mobile-search-results]');
   const run=async()=>{
-    const q=input.value.trim(); if(!q){results.innerHTML='';return}
+    const q=input.value.trim(); if(!q){results.innerHTML='';return;}
     const safe=q.replace(/[%_]/g,m=>`\\${m}`);
     const {data}=await supabase.from('content_items').select('id,type,title,language,read_time_minutes').eq('status','published').or(`title.ilike.%${safe}%,excerpt.ilike.%${safe}%`).order('published_at',{ascending:false}).limit(20);
-    results.innerHTML=(data||[]).length?`<div class="mobile-list">${data.map(listItem).join('')}</div>`:'<div class="mobile-empty">No matching published content.</div>';
+    results.innerHTML=(data||[]).length?`<div class="mobile-list">${data.map(listItem).join('')}</div>`:`<div class="mobile-empty">${esc(t('No matching published content.'))}</div>`;
     bindContentActions(results);
   };
-  button?.addEventListener('click',run); input?.addEventListener('keydown',e=>{if(e.key==='Enter')run()});
+  button?.addEventListener('click',run); input?.addEventListener('keydown',e=>{if(e.key==='Enter')run();});
 }
 
 function updateClockWeather(){
@@ -146,33 +169,67 @@ function updateClockWeather(){
   const time=new Intl.DateTimeFormat('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).format(now);
   const date=new Intl.DateTimeFormat('en-IN',{weekday:'short',day:'numeric',month:'short'}).format(now);
   $('[data-mobile-time]')?.replaceChildren(time); $('[data-mobile-date]')?.replaceChildren(date);
-  fetch('https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m&timezone=Asia%2FKolkata').then(r=>r.json()).then(data=>{$('[data-mobile-temp]')?.replaceChildren(`${Math.round(data.current?.temperature_2m ?? 0)}°`) }).catch(()=>{});
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m&timezone=Asia%2FKolkata').then(r=>r.json()).then(data=>{$('[data-mobile-temp]')?.replaceChildren(`${Math.round(data.current?.temperature_2m ?? 0)}°`);}).catch(()=>{});
 }
+
 function setupSheets(){
-  $$('[data-sheet-open]').forEach(button=>button.addEventListener('click',()=>{const name=button.dataset.sheetOpen;openSheet(name);if(name==='search') $('[data-mobile-search]')?.focus();}));
-  $$('[data-sheet-close]').forEach(button=>button.addEventListener('click',closeSheet));
-  $('.mobile-sheet-backdrop')?.addEventListener('click',closeSheet);
+  document.addEventListener('click', event=>{
+    const open=event.target.closest('[data-sheet-open]');
+    if(open){event.preventDefault();const name=open.dataset.sheetOpen;openSheet(name);if(name==='search')requestAnimationFrame(()=>{$('[data-mobile-search]')?.focus();});return;}
+    const close=event.target.closest('[data-sheet-close]');
+    if(close){event.preventDefault();closeSheet();return;}
+    if(event.target.closest('.mobile-sheet-backdrop')){closeSheet();return;}
+    const auth=event.target.closest('[data-auth]');
+    if(auth){openAuth();return;}
+    const view=event.target.closest('[data-view]');
+    if(view && !event.target.closest('.mobile-tab')){event.preventDefault();showView(view.dataset.view);closeSheet();return;}
+    const nav=event.target.closest('.mobile-nav-item');
+    if(nav){event.preventDefault();showView(nav.dataset.view);return;}
+  });
 }
-function setupNav(){
-  $$('.mobile-nav-item').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.view)));
-  $$('[data-view]').forEach(button=>button.addEventListener('click',()=>showView(button.dataset.view)));
-  $('[data-auth]')?.addEventListener('click',openAuth);
-}
+function setupNav(){ return true; }
 function setupFilters(){
-  $$('.mobile-tab').forEach(button=>button.addEventListener('click',()=>{$$('.mobile-tab').forEach(x=>x.classList.remove('active'));button.classList.add('active');currentFilter=button.dataset.filter;renderExplore()}));
+  document.addEventListener('click',event=>{
+    const button=event.target.closest('.mobile-tab');
+    if(!button)return;
+    $$('.mobile-tab').forEach(x=>x.classList.remove('active'));
+    button.classList.add('active');
+    currentFilter=button.dataset.filter;
+    renderExplore();
+  });
 }
 function setupSettings(){
-  $$('.mobile-wallpaper-choice').forEach(button=>button.addEventListener('click',()=>{const key=button.dataset.wallpaper;const map={main:"url('assets/wallpapers/kolpotuli-main.png')",dusk:"url('assets/wallpapers/kolpotuli-dusk.svg')",paper:"url('assets/wallpapers/kolpotuli-paper.svg')"};$('.mobile-wallpaper').style.backgroundImage=map[key]||map.main;localStorage.setItem('kolpotuli-mobile-wallpaper',key)}));
-  const saved=localStorage.getItem('kolpotuli-mobile-wallpaper');if(saved){const map={main:"url('assets/wallpapers/kolpotuli-main.png')",dusk:"url('assets/wallpapers/kolpotuli-dusk.svg')",paper:"url('assets/wallpapers/kolpotuli-paper.svg')"};$('.mobile-wallpaper').style.backgroundImage=map[saved]||map.main}
+  document.addEventListener('click',event=>{
+    const button=event.target.closest('.mobile-wallpaper-choice');
+    if(!button)return;
+    const key=button.dataset.wallpaper;
+    $('.mobile-wallpaper')?.style.setProperty('background-image',WALLPAPERS[key]||WALLPAPERS.main);
+    localStorage.setItem('kolpotuli-mobile-wallpaper',key);
+    closeSheet();
+  });
+  const saved=localStorage.getItem('kolpotuli-mobile-wallpaper');
+  if(saved && $('.mobile-wallpaper')) $('.mobile-wallpaper').style.backgroundImage=WALLPAPERS[saved]||WALLPAPERS.main;
 }
 function setupMusic(){
-  $('[data-play]')?.addEventListener('click',()=>{playing=!playing;const b=$('[data-play]');b.textContent=playing?'❚❚':'▶';b.setAttribute('aria-label',playing?'Pause':'Play')});
+  document.addEventListener('click',event=>{
+    const button=event.target.closest('[data-play]');
+    if(!button)return;
+    playing=!playing;
+    button.textContent=playing?'❚❚':'▶';
+    button.setAttribute('aria-label',playing?t('Pause'):'Play');
+  });
 }
 function setupLanguage(){
   const current=initLanguage();
-  const button=$('[data-language]'); if(!button)return;
+  const button=$('[data-language]');
+  if(!button)return;
   button.textContent=current==='bn'?'বাংলা':'EN';
-  button.addEventListener('click',()=>{const next=(document.documentElement.lang||current)==='bn'?'en':'bn';setLanguage(next);button.textContent=next==='bn'?'বাংলা':'EN'});
+  button.addEventListener('click',()=>{
+    const next=(document.documentElement.lang||current)==='bn'?'en':'bn';
+    setLanguage(next);
+    button.textContent=next==='bn'?'বাংলা':'EN';
+    renderHome();renderExplore();loadLibrary();loadProfile();
+  });
 }
 
 async function boot(){
@@ -181,10 +238,13 @@ async function boot(){
   await loadContent();
   showView('home');
   await refreshAuthUI();
-  supabase.auth.onAuthStateChange(()=>{renderRecent();loadProfile();loadLibrary()});
-  $$('[data-create]').forEach(button=>button.addEventListener('click',async()=>{const u=await user();if(u)location.href='admin.html';else openAuth()}));
-  $('[data-notes-open]')?.addEventListener('click',()=>openSheet('notes'));
-  $('[data-settings-open]')?.addEventListener('click',()=>openSheet('settings'));
+  supabase.auth.onAuthStateChange(()=>{renderRecent();loadProfile();loadLibrary();});
+  document.addEventListener('click',event=>{
+    const create=event.target.closest('[data-create]');
+    if(!create)return;
+    event.preventDefault();
+    user().then(u=>{if(u)location.href='admin.html';else openAuth();});
+  });
 }
 
 boot();
