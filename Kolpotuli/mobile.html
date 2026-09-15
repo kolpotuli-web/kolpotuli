@@ -20,6 +20,7 @@
       <div class="mobile-brand"><span class="mobile-mark" aria-hidden="true">ক</span><div><strong>Kolpotuli</strong><small>Stories · Art · Memory</small></div></div>
       <div class="mobile-top-actions">
         <button class="mobile-icon-btn" data-sheet-open="search" aria-label="Search"><svg class="mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+        <button class="mobile-icon-btn" data-sheet-open="settings" aria-label="Open settings">⚙</button>
         <button class="mobile-icon-btn" data-language aria-label="Change language">EN</button>
       </div>
     </header>
@@ -80,7 +81,11 @@
   <section class="mobile-sheet" data-sheet="notes" aria-hidden="true" aria-label="Notes">
     <div class="mobile-sheet-handle"></div>
     <div class="mobile-sheet-head"><h3>Notes</h3><button class="mobile-close" data-sheet-close aria-label="Close notes">×</button></div>
-    <div class="mobile-sheet-body"><div class="mobile-note-preview"><strong>Your Notes</strong><span>Open the full Notes workspace to continue writing.</span><button class="mobile-note-action" onclick="location.href='index.html'">Open Notes</button></div></div>
+    <div class="mobile-sheet-body">
+      <div class="mobile-note-preview"><strong>Quick note</strong><span>Capture a thought without leaving the mobile environment.</span><button class="mobile-note-action" data-note-new>New note</button></div>
+      <div class="mobile-list" data-mobile-notes-list></div>
+      <div class="mobile-note-preview"><label for="mobileNoteTitle">Title</label><input id="mobileNoteTitle" data-mobile-note-title aria-label="Note title" value="Untitled Note"><label for="mobileNoteBody" style="display:block;margin-top:10px">Note</label><textarea id="mobileNoteBody" data-mobile-note-body aria-label="Note body" placeholder="Start writing…" style="width:100%;min-height:150px;margin-top:7px;border:1px solid rgba(20,32,42,.12);border-radius:12px;padding:11px;background:#fffaf0;color:#14202a;resize:vertical"></textarea><button class="mobile-note-action" data-note-save style="margin-top:10px">Save note</button><span data-mobile-note-status aria-live="polite"></span></div>
+    </div>
   </section>
 
   <section class="mobile-sheet" data-sheet="settings" aria-hidden="true" aria-label="Settings">
