@@ -42,6 +42,10 @@
         <div class="mobile-grid" data-mobile-home-grid></div>
       </section>
       <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Notes</h2><button data-sheet-open="notes">Open Notes</button></div>
+        <article class="mobile-note-preview"><strong>Keep a thought close.</strong><span>Write, save, and return without leaving the Kolpotuli environment.</span><button class="mobile-note-action" data-sheet-open="notes">New note</button></article>
+      </section>
+      <section class="mobile-section">
         <div class="mobile-section-head"><h2>Now playing</h2><span class="mobile-kicker">Kolpotuli radio</span></div>
         <article class="mobile-note-preview"><strong>Saving Grace</strong><span>KIRBY · A quiet track for a long page.</span><button class="mobile-note-action" data-play aria-label="Play">▶</button></article>
       </section>
@@ -84,7 +88,7 @@
     <div class="mobile-sheet-body">
       <div class="mobile-note-preview"><strong>Quick note</strong><span>Capture a thought without leaving the mobile environment.</span><button class="mobile-note-action" data-note-new>New note</button></div>
       <div class="mobile-list" data-mobile-notes-list></div>
-      <div class="mobile-note-preview"><label for="mobileNoteTitle">Title</label><input id="mobileNoteTitle" data-mobile-note-title aria-label="Note title" value="Untitled Note"><label for="mobileNoteBody" style="display:block;margin-top:10px">Note</label><textarea id="mobileNoteBody" data-mobile-note-body aria-label="Note body" placeholder="Start writing…" style="width:100%;min-height:150px;margin-top:7px;border:1px solid rgba(20,32,42,.12);border-radius:12px;padding:11px;background:#fffaf0;color:#14202a;resize:vertical"></textarea><button class="mobile-note-action" data-note-save style="margin-top:10px">Save note</button><span data-mobile-note-status aria-live="polite"></span></div>
+      <div class="mobile-note-preview"><label for="mobileNoteTitle">Title</label><input id="mobileNoteTitle" data-mobile-note-title aria-label="Note title" value="Untitled Note" style="width:100%;margin-top:7px;border:1px solid rgba(20,32,42,.12);border-radius:12px;padding:11px;background:#fffaf0;color:#14202a"><label for="mobileNoteBody" style="display:block;margin-top:10px">Note</label><textarea id="mobileNoteBody" data-mobile-note-body aria-label="Note body" placeholder="Start writing…" style="width:100%;min-height:150px;margin-top:7px;border:1px solid rgba(20,32,42,.12);border-radius:12px;padding:11px;background:#fffaf0;color:#14202a;resize:vertical"></textarea><button class="mobile-note-action" data-note-save style="margin-top:10px">Save note</button><span data-mobile-note-status aria-live="polite"></span></div>
     </div>
   </section>
 
@@ -107,5 +111,6 @@
   </nav>
 </main>
 <script type="module" src="js/mobile-app.js"></script>
+<script type="module" src="js/mobile-notes.js"></script>
 </body>
 </html>
