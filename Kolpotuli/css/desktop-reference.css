@@ -1,0 +1,52 @@
+/* Screenshot calibration: desktop composition only. Keeps existing components/behavior intact. */
+.menu-bar{height:48px;padding:0 20px}
+.menu-left,.menu-right{gap:18px}
+.menu-left>button:not(.brand-menu){font-size:14px}
+.brand-menu{width:35px;height:35px;border-radius:10px}
+.desktop-stage{inset:48px 0 0}
+.desktop-icons{left:22px;top:18px;gap:20px}
+.desktop-icon .icon{width:58px;height:44px;flex-basis:44px}
+.desktop-icon .icon.file{flex-basis:45px}
+.icon.folder{width:58px;height:44px}
+.icon.folder:before{left:5px;top:-7px;width:23px;height:11px}
+.desktop-widgets{right:25px;top:22px;width:264px;gap:14px}
+.desktop-widgets .widget{padding:18px;border-radius:18px;overflow:hidden}
+.desktop-widgets .clock-widget{height:118px}
+.desktop-widgets .weather-widget{height:126px}
+.desktop-widgets .paper-widget{height:130px}
+.desktop-widgets .music-widget{height:249px}
+.desktop-widgets .recent-widget{height:62px}
+.desktop-widgets .glass{background:rgba(24,48,63,.66);border-color:rgba(255,255,255,.24)}
+.widget-kicker{font-size:10px}
+.clock-time{font-size:43px}
+.widget-main strong{font-size:36px}
+.widget-main span{font-size:30px}
+.bengali-date{font-size:27px}
+.bengali-date.small{font-size:22px}
+.music-controls{gap:24px}
+.music-controls .play{width:48px;height:48px}
+.quote-one{top:28px;right:320px;max-width:260px}
+.dock{height:94px;bottom:20px;padding:10px 14px;gap:11px;border-radius:24px}
+.dock button{min-width:74px;padding:6px 7px}
+.dock button:last-child{margin-left:12px;padding-left:16px}
+.dock small{font-size:10px}
+@media (max-width:1100px){
+  .desktop-icons{left:7px;gap:12px}
+  .desktop-widgets{width:200px;right:14px;gap:10px}
+  .desktop-widgets .widget{padding:15px}
+  .desktop-widgets .clock-widget{height:110px}
+  .desktop-widgets .weather-widget{height:118px}
+  .desktop-widgets .paper-widget{height:122px}
+  .desktop-widgets .music-widget{height:230px}
+  .desktop-widgets .recent-widget{height:58px}
+  .quote-one{right:238px;max-width:230px}
+  .dock{height:88px}
+  .dock button{min-width:64px}
+}
+@media (max-width:800px){
+  .desktop-widgets,.desktop-icons{display:none}
+  .desktop-stage{inset:auto}
+  .dock{height:auto}
+  .dock button{min-width:62px}
+  .quote-one{right:auto;max-width:none}
+}
