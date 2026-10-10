@@ -242,6 +242,10 @@ function setupSheets(){
     }
   });
 }
+window.addEventListener('kolpotuli-weather-location-selected', () => {
+  if ($('[data-sheet="weather"]')?.classList.contains('open')) closeSheet();
+});
+
 function setupNav(){ return true; }
 function setupFilters(){
   document.addEventListener('click',event=>{
