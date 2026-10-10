@@ -107,7 +107,7 @@ function checkBalancedDelimiters(source, label) {
 async function checkModuleImports(source, ownerFile, label) {
   const importValues = new Set();
   const patterns = [
-    /\b(?:import|export)\s+(?:[^;]*?\s+from\s*)?(["'])([^"']+)\1/g,
+    /\b(?:import|export)\s*(?:[^'";]*?\s+from\s*)?(["'])([^"']+)\1/g,
     /\bimport\s*\(\s*(["'])([^"']+)\1\s*\)/g
   ];
 
@@ -142,8 +142,8 @@ async function main() {
     const html = await readFile(file, 'utf8');
     const cleanHtml = html
       .replace(/<!--[\s\S]*?-->/g, '')
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script\s*>/gi, '')
-      .replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '');
+      .replace(/(<script\b[^>]*>)[\s\S]*?<\/script\s*>/gi, '$1</script>')
+      .replace(/(<style\b[^>]*>)[\s\S]*?<\/style\s*>/gi, '$1</style>');
 
     const ids = new Set();
     for (const tag of cleanHtml.match(/<[a-z][^>]*>/gi) || []) {
