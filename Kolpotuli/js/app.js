@@ -39,6 +39,7 @@ const ICONS = {
   folderBlogs: '<path d="M7 7h10M7 11h10M7 15h7"/><path d="m16 14 3 3-3 3"/>',
   note: '<path d="M7 5.5h7l3 3V19H7z"/><path d="M14 5.5V9h3M9.5 12h5M9.5 15h5"/>',
   signal: '<path d="M5 18v-3M9 18v-5M13 18v-8M17 18V7M21 18V4"/>',
+  music: '<path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>',
   close: '<path d="m7 7 10 10M17 7 7 17"/>'
 };
 
@@ -304,66 +305,6 @@ function setupIconography() {
     if (target) target.innerHTML = svgIcon(name, size);
   });
 }
-
-function updateClock() {
-  const now = new Date();
-  const time = new Intl.DateTimeFormat('en-IN', { hour: 'numeric', minute: '2-digit', hour12: true }).format(now);
-  const date = new Intl.DateTimeFormat('en-IN', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
-  document.getElementById('clockTime')?.replaceChildren(time);
-  document.getElementById('menuTime')?.replaceChildren(time);
-  document.getElementById('clockDate')?.replaceChildren(date);
-}
-
-function setupBengaliDate() {
-  const day = document.getElementById('bengaliDay');
-  const date = document.getElementById('bengaliDate');
-  const sub = document.getElementById('bengaliDateSub');
-  if (!day || !date || !sub) return;
-
-  const now = new Date();
-  const bengaliDate = new Intl.DateTimeFormat('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
-  const gregorianDate = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
-  const parts = bengaliDate.split(', ');
-  day.textContent = parts[0] || bengaliDate;
-  date.textContent = parts[1] || '';
-  sub.textContent = gregorianDate;
-}
-
-function setupWeather() {
-  const temp = document.getElementById('weatherTemp');
-  const summary = document.getElementById('weatherSummary');
-  const icon = document.querySelector('.weather-widget .widget-main span');
-  if (!temp || !summary) return;
-
-  fetch('https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FKolkata&forecast_days=1')
-    .then(response => response.ok ? response.json() : Promise.reject(new Error('Weather request failed')))
-    .then(data => {
-      const current = data.current;
-      const daily = data.daily;
-      if (!current || !daily?.temperature_2m_max?.length || !daily?.temperature_2m_min?.length) {
-        throw new Error('Weather response is incomplete');
-      }
-      temp.textContent = `${Math.round(current.temperature_2m)}°`;
-      const description = weatherCode(current.weather_code);
-      summary.textContent = `Jaipur · ${Math.round(daily.temperature_2m_max[0])}° / ${Math.round(daily.temperature_2m_min[0])}° · ${description}`;
-      if (icon) icon.innerHTML = svgIcon([61, 63, 65, 80, 81, 82].includes(current.weather_code) ? 'cloud' : 'cloud', 26);
-    })
-    .catch(error => {
-      console.warn('Weather unavailable:', error);
-      summary.textContent = 'Jaipur · Weather unavailable';
-    });
-}
-
-const weatherCode = code => {
-  if (code === 0) return 'Clear';
-  if ([1, 2, 3].includes(code)) return 'Partly cloudy';
-  if ([45, 48].includes(code)) return 'Mist';
-  if ([51, 53, 55, 56, 57].includes(code)) return 'Drizzle';
-  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'Rain';
-  if ([71, 73, 75, 77, 85, 86].includes(code)) return 'Snow';
-  if ([95, 96, 99].includes(code)) return 'Storm';
-  return 'Current weather';
-};
 
 function renderContent(section, items, type) {
   const grid = document.querySelector(`[data-grid="${section}"]`);
@@ -701,19 +642,6 @@ function setupInteractions() {
         else openAuth();
         return;
       }
-      case 'toggle-play': {
-        const playing = action.classList.toggle('playing');
-        action.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-        action.innerHTML = svgIcon(playing ? 'pause' : 'play', 20);
-        notify('Music playback is not connected yet.');
-        return;
-      }
-      case 'previous-track':
-      case 'next-track':
-      case 'favorite-track':
-      case 'playlist':
-        notify('The music widget is visual only until an audio source is connected.');
-        return;
       case 'refresh-content':
         await loadContent();
         notify('Content refreshed.', 'success');
@@ -846,10 +774,6 @@ async function boot() {
   setupFilters();
   setupSettings();
   setupLanguage();
-  setupWeather();
-  setupBengaliDate();
-  updateClock();
-  window.setInterval(updateClock, 1000);
 
   window.addEventListener('kolpotuli-open-auth', openAuth);
   window.addEventListener('kolpotuli-auth-changed', async () => {
