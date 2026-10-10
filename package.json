@@ -1,0 +1,12 @@
+{
+  "name": "kolpotuli",
+  "private": true,
+  "description": "Kolpotuli static website",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "check": "node scripts/check-site.mjs",
+    "test": "node scripts/check-site.mjs"
+  }
+}
