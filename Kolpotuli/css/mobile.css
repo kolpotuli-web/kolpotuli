@@ -1,0 +1,56 @@
+:root{
+  --mobile-bg:#081725;
+  --mobile-surface:rgba(15,39,57,.78);
+  --mobile-surface-strong:#10283d;
+  --mobile-paper:#fffaf0;
+  --mobile-ink:#14202a;
+  --mobile-line:rgba(255,255,255,.14);
+  --mobile-soft:rgba(255,255,255,.08);
+  --mobile-gold:#f4b52c;
+  --mobile-radius:20px;
+  --mobile-pill:999px;
+  --mobile-shadow:0 18px 45px rgba(0,0,0,.24);
+}
+
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:var(--mobile-bg)}
+body{font-family:"DM Sans",system-ui,sans-serif;color:#fff;overflow-x:hidden}
+button,input,textarea,select{font:inherit}
+button{border:0;color:inherit;background:none;cursor:pointer}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:2px solid var(--mobile-gold);outline-offset:3px}
+
+.mobile-app{min-height:100svh;position:relative;isolation:isolate;background:#10283d}
+.mobile-wallpaper{position:fixed;inset:0;z-index:-2;background:url('../assets/wallpapers/kolpotuli-main.png') center/cover no-repeat}
+.mobile-wallpaper::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(4,18,29,.34),rgba(4,18,29,.64) 72%,rgba(4,18,29,.84))}
+.mobile-content{width:min(100%,720px);margin:0 auto;padding:calc(14px + env(safe-area-inset-top)) 16px calc(112px + env(safe-area-inset-bottom))}
+.mobile-topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-14px -16px 18px;padding:calc(10px + env(safe-area-inset-top)) 16px 10px;background:rgba(7,24,38,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid var(--mobile-line)}
+.mobile-brand{display:flex;align-items:center;gap:10px;min-width:0}
+.mobile-mark{width:34px;height:34px;border-radius:11px;background:linear-gradient(145deg,#ffd46b,var(--mobile-gold));color:#10283d;display:grid;place-items:center;font:700 20px "Noto Serif Bengali",serif;box-shadow:0 7px 18px rgba(0,0,0,.16)}
+.mobile-brand strong{font-size:15px}.mobile-brand small{display:block;font-size:10px;opacity:.64;margin-top:1px}
+.mobile-top-actions{display:flex;gap:7px}.mobile-icon-btn{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--mobile-soft);border:1px solid var(--mobile-line)}.mobile-icon{width:18px;height:18px;display:block}
+
+.mobile-view{display:none}.mobile-view.active{display:block}
+.mobile-section{margin-top:22px}.mobile-section:first-child{margin-top:0}.mobile-section-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:11px}.mobile-section-head h2{margin:0;font:600 21px/1.12 "Noto Serif Bengali",Georgia,serif}.mobile-section-head button{font-size:11px;opacity:.68}
+.mobile-hero{padding:22px;border-radius:26px;background:linear-gradient(145deg,rgba(255,250,238,.94),rgba(241,226,195,.9));color:var(--mobile-ink);box-shadow:var(--mobile-shadow);overflow:hidden;position:relative}
+.mobile-hero::after{content:"";position:absolute;inset:auto -30px -50px auto;width:180px;height:180px;background:radial-gradient(circle,rgba(244,181,44,.34),transparent 67%);pointer-events:none}
+.mobile-kicker{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#547f7a;font-weight:700}.mobile-hero h1{margin:8px 0 9px;font:700 clamp(30px,9vw,46px)/1 "Noto Serif Bengali",Georgia,serif;color:var(--mobile-ink);max-width:540px}.mobile-hero p{margin:0;max-width:520px;color:#425363;line-height:1.6;font-size:14px}.mobile-hero-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.mobile-primary,.mobile-secondary{min-height:44px;padding:0 15px;border-radius:var(--mobile-pill);font-weight:700}.mobile-primary{background:var(--mobile-gold);color:var(--mobile-ink)}.mobile-secondary{background:rgba(16,40,61,.08);color:var(--mobile-ink)}
+
+.mobile-stat-row{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:10px}.mobile-stat{padding:14px;border-radius:18px;background:rgba(10,30,46,.66);border:1px solid var(--mobile-line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}.mobile-stat small{display:block;font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.6}.mobile-stat strong{display:block;font-size:23px;margin-top:4px}.mobile-stat span{display:block;font-size:10px;opacity:.64;margin-top:2px}
+
+.mobile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.mobile-card{border-radius:18px;overflow:hidden;background:rgba(255,250,238,.96);color:var(--mobile-ink);border:1px solid rgba(255,255,255,.42);box-shadow:0 10px 26px rgba(0,0,0,.16)}.mobile-card-media{aspect-ratio:1.16/1;background:linear-gradient(145deg,#173a55,#6c9fb2);background-size:cover;background-position:center}.mobile-card-body{padding:12px}.mobile-card h3{font-size:14px;line-height:1.25;margin:0 0 4px}.mobile-card p{font-size:10px;opacity:.62;margin:0}.mobile-card-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:9px}.mobile-save{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#10283d;color:#fff}.mobile-open{font-size:11px;font-weight:700;padding:8px 10px;border-radius:999px;background:rgba(16,40,61,.08)}
+
+.mobile-list{display:grid;gap:8px}.mobile-list-item{width:100%;display:flex;align-items:center;gap:11px;padding:13px;border-radius:16px;background:rgba(255,250,238,.95);color:var(--mobile-ink);text-align:left;box-shadow:0 8px 22px rgba(0,0,0,.12)}.mobile-list-icon{width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:#edf1e9}.mobile-list-copy{min-width:0;flex:1}.mobile-list-copy strong{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mobile-list-copy small{display:block;font-size:10px;opacity:.58;margin-top:3px}
+
+.mobile-search{display:flex;gap:8px}.mobile-search input{flex:1;min-width:0;height:46px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(7,24,38,.62);color:#fff;padding:0 14px;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}.mobile-search button{width:46px;height:46px;border-radius:14px;background:var(--mobile-gold);color:var(--mobile-ink);display:grid;place-items:center}
+.mobile-tabs{display:flex;gap:7px;overflow:auto;scrollbar-width:none;padding-bottom:2px}.mobile-tabs::-webkit-scrollbar{display:none}.mobile-tab{flex:0 0 auto;min-height:38px;padding:0 13px;border-radius:var(--mobile-pill);background:rgba(255,255,255,.08);border:1px solid var(--mobile-line);font-size:11px}.mobile-tab.active{background:var(--mobile-gold);color:var(--mobile-ink);border-color:var(--mobile-gold);font-weight:700}
+
+.mobile-sheet-backdrop{position:fixed;inset:0;z-index:80;background:rgba(2,13,22,.58);opacity:0;pointer-events:none;transition:opacity .22s ease}.mobile-sheet{position:fixed;left:0;right:0;bottom:0;z-index:81;max-height:88svh;overflow:auto;padding:8px 16px calc(22px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#fffaf0,#f2e5c5);color:var(--mobile-ink);border-radius:25px 25px 0 0;box-shadow:0 -22px 55px rgba(0,0,0,.28);transform:translateY(105%);transition:transform .28s cubic-bezier(.22,.8,.22,1)}.mobile-sheet.open{transform:translateY(0)}.mobile-sheet-backdrop.open{opacity:1;pointer-events:auto}.mobile-sheet-handle{width:42px;height:4px;border-radius:99px;background:rgba(20,32,42,.18);margin:0 auto 14px}.mobile-sheet-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}.mobile-sheet-head h3{margin:0;font:600 22px/1.1 "Noto Serif Bengali",serif}.mobile-close{width:36px;height:36px;border-radius:50%;background:rgba(20,32,42,.07);display:grid;place-items:center}.mobile-sheet-body{display:grid;gap:10px}
+
+.mobile-bottom-nav{position:fixed;left:50%;bottom:calc(8px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:60;width:min(100% - 18px,560px);display:grid;grid-template-columns:repeat(5,1fr);gap:4px;padding:8px 7px;border-radius:22px;background:rgba(7,24,38,.8);border:1px solid rgba(255,255,255,.16);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 18px 50px rgba(0,0,0,.3)}.mobile-nav-item{min-height:52px;border-radius:15px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:#fff;opacity:.62}.mobile-nav-item.active{opacity:1;background:rgba(255,255,255,.08)}.mobile-nav-item small{font-size:9px}.mobile-nav-item.primary{color:var(--mobile-gold)}
+
+.mobile-empty{padding:25px 16px;border:1px dashed rgba(255,255,255,.22);border-radius:16px;text-align:center;font-size:12px;opacity:.7}.mobile-status{min-height:20px;font-size:12px;opacity:.74}.mobile-spinner{width:22px;height:22px;border:2px solid rgba(255,255,255,.2);border-top-color:var(--mobile-gold);border-radius:50%;animation:mobile-spin .7s linear infinite;margin:16px auto}@keyframes mobile-spin{to{transform:rotate(360deg)}}
+
+.mobile-note-preview{padding:15px;border-radius:17px;background:linear-gradient(145deg,#fffaf0,#f1e2bd);color:var(--mobile-ink);box-shadow:0 9px 24px rgba(0,0,0,.14)}.mobile-note-preview strong{display:block;font-family:"Noto Serif Bengali",serif;font-size:16px}.mobile-note-preview span{display:block;font-size:11px;opacity:.62;margin-top:4px;line-height:1.5}.mobile-note-action{margin-top:10px;min-height:40px;padding:0 13px;border-radius:999px;background:#10283d;color:#fff;font-weight:700}
+
+@media(min-width:700px){.mobile-content{padding-left:22px;padding-right:22px}.mobile-topbar{margin-left:-22px;margin-right:-22px;padding-left:22px;padding-right:22px}.mobile-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
