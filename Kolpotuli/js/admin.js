@@ -248,7 +248,11 @@ async function start() {
   setupForm();
 
   const user = await getEditorUser();
-  if (user) await loadContentList();
+  if (user) {
+    await loadContentList();
+  } else if (itemsList.isConnected) {
+    itemsList.textContent = 'Content list is unavailable until sign-in and permissions can be verified.';
+  }
 }
 
 start();
