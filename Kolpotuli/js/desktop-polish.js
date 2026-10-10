@@ -108,6 +108,8 @@ function setupWindowDragging() {
 
     win.addEventListener('pointerdown', focus);
 
+    // Window controls and the drag handle share the same title bar. Keep the
+    // controls clickable while letting the rest of the bar move the window.
     bar.addEventListener('pointerdown', event => {
       if (event.button !== undefined && event.button !== 0) return;
       if (event.target.closest('button')) return;
