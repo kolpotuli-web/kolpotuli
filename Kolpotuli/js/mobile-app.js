@@ -33,7 +33,14 @@ let activeView = 'home';
 let activeSheet = null;
 let playing = false;
 
-function user(){ return supabase.auth.getUser().then(result => result.data.user); }
+async function user(){
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    console.warn('Could not read mobile session:', error.message);
+    return null;
+  }
+  return data.user;
+}
 function showView(name){
   activeView = name;
   $$('.mobile-view').forEach(view => view.classList.toggle('active', view.dataset.view === name));
@@ -134,9 +141,49 @@ async function loadLibrary(){
   const panel=$('[data-mobile-library]'); if(!panel)return;
   const u=await user();
   if(!u){panel.innerHTML='<div class="mobile-empty">Sign in to access your saved pieces and reading history.</div>';return;}
-  const {data}=await supabase.from('favorites').select('created_at,content_items(id,title,type,language,read_time_minutes)').eq('user_id',u.id).order('created_at',{ascending:false}).limit(20);
+  const tab=panel.dataset.libraryTab||'saved';
+  if(tab==='saved'){
+    const {data,error}=await supabase.from('favorites').select('created_at,content_items(id,title,type,language,read_time_minutes)').eq('user_id',u.id).order('created_at',{ascending:false}).limit(20);
+    if(error){panel.innerHTML='<div class="mobile-empty">Your saved pieces could not be loaded. Try again.</div>';return;}
+    const rows=(data||[]).filter(row=>row.content_items).map(row=>row.content_items);
+    panel.innerHTML=`<div class="mobile-section-head"><h2>${esc(t('Saved'))}</h2><button data-sheet-open="library">${esc(t('More'))}</button></div>${rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:`<div class="mobile-empty">${esc(t('Nothing saved yet.'))}</div>`}`;
+    bindContentActions(panel);
+    return;
+  }
+  if(tab==='reading'){
+    const {data,error}=await supabase.from('reading_progress').select('progress_percent,content_items(id,title,type,language,read_time_minutes)').eq('user_id',u.id).order('last_opened_at',{ascending:false}).limit(30);
+    if(error){panel.innerHTML='<div class="mobile-empty">Reading history could not be loaded. Try again.</div>';return;}
+    const rows=(data||[]).filter(row=>row.content_items && Number(row.progress_percent)<100);
+    panel.innerHTML=`<div class="mobile-section-head"><h2>${esc(t('Reading'))}</h2></div>${rows.length?`<div class="mobile-list">${rows.map(row=>`<button class="mobile-list-item" data-open="${esc(row.content_items.id)}"><span class="mobile-list-icon">${icon('library',18)}</span><span class="mobile-list-copy"><strong>${esc(row.content_items.title)}</strong><small>${Math.round(Number(row.progress_percent)||0)}% read</small></span>${icon('chevron',16)}</button>`).join('')}</div>`:'<div class="mobile-empty">No unfinished reading yet.</div>'}`;
+    bindContentActions(panel);
+    return;
+  }
+  if(tab==='collections'){
+    const {data,error}=await supabase.from('collections').select('id,name,description').eq('user_id',u.id).order('created_at',{ascending:false});
+    if(error){panel.innerHTML='<div class="mobile-empty">Collections could not be loaded. Try again.</div>';return;}
+    panel.innerHTML=`<div class="mobile-section-head"><h2>${esc(t('Collections'))}</h2><button data-new-collection>Create</button></div><div class="mobile-list">${(data||[]).map(item=>`<button class="mobile-list-item" data-collection-id="${esc(item.id)}"><span class="mobile-list-icon">${icon('library',18)}</span><span class="mobile-list-copy"><strong>${esc(item.name)}</strong><small>${esc(item.description||'Personal collection')}</small></span>${icon('chevron',16)}</button>`).join('')}</div>${data?.length?'':'<div class="mobile-empty">No collections yet.</div>'}`;
+    panel.querySelector('[data-new-collection]')?.addEventListener('click',async()=>{
+      const name=prompt('Collection name');
+      if(!name?.trim())return;
+      const {error:createError}=await supabase.from('collections').insert({user_id:u.id,name:name.trim()});
+      if(createError){alert(createError.message);return;}
+      loadLibrary();
+    });
+    panel.querySelectorAll('[data-collection-id]').forEach(button=>button.addEventListener('click',async()=>{
+      const id=button.dataset.collectionId;
+      const {data:items,error:itemsError}=await supabase.from('collection_items').select('content_items(id,title,type,language,read_time_minutes)').eq('collection_id',id).order('created_at',{ascending:false});
+      if(itemsError){alert(itemsError.message);return;}
+      const rows=(items||[]).filter(row=>row.content_items).map(row=>row.content_items);
+      panel.innerHTML=`<div class="mobile-section-head"><h2>${esc(button.querySelector('strong')?.textContent||'Collection')}</h2><button data-collections-back>← Collections</button></div>${rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:'<div class="mobile-empty">This collection is empty.</div>'}`;
+      bindContentActions(panel);
+      panel.querySelector('[data-collections-back]')?.addEventListener('click',loadLibrary);
+    }));
+    return;
+  }
+  const {data,error}=await supabase.from('recently_opened').select('opened_at,content_items(id,title,type,language,read_time_minutes)').eq('user_id',u.id).order('opened_at',{ascending:false}).limit(30);
+  if(error){panel.innerHTML='<div class="mobile-empty">Recent reading could not be loaded. Try again.</div>';return;}
   const rows=(data||[]).filter(row=>row.content_items).map(row=>row.content_items);
-  panel.innerHTML=`<div class="mobile-section-head"><h2>${esc(t('Saved'))}</h2><button data-sheet-open="library">${esc(t('More'))}</button></div>${rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:`<div class="mobile-empty">${esc(t('Nothing saved yet.'))}</div>`}`;
+  panel.innerHTML=`<div class="mobile-section-head"><h2>${esc(t('Recently Opened'))}</h2></div>${rows.length?`<div class="mobile-list">${rows.map(listItem).join('')}</div>`:'<div class="mobile-empty">Nothing opened yet.</div>'}`;
   bindContentActions(panel);
 }
 
@@ -185,6 +232,14 @@ function setupSheets(){
     if(view && !event.target.closest('.mobile-tab')){event.preventDefault();showView(view.dataset.view);closeSheet();return;}
     const nav=event.target.closest('.mobile-nav-item');
     if(nav){event.preventDefault();showView(nav.dataset.view);return;}
+    const libraryOption=event.target.closest('[data-library-tab-mobile]');
+    if(libraryOption){
+      const tab=libraryOption.dataset.libraryTabMobile;
+      closeSheet();
+      showView('library');
+      const panel=$('[data-mobile-library]');
+      if(panel){panel.dataset.libraryTab=tab;loadLibrary();}
+    }
   });
 }
 function setupNav(){ return true; }
