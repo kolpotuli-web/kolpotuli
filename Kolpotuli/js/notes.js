@@ -208,6 +208,7 @@ async function saveNote() {
 }
 
 newButton?.addEventListener('click', createNote);
+window.addEventListener('kolpotuli-note-new', createNote);
 saveButton?.addEventListener('click', saveNote);
 titleInput.addEventListener('input', updateDirtyState);
 bodyInput.addEventListener('input', updateDirtyState);
