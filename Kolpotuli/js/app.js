@@ -41,8 +41,17 @@ const closeWindow = id => document.getElementById(id)?.classList.add('hidden');
 const openReader = id => { if (id) location.href = `read.html?id=${encodeURIComponent(id)}`; };
 
 async function currentUser() {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      console.warn('Could not read the current user:', error.message);
+      return null;
+    }
+    return data.user;
+  } catch (error) {
+    console.warn('Authentication is unavailable:', error);
+    return null;
+  }
 }
 
 document.addEventListener('click', async event => {
@@ -165,14 +174,25 @@ if (play) {
 const esc = value => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
 
 async function loadContent() {
-  const { data, error } = await supabase.from('content_items')
-    .select('id,type,title,excerpt,cover_image_url,language,featured,read_time_minutes,published_at')
-    .eq('status', 'published')
-    .order('featured', { ascending: false })
-    .order('published_at', { ascending: false })
-    .limit(60);
+  let data;
+  let error;
+
+  try {
+    const result = await supabase.from('content_items')
+      .select('id,type,title,excerpt,cover_image_url,language,featured,read_time_minutes,published_at')
+      .eq('status', 'published')
+      .order('featured', { ascending: false })
+      .order('published_at', { ascending: false })
+      .limit(60);
+
+    data = result.data;
+    error = result.error;
+  } catch (requestError) {
+    error = requestError;
+  }
+
   if (error) {
-    console.warn('Kolpotuli content load:', error.message);
+    console.warn('Kolpotuli content load:', error.message || error);
 
     const message = `<div class="library-empty">${t('Unable to load content.')}</div>`;
     document.querySelectorAll('.card-grid').forEach(grid => { grid.innerHTML = message; });
@@ -234,9 +254,24 @@ async function renderRecent() {
     box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">${t('Sign in to keep your history.')}</div>`;
     return;
   }
-  const { data } = await supabase.from('recently_opened').select('opened_at,content_items(id,title,type)').eq('user_id', user.id).order('opened_at', { ascending: false }).limit(3);
-  box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + ((data || []).filter(item => item.content_items).map(item => `<button class="recent-item" data-content-id="${esc(item.content_items.id)}"><span>${svgIcon(item.content_items.type === 'art' ? 'folderArt' : item.content_items.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.content_items.title)}</strong><small>${esc(item.content_items.type)}</small></span></button>`).join('') || `<div class="widget-sub">${t('Nothing opened yet.')}</div>`);
-  box.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => openReader(button.dataset.contentId)));
+  try {
+    const { data, error } = await supabase.from('recently_opened')
+      .select('opened_at,content_items(id,title,type)')
+      .eq('user_id', user.id)
+      .order('opened_at', { ascending: false })
+      .limit(3);
+
+    if (error) {
+      box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">${t('Unable to load content.')}</div>`;
+      return;
+    }
+
+    box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + ((data || []).filter(item => item.content_items).map(item => `<button class="recent-item" data-content-id="${esc(item.content_items.id)}"><span>${svgIcon(item.content_items.type === 'art' ? 'folderArt' : item.content_items.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.content_items.title)}</strong><small>${esc(item.content_items.type)}</small></span></button>`).join('') || `<div class="widget-sub">${t('Nothing opened yet.')}</div>`);
+    box.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => openReader(button.dataset.contentId)));
+  } catch (error) {
+    console.warn('Could not load recently opened items:', error);
+    box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">${t('Unable to load content.')}</div>`;
+  }
 }
 
 async function markOpened(contentId) {
