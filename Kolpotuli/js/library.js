@@ -254,26 +254,43 @@ async function loadCollectionDetail(user, collectionId, root) {
     .eq('collection_id', collectionId)
     .order('created_at', { ascending: false });
 
+  const content = (rows || []).filter(row => row.content_items);
   root.innerHTML = `
     <div class="collection-detail-head"><button type="button" data-back-collections>← Collections</button><strong>${escapeHtml(collection.name)}</strong></div>
-    ${error ? '<div class="library-empty">Unable to load this collection.</div>' : renderContentRows(rows || [], 'Open')}
+    ${error ? '<div class="library-empty">Unable to load this collection.</div>' : content.length ? `
+      <div class="library-list">${content.map(row => {
+        const item = row.content_items;
+        return `<div class="collection-content-row">
+          <button type="button" class="library-item" data-content-id="${escapeHtml(item.id)}">
+            <span class="mini-thumb db-thumb" ${item.cover_image_url ? `style="background-image:url('${escapeHtml(item.cover_image_url)}')"` : ''}></span>
+            <span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.type)}</small></span>
+            <em>Open</em>
+          </button>
+          <button type="button" class="collection-remove" data-remove-content="${escapeHtml(item.id)}">Remove</button>
+        </div>`;
+      }).join('')}</div>` : '<div class="library-empty">This collection is empty. Open a story and add it from the Reader.</div>'}
   `;
 
   root.querySelector('[data-back-collections]').addEventListener('click', () => loadCollections(user, root));
   connectContentButtons(root);
 
-  root.querySelectorAll('[data-content-id]').forEach(button => {
-    button.addEventListener('contextmenu', async event => {
-      event.preventDefault();
+  root.querySelectorAll('[data-remove-content]').forEach(button => {
+    button.addEventListener('click', async () => {
       if (!window.confirm('Remove this piece from the collection?')) return;
 
+      button.disabled = true;
       const { error: removeError } = await supabase.from('collection_items')
         .delete()
         .eq('collection_id', collectionId)
-        .eq('content_id', button.dataset.contentId);
+        .eq('content_id', button.dataset.removeContent);
 
-      if (removeError) window.alert(removeError.message);
-      else await loadCollectionDetail(user, collectionId, root);
+      if (removeError) {
+        button.disabled = false;
+        window.alert(removeError.message);
+        return;
+      }
+
+      await loadCollectionDetail(user, collectionId, root);
     });
   });
 }
