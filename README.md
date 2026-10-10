@@ -47,6 +47,12 @@ There is no compile/bundle step right now: the browser runs the source files dir
 - `Kolpotuli/read.html` — reader and reading progress.
 - `Kolpotuli/profile.html` — profile editing.
 
+## Local atmosphere and YouTube music
+
+- The atmosphere widget asks for browser location permission only when a reader presses **Use my location**. Readers can instead search for any city. The selected place is stored in that browser's local storage and weather is retrieved from Open-Meteo.
+- YouTube links can be played inside the desktop Music window or mobile Music sheet using YouTube's official embedded player and the in-page Play/Pause controls.
+- To enable **in-app YouTube search results**, enable **YouTube Data API v3** in a Google Cloud project and create an API key restricted to your deployed website's HTTP referrers and that API. Set the value of `<meta name="youtube-api-key" content="">` in both `Kolpotuli/index.html` and `Kolpotuli/mobile.html`. Do not put an unrestricted API key in the site. Without this key, the search form opens YouTube search in a new tab, and a reader can paste a video link back into Kolpotuli to play it here.
+
 ## Configuration and safety
 
 The Supabase publishable key is meant for browser use. Database Row Level Security (RLS) policies must remain enabled and must enforce permissions; front-end role checks alone are not security. Never put a Supabase service-role key or any other server secret in this repository.
