@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#10283d">
+  <meta name="youtube-api-key" content="">
   <meta name="description" content="Kolpotuli — stories, art and notes from Bengal.">
   <title>Kolpotuli</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,10 +53,26 @@
             <div id="clockTime" class="clock-time">--:--</div>
             <div id="clockDate" class="widget-sub">Loading…</div>
           </article>
-          <article class="widget glass weather-widget">
-            <div class="widget-kicker" data-i18n="widget.weather">WEATHER</div>
-            <div class="widget-main"><strong id="weatherTemp">--°</strong><span data-icon="cloud" data-icon-size="28" aria-hidden="true"></span></div>
-            <div id="weatherSummary" class="widget-sub">Weather unavailable</div>
+          <article class="widget glass weather-widget" data-weather-widget>
+            <div class="widget-row">
+              <div class="widget-kicker" data-i18n="widget.weather">LOCAL ATMOSPHERE</div>
+              <button class="weather-picker-toggle" type="button" data-weather-picker-target="#desktopWeatherPicker" aria-expanded="false">Change</button>
+            </div>
+            <div class="weather-location-row"><strong data-weather-city>Choose a city</strong><button class="weather-picker-toggle location-pin" type="button" data-weather-picker-target="#desktopWeatherPicker" aria-label="Choose weather location" aria-expanded="false">⌖</button></div>
+            <div class="widget-main"><strong data-weather-temp>—°</strong><span data-weather-icon aria-hidden="true">☁</span></div>
+            <div class="widget-sub" data-weather-summary>Choose a city or use your location.</div>
+            <div class="weather-mini-details"><span data-weather-humidity></span><span data-weather-wind></span></div>
+            <div id="desktopWeatherPicker" class="weather-picker" hidden>
+              <div class="weather-picker-heading"><strong>Local atmosphere</strong><button type="button" class="weather-picker-close" aria-label="Close location picker">×</button></div>
+              <form data-weather-search-form>
+                <label class="visually-hidden" for="desktopCityQuery">Search a city</label>
+                <input id="desktopCityQuery" type="search" data-weather-city-query placeholder="Search any city…" autocomplete="off">
+                <button type="submit">Search</button>
+              </form>
+              <button class="weather-use-location" type="button" data-weather-use-location>⌖ Use my location</button>
+              <p class="weather-status" data-weather-status aria-live="polite">Location is only requested when you choose this option.</p>
+              <div class="weather-city-results" data-weather-city-results></div>
+            </div>
           </article>
           <article class="widget paper-widget">
             <div id="bengaliDay" class="bengali-date">আজ</div>
@@ -63,16 +80,10 @@
             <div id="bengaliDateSub" class="widget-sub">—</div>
           </article>
           <article class="widget glass music-widget">
-            <div class="widget-row"><span class="widget-kicker" data-i18n="widget.nowPlaying">NOW PLAYING</span><button class="music-favorite" type="button" data-action="favorite-track" aria-label="Favorite current track" data-icon="heart" data-icon-size="18"><span></span></button></div>
-            <strong>Saving Grace</strong>
-            <span class="widget-sub">KIRBY</span>
-            <input type="range" min="0" max="100" value="36" aria-label="Playback position">
-            <div class="music-controls">
-              <button type="button" data-action="previous-track" aria-label="Previous track" data-icon="previous" data-icon-size="18"><span></span></button>
-              <button type="button" class="play" data-action="toggle-play" aria-label="Play" data-icon="play" data-icon-size="20"><span></span></button>
-              <button type="button" data-action="next-track" aria-label="Next track" data-icon="next" data-icon-size="18"><span></span></button>
-            </div>
-            <button class="playlist-button" type="button" data-action="playlist" data-i18n="music.add">＋ Add to playlist</button>
+            <div class="widget-row"><span class="widget-kicker" data-i18n="widget.nowPlaying">NOW PLAYING</span><span data-icon="music" data-icon-size="17" aria-hidden="true"></span></div>
+            <strong data-current-track-title>Search for a song</strong>
+            <span class="widget-sub" data-current-track-artist>Search YouTube to start listening</span>
+            <button class="playlist-button music-open-button" type="button" data-window="music">⌕ Search YouTube</button>
           </article>
           <article class="widget glass recent-widget">
             <div class="widget-kicker" data-i18n="widget.recent">RECENTLY OPENED</div>
@@ -134,6 +145,27 @@
           <article id="home" class="app-window glass hidden" data-app-window>
             <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="home" aria-label="Close Home"></button><button type="button" data-window-control="minimize" data-minimize="home" aria-label="Minimize Home"></button><button type="button" data-window-control="zoom" data-zoom="home" aria-label="Zoom Home"></button></div><span>Kolpotuli</span></div></div><div class="window-body simple-body"><p>A quiet place for stories, art and writing.</p><button class="primary-action" type="button" data-window="stories">Browse stories</button></div>
           </article>
+          <article id="music" class="app-window glass hidden music-app-window" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="music" aria-label="Close Music"></button><button type="button" data-window-control="minimize" data-minimize="music" aria-label="Minimize Music"></button><button type="button" data-window-control="zoom" data-zoom="music" aria-label="Zoom Music"></button></div><span>Kolpotuli Music</span></div><div class="window-toolbar"><span class="music-provider-label">YouTube</span></div></div>
+            <div class="window-body music-app-body">
+              <div class="music-app-intro"><span class="music-app-eyebrow">YOUR SOUNDTRACK</span><h2>Find a song. Stay in your story.</h2><p>Search YouTube and play a selected video inside Kolpotuli.</p></div>
+              <form class="youtube-search-form" data-music-search-form>
+                <label class="visually-hidden" for="desktopYoutubeSearch">Search YouTube songs</label>
+                <span aria-hidden="true">⌕</span><input id="desktopYoutubeSearch" data-youtube-search type="search" placeholder="Search songs, artists, film music…" autocomplete="off">
+                <button type="submit">Search</button>
+              </form>
+              <div class="youtube-results" data-youtube-results aria-live="polite"><p class="music-empty">Search YouTube to find a song. If in-app results are not configured, you can paste a video link below.</p></div>
+              <section class="youtube-player-section" aria-label="YouTube player">
+                <div class="music-current-track"><div><span class="music-app-eyebrow">NOW PLAYING</span><h3 data-current-track-name>Nothing playing yet</h3><p data-current-track-channel>Choose a search result or paste a video link.</p></div><div class="music-player-controls"><button type="button" data-youtube-previous disabled aria-label="Previous result">‹</button><button type="button" data-youtube-play disabled>Play</button><button type="button" data-youtube-pause disabled>Pause</button><button type="button" data-youtube-next disabled aria-label="Next result">›</button></div></div>
+                <div class="youtube-player-frame"><div data-youtube-player><p class="youtube-player-placeholder">Your selected YouTube video will appear here.</p></div></div>
+                <p class="music-status" data-music-status role="status" aria-live="polite">Search results require a restricted YouTube Data API key; video links can always be played here.</p>
+                <form class="youtube-url-form" data-youtube-url-form>
+                  <label for="desktopYoutubeUrl">Or paste a YouTube video link</label>
+                  <div><input id="desktopYoutubeUrl" data-youtube-url type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="url"><button type="submit">Play link</button></div>
+                </form>
+              </section>
+            </div>
+          </article>
         </section>
 
         <div class="quote quote-one">“Stories live in the spaces between us.”<span>— Kolpotuli</span></div>
@@ -160,6 +192,7 @@
   </div>
 
   <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/atmosphere-music.js"></script>
   <script type="module" src="js/notes.js"></script>
   <script type="module" src="js/desktop-polish.js"></script>
 </body>
