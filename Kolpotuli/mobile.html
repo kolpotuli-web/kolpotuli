@@ -33,7 +33,7 @@
       <section class="mobile-stat-row">
         <article class="mobile-stat"><small>Local time</small><strong data-mobile-time>--:--</strong><span data-mobile-date>Loading…</span></article>
         <article class="mobile-stat mobile-weather-stat">
-          <div class="mobile-weather-stat-head"><small>Local atmosphere</small><button type="button" data-sheet-open="weather">Change</button></div>
+          <div class="mobile-weather-stat-head"><small data-i18n="widget.weather">Local atmosphere</small><button type="button" data-sheet-open="weather" data-i18n="weather.change">Change</button></div>
           <strong data-mobile-temp>—°</strong>
           <span data-mobile-temp-city>Choose a city</span>
           <span data-mobile-weather-summary>Choose your city for local weather.</span>
@@ -79,15 +79,15 @@
 
   <section class="mobile-sheet" data-sheet="weather" aria-hidden="true" aria-label="Local weather">
     <div class="mobile-sheet-handle"></div>
-    <div class="mobile-sheet-head"><h3>Local atmosphere</h3><button class="mobile-close" data-sheet-close aria-label="Close local weather">×</button></div>
+    <div class="mobile-sheet-head"><h3 data-i18n="weather.sheetTitle">Local atmosphere</h3><button class="mobile-close" data-sheet-close aria-label="Close local weather">×</button></div>
     <div class="mobile-sheet-body">
-      <p class="weather-privacy-note">Choose a city or grant location permission. Your selection stays in this browser.</p>
+      <p class="weather-privacy-note" data-i18n="weather.permissionNote">Choose a city or grant location permission. Your selection stays in this browser.</p>
       <form class="mobile-weather-search" data-weather-search-form>
         <label class="visually-hidden" for="mobileCityQuery">Search a city</label>
-        <input id="mobileCityQuery" type="search" data-weather-city-query placeholder="Search any city…" autocomplete="off">
+        <input id="mobileCityQuery" type="search" data-weather-city-query data-i18n-placeholder="weather.searchPlaceholder" placeholder="Search any city…" autocomplete="off">
         <button type="submit">Search</button>
       </form>
-      <button class="mobile-list-item mobile-use-location" type="button" data-weather-use-location><span class="mobile-list-icon">⌖</span><span class="mobile-list-copy"><strong>Use my location</strong><small>Ask the browser for location permission</small></span><span>›</span></button>
+      <button class="mobile-list-item mobile-use-location" type="button" data-weather-use-location><span class="mobile-list-icon">⌖</span><span class="mobile-list-copy"><strong data-i18n="weather.useLocation">Use my location</strong><small>Ask the browser for location permission</small></span><span>›</span></button>
       <p class="weather-status" data-weather-status role="status" aria-live="polite"></p>
       <div class="weather-city-results" data-weather-city-results></div>
     </div>
@@ -117,12 +117,12 @@
 
   <section class="mobile-sheet mobile-music-sheet" data-sheet="music" aria-hidden="true" aria-label="YouTube music player">
     <div class="mobile-sheet-handle"></div>
-    <div class="mobile-sheet-head"><h3>Kolpotuli Music</h3><button class="mobile-close" data-sheet-close aria-label="Close music player">×</button></div>
+    <div class="mobile-sheet-head"><h3 data-i18n="music.sheetTitle">Kolpotuli Music</h3><button class="mobile-close" data-sheet-close aria-label="Close music player">×</button></div>
     <div class="mobile-sheet-body">
       <p class="weather-privacy-note">Search YouTube and play a selected video here. In-app search results need a restricted YouTube Data API key; pasting a video link works without one.</p>
       <form class="youtube-search-form mobile-youtube-search-form" data-music-search-form>
         <label class="visually-hidden" for="mobileYoutubeSearch">Search songs on YouTube</label>
-        <input id="mobileYoutubeSearch" data-youtube-search type="search" placeholder="Song, artist, soundtrack…" autocomplete="off">
+        <input id="mobileYoutubeSearch" data-youtube-search data-i18n-placeholder="music.searchPlaceholder" type="search" placeholder="Song, artist, soundtrack…" autocomplete="off">
         <button type="submit">Search</button>
       </form>
       <div class="youtube-results mobile-youtube-results" data-youtube-results aria-live="polite"><p class="music-empty">Search for a song, or paste a YouTube video link below.</p></div>
