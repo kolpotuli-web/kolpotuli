@@ -264,6 +264,14 @@ function setupSettings(){
   });
   const saved=localStorage.getItem('kolpotuli-mobile-wallpaper');
   if(saved && $('.mobile-wallpaper')) $('.mobile-wallpaper').style.backgroundImage=WALLPAPERS[saved]||WALLPAPERS.main;
+  document.addEventListener('click',event=>{
+    const toggle=event.target.closest('[data-mobile-appearance]');
+    if(!toggle)return;
+    const appearance=toggle.dataset.mobileAppearance;
+    document.documentElement.dataset.appearance=appearance;
+    localStorage.setItem('kolpotuli-appearance',appearance);
+    closeSheet();
+  });
 }
 function setupMusic(){
   document.addEventListener('click',event=>{
