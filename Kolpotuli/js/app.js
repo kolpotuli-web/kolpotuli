@@ -3,14 +3,28 @@ import { t, setLanguage, initLanguage } from './i18n.js';
 import { openAuth, refreshAuthUI } from './auth-ui.js';
 
 const desktop = document.getElementById('desktop');
-let z = 20;
+const workspace = document.getElementById('workspace');
+const commandPalette = document.getElementById('commandPalette');
+const commandInput = document.getElementById('commandInput');
+const commandResults = document.getElementById('commandResults');
+const toastRegion = document.getElementById('toastRegion');
+
+let highestWindowLevel = 20;
+let commandIndex = 0;
+let commandItems = [];
+let toastTimer;
+let contentItems = [];
+const filters = { stories: 'all', art: 'all' };
+const searches = { stories: '', art: '' };
+const viewModes = { stories: 'grid', art: 'grid' };
+const windows = new Map();
+const FAVORITE_ICON = 'heartFilled';
 
 const ICONS = {
   search: '<circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/>',
   sparkle: '<path d="m12 3 1.4 5.6L19 10l-5.6 1.4L12 17l-1.4-5.6L5 10l5.6-1.4L12 3Z"/>',
   profile: '<circle cx="12" cy="8" r="3.4"/><path d="M5.5 21c.7-3.7 3-5.7 6.5-5.7s5.8 2 6.5 5.7"/>',
   settings: '<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.6 1.6 0 0 0 .3 1.8l.1.1-1.8 1.8-.1-.1a1.6 1.6 0 0 0-1.8-.3 1.6 1.6 0 0 0-1 1.5v.2h-2.6v-.2a1.6 1.6 0 0 0-1-1.5 1.6 1.6 0 0 0-1.8.3l-.1.1-1.8-1.8.1-.1a1.6 1.6 0 0 0 .3-1.8 1.6 1.6 0 0 0-1.5-1H6.5v-2.6h.2a1.6 1.6 0 0 0 1.5-1 1.6 1.6 0 0 0-.3-1.8l-.1-.1 1.8-1.8.1.1a1.6 1.6 0 0 0 1.8.3 1.6 1.6 0 0 0 1-1.5v-.2h2.6v.2a1.6 1.6 0 0 0 1 1.5 1.6 1.6 0 0 0 1.8-.3l.1-.1 1.8 1.8-.1.1a1.6 1.6 0 0 0-.3 1.8 1.6 1.6 0 0 0 1.5 1h.2V14h-.2a1.6 1.6 0 0 0-1.5 1Z"/>',
-  trash: '<path d="M5 7h14M9 7V5h6v2M8 10v8M12 10v8M16 10v8"/><path d="M6.5 7.5 7.2 20h9.6l.7-12.5"/>',
   cloud: '<path d="M7.2 18.5h9.3a4.3 4.3 0 0 0 .4-8.6 5.8 5.8 0 0 0-11.1 1.6 3.6 3.6 0 0 0 1.4 7Z"/>',
   heart: '<path d="M20.4 8.8c0 5.1-8.4 9.7-8.4 9.7S3.6 13.9 3.6 8.8A4.5 4.5 0 0 1 12 6.2a4.5 4.5 0 0 1 8.4 2.6Z"/>',
   heartFilled: '<path fill="currentColor" stroke="none" d="M12 20.4S3.4 15.7 3.4 9a4.7 4.7 0 0 1 8.6-2.8A4.7 4.7 0 0 1 20.6 9c0 6.7-8.6 11.4-8.6 11.4Z"/>',
@@ -18,7 +32,6 @@ const ICONS = {
   next: '<path d="m9 6 6 6-6 6M17 6v12"/>',
   play: '<path fill="currentColor" stroke="none" d="m9 6 9 6-9 6V6Z"/>',
   pause: '<path fill="currentColor" stroke="none" d="M8 6.5h3v11H8zm5 0h3v11h-3z"/>',
-  close: '<path d="m7 7 10 10M17 7 7 17"/>',
   plus: '<path d="M12 5v14M5 12h14"/>',
   refresh: '<path d="M20 7v5h-5"/><path d="M4.7 9a7.5 7.5 0 0 1 12.4-2.7L20 12M4 17v-5h5"/><path d="M19.3 15a7.5 7.5 0 0 1-12.4 2.7L4 12"/>',
   grid: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><rect x="14" y="14" width="6" height="6" rx="1"/>',
@@ -28,123 +41,299 @@ const ICONS = {
   folderArt: '<path d="m12 6 6 6-6 6-6-6 6-6Z"/><circle cx="12" cy="12" r="1.4"/>',
   folderBlogs: '<path d="M7 7h10M7 11h10M7 15h7"/><path d="m16 14 3 3-3 3"/>',
   note: '<path d="M7 5.5h7l3 3V19H7z"/><path d="M14 5.5V9h3M9.5 12h5M9.5 15h5"/>',
-  signal: '<path d="M5 18v-3M9 18v-5M13 18v-8M17 18V7M21 18V4"/>'
+  signal: '<path d="M5 18v-3M9 18v-5M13 18v-8M17 18V7M21 18V4"/>',
+  close: '<path d="m7 7 10 10M17 7 7 17"/>'
 };
 
-const svgIcon = (name, size = 20, className = '') => `<svg class="ko-icon${className ? ` ${className}` : ''}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
-
-const openWindow = id => {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.remove('hidden');
-  z += 1;
-  el.style.zIndex = z;
-  if (id === 'library') loadLibrary();
+const svgIcon = (name, size = 20, className = '') => {
+  const drawing = ICONS[name] || '';
+  return `<svg class="ko-icon${className ? ` ${className}` : ''}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${drawing}</svg>`;
 };
-const closeWindow = id => document.getElementById(id)?.classList.add('hidden');
-const openReader = id => { if (id) location.href = `read.html?id=${encodeURIComponent(id)}`; };
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function notify(message, kind = 'info') {
+  if (!toastRegion) return;
+
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.dataset.kind = kind;
+  toast.textContent = message;
+  toastRegion.append(toast);
+
+  window.setTimeout(() => toast.remove(), 2600);
+}
+
+function setEmptyState(target, message, detail = '') {
+  if (!target) return;
+  target.replaceChildren();
+
+  const state = document.createElement('div');
+  state.className = 'library-empty';
+
+  const title = document.createElement('strong');
+  title.textContent = message;
+  state.append(title);
+
+  if (detail) {
+    const copy = document.createElement('p');
+    copy.textContent = detail;
+    state.append(copy);
+  }
+
+  target.append(state);
+}
 
 async function currentUser() {
-  const { data: { user } } = await supabase.auth.getUser();
-  return user;
+  try {
+    const { data, error } = await supabase.auth.getUser();
+    if (error) {
+      console.warn('Could not read current user:', error.message);
+      return null;
+    }
+    return data.user;
+  } catch (error) {
+    console.warn('Authentication is not available:', error);
+    return null;
+  }
 }
 
-document.addEventListener('click', async event => {
-  const creator = event.target.closest('[data-create]');
-  if (creator) {
-    event.preventDefault();
-    const user = await currentUser();
-    if (user) location.href = creator.dataset.create || 'admin.html';
-    else openAuth();
+function openWindow(id) {
+  const win = document.getElementById(id);
+  if (!win) return;
+
+  win.classList.remove('hidden');
+  win.classList.remove('minimized');
+  highestWindowLevel += 1;
+  win.style.zIndex = String(highestWindowLevel);
+  windows.set(id, win);
+  setActiveWindow(win);
+
+  if (id === 'library') loadLibrary();
+  if (id === 'notes') window.dispatchEvent(new Event('kolpotuli-notes-open'));
+  if (id === 'stories' || id === 'art' || id === 'blogs') {
+    requestAnimationFrame(() => win.querySelector('input[type="search"], input[data-search], input')?.focus({ preventScroll: true }));
+  }
+}
+
+function closeWindow(id) {
+  const win = document.getElementById(id);
+  if (!win) return;
+  win.classList.add('hidden');
+  win.classList.remove('minimized');
+  win.removeAttribute('data-active');
+}
+
+function minimizeWindow(id) {
+  const win = document.getElementById(id);
+  if (!win) return;
+  win.classList.add('minimized');
+  win.removeAttribute('data-active');
+}
+
+function zoomWindow(id) {
+  const win = document.getElementById(id);
+  if (!win) return;
+
+  const zoomed = win.dataset.zoomed === 'true';
+  win.dataset.zoomed = String(!zoomed);
+  if (zoomed) {
+    win.style.left = '';
+    win.style.top = '';
+    win.style.width = '';
+    win.style.height = '';
+    win.style.transform = '';
+  } else {
+    win.style.left = '12px';
+    win.style.top = '12px';
+    win.style.width = 'calc(100% - 24px)';
+    win.style.height = 'calc(100% - 24px)';
+    win.style.maxHeight = 'calc(100% - 24px)';
+    win.style.transform = 'none';
+  }
+  focusWindow(win);
+}
+
+function focusWindow(win) {
+  highestWindowLevel += 1;
+  win.style.zIndex = String(highestWindowLevel);
+  setActiveWindow(win);
+}
+
+function setActiveWindow(activeWin) {
+  document.querySelectorAll('[data-app-window]').forEach(win => {
+    win.dataset.active = String(win === activeWin);
+  });
+}
+
+function toggleCommandPalette(show = !commandPalette?.classList.contains('hidden')) {
+  if (!commandPalette) return;
+
+  if (show) {
+    commandPalette.classList.remove('hidden');
+    commandInput.value = '';
+    updateCommandResults('');
+    requestAnimationFrame(() => commandInput.focus());
+  } else {
+    commandPalette.classList.add('hidden');
+    commandInput.blur();
+  }
+}
+
+function getSearchableItems() {
+  return contentItems.filter(item => item.status === 'published');
+}
+
+function matchingItems(query, limit = 30) {
+  const normalized = query.trim().toLocaleLowerCase();
+  const searchable = getSearchableItems();
+
+  if (!normalized) return searchable.slice(0, limit);
+
+  return searchable.filter(item => {
+    const fields = [item.title, item.excerpt, item.body, item.type, item.language, item.slug];
+    return fields.some(value => String(value || '').toLocaleLowerCase().includes(normalized));
+  }).slice(0, limit);
+}
+
+function updateCommandResults(query) {
+  if (!commandResults) return;
+
+  commandItems = matchingItems(query, 12).map(item => ({
+    id: item.id,
+    title: item.title,
+    type: item.type,
+    action: () => openReader(item.id)
+  }));
+
+  const actions = [
+    { title: t('Stories'), type: 'Open folder', action: () => openWindow('stories'), icon: 'folderStories' },
+    { title: t('Art'), type: 'Open folder', action: () => openWindow('art'), icon: 'folderArt' },
+    { title: t('Library'), type: 'Open folder', action: () => openWindow('library'), icon: 'folderLibrary' },
+    { title: t('Notes'), type: 'Open folder', action: () => openWindow('notes'), icon: 'note' },
+    { title: t('Settings'), type: 'Preferences', action: () => openWindow('settings'), icon: 'settings' }
+  ].filter(item => !query || item.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+
+  const results = query ? commandItems : actions;
+  if (!results.length) {
+    commandResults.innerHTML = '<p class="command-hint">No matching stories or actions.</p>';
+    commandIndex = 0;
     return;
   }
 
-  const link = event.target.closest('[data-link]');
-  if (link) {
-    event.preventDefault();
-    location.href = link.dataset.link;
-    return;
-  }
+  commandResults.innerHTML = results.map((item, index) => {
+    const icon = item.icon || (item.type === 'art' ? 'folderArt' : item.type === 'blog' ? 'folderBlogs' : 'folderStories');
+    return `<button type="button" class="command-result ${index === 0 ? 'active' : ''}" role="option" aria-selected="${index === 0}" data-command-index="${index}">${svgIcon(icon, 18)}<strong>${escapeHtml(item.title)}</strong><span class="command-type">${escapeHtml(item.type)}</span></button>`;
+  }).join('');
 
-  const win = event.target.closest('[data-window]');
-  if (win) {
-    event.preventDefault();
-    openWindow(win.dataset.window);
-  }
-
-  const close = event.target.closest('[data-close]');
-  if (close) {
-    event.preventDefault();
-    closeWindow(close.dataset.close);
-  }
-});
-
-function addDesktopFolders() {
-  const area = document.querySelector('.desktop-icons');
-  if (!area || area.dataset.ready) return;
-  area.dataset.ready = '1';
-  const folders = [
-    ['stories', 'Stories', 'folderStories'], ['library', 'Library', 'folderLibrary'], ['art', 'Art', 'folderArt'], ['blogs', 'Blogs', 'folderBlogs'],
-    ['notes', 'Notes', 'note']
-  ];
-  area.innerHTML = folders.map(([target, label, icon]) => `<button class="desktop-icon" data-window="${target}"><span class="icon folder"><span class="ko-folder-mark">${svgIcon(icon, 20)}</span></span><span>${label}</span></button>`).join('');
+  commandIndex = 0;
+  commandResults.querySelectorAll('[data-command-index]').forEach(button => {
+    button.addEventListener('click', () => runCommand(Number(button.dataset.commandIndex), query));
+  });
 }
-addDesktopFolders();
 
-function setupWallpaper() {
-  if (!desktop) return;
+function runCommand(index, query = commandInput.value) {
+  const results = query ? commandItems : [
+    { title: t('Stories'), action: () => openWindow('stories') },
+    { title: t('Art'), action: () => openWindow('art') },
+    { title: t('Library'), action: () => openWindow('library') },
+    { title: t('Notes'), action: () => openWindow('notes') },
+    { title: t('Settings'), action: () => openWindow('settings') }
+  ].filter(item => !query || item.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+
+  const selected = results[index];
+  if (!selected) return;
+  toggleCommandPalette(false);
+  selected.action();
+}
+
+function moveCommandSelection(direction) {
+  const buttons = Array.from(commandResults.querySelectorAll('[data-command-index]'));
+  if (!buttons.length) return;
+
+  commandIndex = (commandIndex + direction + buttons.length) % buttons.length;
+  buttons.forEach((button, index) => {
+    button.classList.toggle('active', index === commandIndex);
+    button.setAttribute('aria-selected', String(index === commandIndex));
+  });
+  buttons[commandIndex].scrollIntoView({ block: 'nearest' });
+}
+
+function applyAppearance(appearance) {
+  const allowed = ['system', 'light', 'dark'];
+  const selected = allowed.includes(appearance) ? appearance : 'system';
+  document.documentElement.dataset.appearance = selected;
+  localStorage.setItem('kolpotuli-appearance', selected);
+  document.querySelectorAll('[data-appearance-choice]').forEach(button => {
+    const active = button.dataset.appearanceChoice === selected;
+    button.classList.toggle('selected', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function applyWallpaper(key) {
   const wallpapers = {
     main: "url('assets/wallpapers/kolpotuli-main.png')",
     dusk: "url('assets/wallpapers/kolpotuli-dusk.svg')",
     paper: "url('assets/wallpapers/kolpotuli-paper.svg')"
   };
-  let layer = desktop.querySelector('.desktop-wallpaper');
-  if (!layer) {
-    layer = document.createElement('div');
-    layer.className = 'desktop-wallpaper';
-    layer.setAttribute('aria-hidden', 'true');
-    desktop.prepend(layer);
-  }
-  const apply = key => {
-    const value = wallpapers[key] || wallpapers.main;
-    layer.style.backgroundImage = value;
-    desktop.style.setProperty('--wallpaper', value);
-    desktop.style.setProperty('background-image', 'none', 'important');
-    document.querySelectorAll('[data-wallpaper]').forEach(item => item.classList.toggle('selected', item.dataset.wallpaper === key));
-    localStorage.setItem('kolpotuli-wallpaper', key);
-  };
-  apply(localStorage.getItem('kolpotuli-wallpaper') || 'main');
-  document.querySelectorAll('[data-wallpaper]').forEach(button => button.addEventListener('click', () => apply(button.dataset.wallpaper)));
+  const selected = wallpapers[key] ? key : 'main';
+  const layer = desktop.querySelector('.desktop-wallpaper');
+  if (!layer) return;
+
+  layer.style.backgroundImage = wallpapers[selected];
+  document.querySelectorAll('[data-wallpaper]').forEach(button => {
+    const active = button.dataset.wallpaper === selected;
+    button.classList.toggle('selected', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+  localStorage.setItem('kolpotuli-wallpaper', selected);
 }
-setupWallpaper();
+
+function applyWallpaperMode(mode) {
+  const selected = mode === 'dynamic' ? 'dynamic' : 'still';
+  desktop.dataset.wallpaperMode = selected;
+  localStorage.setItem('kolpotuli-wallpaper-mode', selected);
+  document.querySelectorAll('[data-wallpaper-mode]').forEach(button => {
+    const active = button.dataset.wallpaperMode === selected;
+    button.classList.toggle('selected', active);
+    button.setAttribute('aria-pressed', String(active));
+  });
+}
+
+function setupSettings() {
+  applyAppearance(localStorage.getItem('kolpotuli-appearance') || 'system');
+  applyWallpaper(localStorage.getItem('kolpotuli-wallpaper') || 'main');
+  applyWallpaperMode(localStorage.getItem('kolpotuli-wallpaper-mode') || 'still');
+
+  document.querySelectorAll('[data-appearance-choice]').forEach(button => {
+    button.addEventListener('click', () => applyAppearance(button.dataset.appearanceChoice));
+  });
+  document.querySelectorAll('[data-wallpaper]').forEach(button => {
+    button.addEventListener('click', () => applyWallpaper(button.dataset.wallpaper));
+  });
+  document.querySelectorAll('[data-wallpaper-mode]').forEach(button => {
+    button.addEventListener('click', () => applyWallpaperMode(button.dataset.wallpaperMode));
+  });
+}
 
 function setupIconography() {
   document.querySelectorAll('[data-icon]').forEach(element => {
     const name = element.dataset.icon;
     const size = Number(element.dataset.iconSize || 20);
     if (!ICONS[name]) return;
+
     const target = element.matches('button') ? element.querySelector(':scope > span') : element;
     if (target) target.innerHTML = svgIcon(name, size);
   });
-
-  document.querySelectorAll('.search-row button').forEach(button => {
-    const icon = button.querySelector('[data-icon]');
-    if (icon) icon.innerHTML = svgIcon(icon.dataset.icon, Number(icon.dataset.iconSize || 18));
-  });
-  document.querySelectorAll('.window-close').forEach(button => {
-    const icon = button.querySelector('[data-icon]');
-    if (icon) icon.innerHTML = svgIcon(icon.dataset.icon, Number(icon.dataset.iconSize || 18));
-  });
-
-  document.querySelectorAll('.playlist-button').forEach(button => {
-    if (!button.dataset.iconReady) {
-      button.dataset.iconReady = '1';
-      button.innerHTML = `${svgIcon('sparkle', 14)} <span>${t('Add to playlist')}</span>`;
-    }
-  });
 }
-
-setupIconography();
 
 function updateClock() {
   const now = new Date();
@@ -154,241 +343,588 @@ function updateClock() {
   document.getElementById('menuTime')?.replaceChildren(time);
   document.getElementById('clockDate')?.replaceChildren(date);
 }
-updateClock();
-setInterval(updateClock, 1000);
 
-const play = document.querySelector('.music-controls .play');
-if (play) {
-  play.addEventListener('click', () => {
-    play.classList.toggle('playing');
-    const icon = play.querySelector('[data-icon]');
-    if (icon) icon.innerHTML = svgIcon(play.classList.contains('playing') ? 'pause' : 'play', 18);
-  });
+function setupDynamicWallpaper() {
+  const mode = localStorage.getItem('kolpotuli-wallpaper-mode') || 'still';
+  applyWallpaperMode(mode);
 }
 
-const esc = value => String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#39;');
+const weatherCode = code => {
+  if (code === 0) return 'Clear';
+  if ([1, 2, 3].includes(code)) return 'Partly cloudy';
+  if ([45, 48].includes(code)) return 'Mist';
+  if ([51, 53, 55, 56, 57].includes(code)) return 'Drizzle';
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'Rain';
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return 'Snow';
+  if ([95, 96, 99].includes(code)) return 'Storm';
+  return 'Current weather';
+};
 
-async function loadContent() {
-  const { data, error } = await supabase.from('content_items')
-    .select('id,type,title,excerpt,cover_image_url,language,featured,read_time_minutes,published_at')
-    .eq('status', 'published')
-    .order('featured', { ascending: false })
-    .order('published_at', { ascending: false })
-    .limit(60);
-  if (error) {
-    console.warn('Kolpotuli content load:', error.message);
-    return;
+async function setupWeather() {
+  const temp = document.getElementById('weatherTemp');
+  const summary = document.getElementById('weatherSummary');
+  const icon = document.querySelector('.weather-widget .widget-main span');
+  if (!temp || !summary) return;
+
+  try {
+    const url = 'https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FKolkata&forecast_days=1';
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Weather request failed');
+
+    const data = await response.json();
+    const current = data.current;
+    const daily = data.daily;
+    if (!current || !daily?.temperature_2m_max?.length || !daily?.temperature_2m_min?.length) {
+      throw new Error('Weather response is incomplete');
+    }
+
+    temp.textContent = `${Math.round(current.temperature_2m)}°`;
+    summary.textContent = `Jaipur · ${Math.round(daily.temperature_2m_max[0])}° / ${Math.round(daily.temperature_2m_min[0])}° · ${weatherCode(current.weather_code)}`;
+    if (icon) {
+      const iconName = [61,63,65,80,81,82].includes(current.weather_code) ? 'cloud' : 'cloud';
+      icon.innerHTML = svgIcon(iconName, 26);
+    }
+  } catch (error) {
+    console.warn('Weather unavailable:', error);
+    summary.textContent = 'Jaipur · Weather unavailable';
   }
-  window.kolpotuliContent = data || [];
-  const grouped = { story: [], art: [], blog: [] };
-  (data || []).forEach(item => grouped[item.type]?.push(item));
-  renderContent('stories', grouped.story, 'story');
-  renderContent('art', grouped.art, 'art');
-  renderBlogs(grouped.blog);
-  await renderRecent();
+}
+
+function setupBengaliDate() {
+  const day = document.getElementById('bengaliDay');
+  const date = document.getElementById('bengaliDate');
+  const sub = document.getElementById('bengaliDateSub');
+  if (!day || !date || !sub) return;
+
+  const now = new Date();
+  const bengaliDate = new Intl.DateTimeFormat('bn-BD', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
+  const gregorianDate = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }).format(now);
+  const parts = bengaliDate.split(', ');
+  day.textContent = parts[0] || bengaliDate;
+  date.textContent = parts[1] || '';
+  sub.textContent = gregorianDate;
 }
 
 function renderContent(windowId, items, type) {
-  const win = document.getElementById(windowId);
-  const grid = win?.querySelector('.card-grid');
+  const grid = document.querySelector(`[data-grid="${windowId}"]`);
+  const count = document.querySelector(`[data-count="${windowId}"]`);
   if (!grid) return;
-  if (!items.length) {
-    grid.innerHTML = `<div class="library-empty">${t('No published content yet.')}</div>`;
+
+  const query = searches[windowId] || '';
+  const filter = filters[windowId] || 'all';
+  let visible = items.filter(item => {
+    const matchesQuery = !query || [item.title, item.excerpt, item.language, item.slug]
+      .some(value => String(value || '').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+    const matchesFilter =
+      filter === 'all'
+      || (filter === 'bn' && item.language === 'bn')
+      || (filter === 'en' && item.language === 'en')
+      || (filter === 'featured' && Boolean(item.featured))
+      || (filter === 'new' && true);
+    return matchesQuery && matchesFilter;
+  });
+
+  if (count) count.textContent = `${visible.length} ${visible.length === 1 ? 'item' : 'items'}`;
+
+  if (!visible.length) {
+    setEmptyState(grid, query ? 'No matches found' : 'Nothing here yet', query ? 'Try another title or word.' : `Published ${type === 'story' ? 'stories' : 'artwork'} will appear here.`);
     return;
   }
-  grid.innerHTML = items.slice(0, 12).map(item => `<article class="content-card" data-content-id="${esc(item.id)}"><div class="thumb db-thumb" style="${item.cover_image_url ? `background-image:url('${esc(item.cover_image_url)}')` : ''}"></div><h3>${esc(item.title)}</h3><p>${esc(type === 'story' ? t('Stories') : t('Art'))}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</p><button class="save-content" data-save="${esc(item.id)}" aria-label="${t('Save')}">${svgIcon('heart', 16)}</button></article>`).join('');
-  grid.querySelectorAll('[data-content-id]').forEach(card => card.addEventListener('click', event => {
-    if (event.target.closest('[data-save]')) return;
-    markOpened(card.dataset.contentId);
-    openReader(card.dataset.contentId);
-  }));
-  grid.querySelectorAll('[data-save]').forEach(button => button.addEventListener('click', async event => {
-    event.stopPropagation();
-    await toggleFavorite(button.dataset.save, button);
-  }));
+
+  grid.classList.toggle('list-view', viewModes[windowId] === 'list');
+  grid.innerHTML = visible.slice(0, 48).map(item => {
+    const contentType = item.type === 'blog' ? 'Blog' : item.type === 'art' ? 'Art' : 'Story';
+    const cover = item.cover_image_url ? `background-image:url("${escapeHtml(item.cover_image_url)}")` : '';
+    const favourite = item.is_favorite ? 'true' : 'false';
+    return `
+      <article class="content-card" data-content-id="${escapeHtml(item.id)}" tabindex="0" role="link" aria-label="Open ${escapeHtml(item.title)}">
+        <div class="thumb db-thumb" style="${cover}" aria-hidden="true"></div>
+        <button class="save-content" type="button" data-save="${escapeHtml(item.id)}" aria-label="Save ${escapeHtml(item.title)}" aria-pressed="${favourite}" title="Save to Library">${svgIcon(favourite === 'true' ? FAVORITE_ICON : 'heart', 15)}</button>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(contentType)}${item.read_time_minutes ? ` · ${Number(item.read_time_minutes)} min` : ''}</p>
+      </article>`;
+  }).join('');
+
+  grid.querySelectorAll('[data-content-id]').forEach(card => {
+    const open = () => openReader(card.dataset.contentId);
+    card.addEventListener('click', event => {
+      if (event.target.closest('[data-save]')) return;
+      open();
+    });
+    card.addEventListener('keydown', event => {
+      if (event.target !== card) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        open();
+      }
+    });
+  });
+
+  grid.querySelectorAll('[data-save]').forEach(button => {
+    button.addEventListener('click', async event => {
+      event.stopPropagation();
+      await toggleFavorite(button.dataset.save, button);
+    });
+  });
 }
 
-function renderBlogs(items) {
-  const links = document.querySelector('.blog-links');
-  if (!links) return;
+async function renderBlogs(items) {
+  const list = document.querySelector('.blog-links');
+  if (!list) return;
+  list.replaceChildren();
+
   if (!items.length) {
-    links.innerHTML = `<span style="opacity:.55">${t('No published content yet.')}</span>`;
+    setEmptyState(list, 'No blog posts yet', 'Thoughts on literature, culture and everyday life will appear here.');
     return;
   }
-  links.innerHTML = items.slice(0, 8).map(item => `<button data-content-id="${esc(item.id)}">${esc(item.title)}</button>`).join('');
-  links.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => {
-    markOpened(button.dataset.contentId);
-    openReader(button.dataset.contentId);
-  }));
+
+  list.innerHTML = items.slice(0, 30).map(item => `
+    <button type="button" data-content-id="${escapeHtml(item.id)}">
+      <span>${escapeHtml(item.title)}</span><span aria-hidden="true">↗</span>
+    </button>`).join('');
+  list.querySelectorAll('[data-content-id]').forEach(button => {
+    button.addEventListener('click', () => openReader(button.dataset.contentId));
+  });
+}
+
+async function loadContent() {
+  document.querySelectorAll('[data-grid]').forEach(grid => setEmptyState(grid, 'Loading…', 'Opening your shelf.'));
+  try {
+    const { data, error } = await supabase.from('content_items')
+      .select('id,type,title,excerpt,body,cover_image_url,language,featured,read_time_minutes,published_at,slug,status')
+      .eq('status', 'published')
+      .order('featured', { ascending: false })
+      .order('published_at', { ascending: false })
+      .limit(120);
+
+    if (error) throw error;
+
+    contentItems = data || [];
+    window.kolpotuliContent = contentItems;
+    renderContent('stories', contentItems.filter(item => item.type === 'story'), 'story');
+    renderContent('art', contentItems.filter(item => item.type === 'art'), 'art');
+    await renderBlogs(contentItems.filter(item => item.type === 'blog'));
+    await renderRecent();
+  } catch (error) {
+    console.error('Could not load Kolpotuli content:', error);
+    document.querySelectorAll('[data-grid]').forEach(grid => setEmptyState(grid, 'Could not load content', 'Check your connection and try again.'));
+    const blogList = document.querySelector('.blog-links');
+    if (blogList) setEmptyState(blogList, 'Could not load blog posts', 'Check your connection and try again.');
+    notify('Content could not be loaded.', 'error');
+  }
 }
 
 async function renderRecent() {
   const box = document.querySelector('.recent-widget');
   if (!box) return;
+
   const user = await currentUser();
   if (!user) {
-    box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">${t('Sign in to keep your history.')}</div>`;
+    box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div><div class="widget-sub">Sign in to keep your history.</div>`;
     return;
   }
-  const { data } = await supabase.from('recently_opened').select('opened_at,content_items(id,title,type)').eq('user_id', user.id).order('opened_at', { ascending: false }).limit(3);
-  box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + ((data || []).filter(item => item.content_items).map(item => `<button class="recent-item" data-content-id="${esc(item.content_items.id)}"><span>${svgIcon(item.content_items.type === 'art' ? 'folderArt' : item.content_items.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.content_items.title)}</strong><small>${esc(item.content_items.type)}</small></span></button>`).join('') || `<div class="widget-sub">${t('Nothing opened yet.')}</div>`);
-  box.querySelectorAll('[data-content-id]').forEach(button => button.addEventListener('click', () => openReader(button.dataset.contentId)));
+
+  try {
+    const { data, error } = await supabase.from('recently_opened')
+      .select('opened_at,content_items(id,title,type)')
+      .eq('user_id', user.id)
+      .order('opened_at', { ascending: false })
+      .limit(3);
+    if (error) throw error;
+
+    const rows = (data || []).filter(item => item.content_items);
+    box.innerHTML = `<div class="widget-kicker">${t('RECENTLY OPENED')}</div>` + (
+      rows.length ? rows.map(row => `
+        <button type="button" class="recent-item" data-content-id="${escapeHtml(row.content_items.id)}">
+          <span>${svgIcon(row.content_items.type === 'art' ? 'folderArt' : row.content_items.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span>
+          <span><strong>${escapeHtml(row.content_items.title)}</strong><small>${escapeHtml(row.content_items.type)}</small></span>
+        </button>`).join('') : '<div class="widget-sub">Nothing opened yet.</div>'
+    );
+    box.querySelectorAll('[data-content-id]').forEach(button => {
+      button.addEventListener('click', () => openReader(button.dataset.contentId));
+    });
+  } catch (error) {
+    console.warn('Could not load recently opened items:', error);
+    box.innerHTML = '<div class="widget-kicker">RECENTLY OPENED</div><div class="widget-sub">History is unavailable.</div>';
+  }
 }
 
 async function markOpened(contentId) {
   const user = await currentUser();
   if (!user) return;
-  await supabase.from('recently_opened').upsert({ user_id: user.id, content_id: contentId, opened_at: new Date().toISOString() }, { onConflict: 'user_id,content_id' });
-  renderRecent();
+
+  const { error } = await supabase.from('recently_opened').upsert({
+    user_id: user.id,
+    content_id: contentId,
+    opened_at: new Date().toISOString()
+  }, { onConflict: 'user_id,content_id' });
+
+  if (error) console.warn('Could not save reading history:', error.message);
+  await renderRecent();
+}
+
+async function isFavorite(contentId, userId) {
+  const { data, error } = await supabase.from('favorites')
+    .select('content_id')
+    .eq('user_id', userId)
+    .eq('content_id', contentId)
+    .maybeSingle();
+
+  if (error) throw error;
+  return Boolean(data);
 }
 
 async function toggleFavorite(contentId, button) {
   const user = await currentUser();
   if (!user) {
-    window.dispatchEvent(new Event('kolpotuli-open-auth'));
+    openAuth();
     return;
   }
-  const { data } = await supabase.from('favorites').select('content_id').eq('user_id', user.id).eq('content_id', contentId).maybeSingle();
-  if (data) {
-    await supabase.from('favorites').delete().eq('user_id', user.id).eq('content_id', contentId);
-    button.innerHTML = svgIcon('heart', 16);
-  } else {
-    await supabase.from('favorites').insert({ user_id: user.id, content_id: contentId });
-    button.innerHTML = svgIcon('heartFilled', 16);
+
+  const wasSaved = button.getAttribute('aria-pressed') === 'true';
+  button.disabled = true;
+
+  // Give immediate feedback, but roll it back if the server rejects the change.
+  button.setAttribute('aria-pressed', String(!wasSaved));
+  button.innerHTML = svgIcon(!wasSaved ? FAVORITE_ICON : 'heart', 15);
+
+  try {
+    if (wasSaved) {
+      const { error } = await supabase.from('favorites').delete()
+        .eq('user_id', user.id).eq('content_id', contentId);
+      if (error) throw error;
+    } else {
+      const { error } = await supabase.from('favorites').insert({
+        user_id: user.id,
+        content_id: contentId
+      });
+      if (error) throw error;
+    }
+    const item = contentItems.find(row => String(row.id) === String(contentId));
+    if (item) item.is_favorite = !wasSaved;
+    notify(!wasSaved ? 'Saved to your Library.' : 'Removed from your Library.', 'success');
+    await loadLibrary();
+  } catch (error) {
+    button.setAttribute('aria-pressed', String(wasSaved));
+    button.innerHTML = svgIcon(wasSaved ? FAVORITE_ICON : 'heart', 15);
+    notify(error.message || 'Could not update your Library.', 'error');
+  } finally {
+    button.disabled = false;
   }
-  loadLibrary();
 }
 
 async function loadLibrary() {
   const panel = document.querySelector('[data-library-panel]');
   if (!panel) return;
-  panel.innerHTML = `<div class="library-empty">${t('Loading…')}</div>`;
+  setEmptyState(panel, 'Loading Library…');
+
   try {
     const lib = await import('./library.js');
     await lib.loadLibrary();
   } catch (error) {
-    console.warn('Library unavailable:', error);
-    panel.innerHTML = `<div class="library-empty">${t('Unable to load Library.')}</div>`;
+    console.warn('Library could not be loaded:', error);
+    setEmptyState(panel, 'Library unavailable', 'Please try again when the connection is restored.');
   }
+}
+
+function applySearch(section, query) {
+  searches[section] = query;
+  renderContent(section, contentItems.filter(item => item.type === (section === 'stories' ? 'story' : 'art')), section === 'stories' ? 'story' : 'art');
 }
 
 function setupSearch() {
-  document.querySelectorAll('.search-row').forEach(row => {
-    const input = row.querySelector('input');
-    const button = row.querySelector('button');
-    if (!input) return;
-    const run = async () => {
-      const query = input.value.trim();
-      if (!query) return;
-      const safe = query.replace(/[%_]/g, match => `\\${match}`);
-      const { data } = await supabase.from('content_items').select('id,type,title,excerpt,cover_image_url,language,read_time_minutes').eq('status', 'published').or(`title.ilike.%${safe}%,excerpt.ilike.%${safe}%`).order('published_at', { ascending: false }).limit(30);
-      renderSearchResults(data || [], row.parentElement);
-    };
-    button?.addEventListener('click', run);
-    input.addEventListener('keydown', event => { if (event.key === 'Enter') run(); });
+  document.querySelectorAll('[data-search]').forEach(input => {
+    input.addEventListener('input', () => applySearch(input.dataset.search, input.value));
+
+    input.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        input.value = '';
+        applySearch(input.dataset.search, '');
+      }
+    });
+  });
+
+  document.querySelectorAll('[data-search-clear]').forEach(button => {
+    button.addEventListener('click', () => {
+      const section = button.dataset.searchClear;
+      const input = document.querySelector(`[data-search="${section}"]`);
+      if (!input) return;
+      input.value = '';
+      input.focus();
+      applySearch(section, '');
+    });
+  });
+
+  commandInput?.addEventListener('input', () => updateCommandResults(commandInput.value));
+}
+
+function setupFilters() {
+  document.querySelectorAll('[data-filter][data-target]').forEach(button => {
+    button.addEventListener('click', () => {
+      const section = button.dataset.target;
+      filters[section] = button.dataset.filter;
+      document.querySelectorAll(`[data-target="${section}"]`).forEach(item => {
+        const active = item === button;
+        item.classList.toggle('active', active);
+        item.setAttribute('aria-pressed', String(active));
+      });
+      applySearch(section, searches[section]);
+    });
+  });
+
+  document.querySelectorAll('[data-window-view]').forEach(button => {
+    button.addEventListener('click', () => {
+      const win = button.closest('[data-app-window]');
+      const name = win?.id;
+      if (!name || !['stories', 'art'].includes(name)) return;
+
+      viewModes[name] = button.dataset.windowView;
+      win.querySelectorAll('[data-window-view]').forEach(item => {
+        item.classList.toggle('selected', item === button);
+        item.setAttribute('aria-pressed', String(item === button));
+      });
+      const grid = win.querySelector('[data-grid]');
+      grid?.classList.toggle('list-view', viewModes[name] === 'list');
+    });
   });
 }
 
-function renderSearchResults(items, area) {
-  let box = area.querySelector('.search-results');
-  if (!box) {
-    box = document.createElement('div');
-    box.className = 'search-results';
-    area.appendChild(box);
-  }
-  box.innerHTML = items.length ? items.map(item => `<button class="search-result" data-content-id="${esc(item.id)}"><span>${svgIcon(item.type === 'art' ? 'folderArt' : item.type === 'blog' ? 'folderBlogs' : 'folderStories', 18)}</span><span><strong>${esc(item.title)}</strong><small>${esc(item.type)}${item.read_time_minutes ? ` · ${item.read_time_minutes} min` : ''}</small></span></button>`).join('') : `<div class="widget-sub" style="padding:10px">${t('No matching published content.')}</div>`;
-  box.classList.add('show');
-  box.querySelectorAll('[data-content-id]').forEach(button => { button.onclick = () => openReader(button.dataset.contentId); });
-}
+function setupInteractions() {
+  document.addEventListener('click', async event => {
+    const target = event.target instanceof Element ? event.target : null;
+    if (!target) return;
 
-function translateStatic() {
-  const elements = document.querySelectorAll('.menu-left button,.desktop-icon>span:last-child,.dock small,.widget-kicker,.sidebar button,.playlist-button,.blog-hero .tag,.settings-window h2,.settings-intro,.settings-window h3,.wallpaper-card strong,.wallpaper-card small,.note-toolbar button');
-  elements.forEach(element => {
-    const key = element.dataset.i18n || element.textContent.trim();
-    if (key) element.dataset.i18n = key;
-    element.textContent = t(key);
+    const win = target.closest('[data-window]');
+    if (win) {
+      event.preventDefault();
+      openWindow(win.dataset.window);
+      return;
+    }
+
+    const close = target.closest('[data-close]');
+    if (close) {
+      event.preventDefault();
+      closeWindow(close.dataset.close);
+      return;
+    }
+
+    const minimize = target.closest('[data-minimize]');
+    if (minimize) {
+      minimizeWindow(minimize.dataset.minimize);
+      return;
+    }
+
+    const zoom = target.closest('[data-zoom]');
+    if (zoom) {
+      zoomWindow(zoom.dataset.zoom);
+      return;
+    }
+
+    const action = target.closest('[data-action]');
+    if (action) {
+      switch (action.dataset.action) {
+        case 'search':
+          toggleCommandPalette(true);
+          return;
+        case 'profile': {
+          const user = await currentUser();
+          if (user) location.href = 'profile.html';
+          else openAuth();
+          return;
+        }
+        case 'toggle-play': {
+          const button = action;
+          const playing = button.classList.toggle('playing');
+          button.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+          button.innerHTML = svgIcon(playing ? 'pause' : 'play', 20);
+          notify('This widget is a visual player control; audio playback is not connected yet.');
+          return;
+        }
+        case 'previous-track':
+        case 'next-track':
+        case 'favorite-track':
+        case 'playlist':
+          notify('The music widget is visual only; connect an audio source to enable playback actions.');
+          return;
+        case 'refresh-content':
+          await loadContent();
+          notify('Content refreshed.', 'success');
+          return;
+        case 'refresh-library':
+          await loadLibrary();
+          notify('Library refreshed.', 'success');
+          return;
+        case 'new-note':
+          openWindow('notes');
+          document.querySelector('[data-note-new]')?.click();
+          return;
+      }
+    }
   });
-  document.querySelectorAll('.search-row input').forEach(element => {
-    const key = element.dataset.i18nPlaceholder || element.placeholder;
-    element.dataset.i18nPlaceholder = key;
-    element.placeholder = t(key);
+
+  document.addEventListener('click', event => {
+    const win = event.target.closest('[data-app-window]');
+    if (win) focusWindow(win);
   });
-  document.querySelectorAll('.library-tabs button').forEach(button => {
-    const key = button.dataset.i18n || ({ saved: 'Saved', reading: 'Reading', collections: 'Collections', recent: 'Recently Opened' }[button.dataset.libraryTab]);
-    button.dataset.i18n = key;
-    button.textContent = t(key);
+
+  document.addEventListener('keydown', event => {
+    const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
+    const modifier = isMac ? event.metaKey : event.ctrlKey;
+
+    if (event.key === 'Escape') {
+      if (!commandPalette.classList.contains('hidden')) {
+        toggleCommandPalette(false);
+        return;
+      }
+      const topWindow = Array.from(document.querySelectorAll('[data-app-window]:not(.hidden):not(.minimized)'))
+        .sort((a, b) => Number(b.style.zIndex || 0) - Number(a.style.zIndex || 0))[0];
+      if (topWindow) closeWindow(topWindow.id);
+    }
+
+    if (modifier && event.key.toLowerCase() === 'f') {
+      event.preventDefault();
+      toggleCommandPalette(true);
+    }
+
+    if (modifier && event.key.toLowerCase() === 'n') {
+      event.preventDefault();
+      const user = currentUser();
+      user.then(value => {
+        if (value) location.href = 'admin.html';
+        else openAuth();
+      });
+    }
+
+    if (modifier && event.key === ',') {
+      event.preventDefault();
+      openWindow('settings');
+    }
+
+    if (!commandPalette.classList.contains('hidden')) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        moveCommandSelection(1);
+      }
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        moveCommandSelection(-1);
+      }
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        runCommand(commandIndex, commandInput.value);
+      }
+    } else if (modifier && event.key.toLowerCase() === 'w') {
+      const visible = Array.from(document.querySelectorAll('[data-app-window]:not(.hidden):not(.minimized)'))
+        .sort((a, b) => Number(b.style.zIndex || 0) - Number(a.style.zIndex || 0))[0];
+      if (visible) {
+        event.preventDefault();
+        closeWindow(visible.id);
+      }
+    }
   });
-  setupIconography();
+
+  commandInput?.addEventListener('keydown', event => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      moveCommandSelection(1);
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      moveCommandSelection(-1);
+    } else if (event.key === 'Enter') {
+      event.preventDefault();
+      runCommand(commandIndex, commandInput.value);
+    } else if (event.key === 'Escape') {
+      toggleCommandPalette(false);
+    }
+  });
+
+  commandPalette?.addEventListener('click', event => {
+    if (event.target === commandPalette) toggleCommandPalette(false);
+  });
+
+  document.querySelector('.brand-menu')?.addEventListener('dblclick', () => openWindow('home'));
 }
 
 function setupLanguage() {
   const current = initLanguage();
-  translateStatic();
   const button = document.getElementById('languageToggle');
-  if (!button) return;
   button.textContent = current === 'bn' ? 'বাংলা / EN' : 'EN / বাংলা';
-  button.onclick = () => {
-    const next = (document.documentElement.lang || current) === 'bn' ? 'en' : 'bn';
+
+  button.addEventListener('click', () => {
+    const next = document.documentElement.lang === 'bn' ? 'en' : 'bn';
     setLanguage(next);
-    translateStatic();
     button.textContent = next === 'bn' ? 'বাংলা / EN' : 'EN / বাংলা';
-    loadContent();
-  };
+  });
+}
+
+async function setupFavorites() {
+  const user = await currentUser();
+  if (!user) return;
+
+  const { data, error } = await supabase.from('favorites')
+    .select('content_id')
+    .eq('user_id', user.id);
+
+  if (error) {
+    console.warn('Could not load favorite state:', error.message);
+    return;
+  }
+
+  const favoriteIds = new Set((data || []).map(row => String(row.content_id)));
+  contentItems.forEach(item => { item.is_favorite = favoriteIds.has(String(item.id)); });
+
+  ['stories', 'art'].forEach(section => {
+    renderContent(section, contentItems.filter(item => item.type === (section === 'stories' ? 'story' : 'art')), section === 'stories' ? 'story' : 'art');
+  });
 }
 
 async function boot() {
-  const { data: { session } } = await supabase.auth.getSession();
-  document.documentElement.dataset.auth = session ? 'signed-in' : 'signed-out';
-  setupLanguage();
-  await loadContent();
+  setupIconography();
+  setupInteractions();
   setupSearch();
+  setupFilters();
+  setupSettings();
+  setupLanguage();
+  setupDynamicWallpaper();
+  setupWeather();
+  setupBengaliDate();
+  updateClock();
+  window.setInterval(updateClock, 1000);
+
+  window.addEventListener('kolpotuli-open-auth', openAuth);
+  window.addEventListener('kolpotuli-auth-changed', async () => {
+    const user = await currentUser();
+    document.documentElement.dataset.auth = user ? 'signed-in' : 'signed-out';
+    await setupFavorites();
+    await renderRecent();
+    await loadLibrary();
+  });
+
+  supabase.auth.onAuthStateChange(async (_event, session) => {
+    document.documentElement.dataset.auth = session ? 'signed-in' : 'signed-out';
+    if (session) await setupFavorites();
+    await renderRecent();
+  });
+
+  await loadContent();
+  await setupFavorites();
+
   try {
     const lib = await import('./library.js');
     lib.setupLibrary();
-    if (session) await lib.loadLibrary();
   } catch (error) {
-    console.warn('Library setup unavailable:', error);
+    console.warn('Library setup failed:', error);
   }
-  supabase.auth.onAuthStateChange(async (_event, newSession) => {
-    document.documentElement.dataset.auth = newSession ? 'signed-in' : 'signed-out';
-    try {
-      const lib = await import('./library.js');
-      await lib.loadLibrary();
-    } catch {}
-    await renderRecent();
-  });
 
   await refreshAuthUI();
-  window.addEventListener('kolpotuli-open-auth', openAuth);
-
-  document.querySelectorAll('.dock button').forEach(button => {
-    const label = button.querySelector('small')?.textContent;
-    if (label === 'Profile' || label === 'প্রোফাইল') {
-      button.onclick = async () => {
-        const user = await refreshAuthUI();
-        if (user) location.href = 'profile.html';
-        else openAuth();
-      };
-    }
-    if (label === 'Search' || label === 'খোঁজ') {
-      button.onclick = () => {
-        openWindow('stories');
-        document.querySelector('#stories .search-row input')?.focus();
-      };
-    }
-  });
-
-  window.addEventListener('kolpotuli-auth-changed', async () => {
-    await refreshAuthUI();
-    try {
-      const lib = await import('./library.js');
-      await lib.loadLibrary();
-    } catch {}
-    await renderRecent();
-  });
-
   const params = new URLSearchParams(location.search);
   if (params.get('auth') === '1') openAuth();
+}
+
+function openReader(id) {
+  if (!id) return;
+  markOpened(id);
+  location.href = `read.html?id=${encodeURIComponent(id)}`;
 }
 
 boot();
