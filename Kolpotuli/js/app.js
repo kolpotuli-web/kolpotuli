@@ -3,7 +3,6 @@ import { t, setLanguage, initLanguage } from './i18n.js';
 import { openAuth, refreshAuthUI } from './auth-ui.js';
 
 const desktop = document.getElementById('desktop');
-const workspace = document.getElementById('workspace');
 const commandPalette = document.getElementById('commandPalette');
 const commandInput = document.getElementById('commandInput');
 const commandResults = document.getElementById('commandResults');
@@ -12,12 +11,10 @@ const toastRegion = document.getElementById('toastRegion');
 let highestWindowLevel = 20;
 let commandIndex = 0;
 let commandItems = [];
-let toastTimer;
 let contentItems = [];
 const filters = { stories: 'all', art: 'all' };
 const searches = { stories: '', art: '' };
 const viewModes = { stories: 'grid', art: 'grid' };
-const windows = new Map();
 const FAVORITE_ICON = 'heartFilled';
 
 const ICONS = {
@@ -45,10 +42,7 @@ const ICONS = {
   close: '<path d="m7 7 10 10M17 7 7 17"/>'
 };
 
-const svgIcon = (name, size = 20, className = '') => {
-  const drawing = ICONS[name] || '';
-  return `<svg class="ko-icon${className ? ` ${className}` : ''}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${drawing}</svg>`;
-};
+const svgIcon = (name, size = 20) => `<svg class="ko-icon" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ''}</svg>`;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -61,33 +55,27 @@ function escapeHtml(value) {
 
 function notify(message, kind = 'info') {
   if (!toastRegion) return;
-
   const toast = document.createElement('div');
   toast.className = 'toast';
   toast.dataset.kind = kind;
   toast.textContent = message;
   toastRegion.append(toast);
-
   window.setTimeout(() => toast.remove(), 2600);
 }
 
-function setEmptyState(target, message, detail = '') {
+function setEmptyState(target, title, detail = '') {
   if (!target) return;
   target.replaceChildren();
-
   const state = document.createElement('div');
   state.className = 'library-empty';
-
-  const title = document.createElement('strong');
-  title.textContent = message;
-  state.append(title);
-
+  const heading = document.createElement('strong');
+  heading.textContent = title;
+  state.append(heading);
   if (detail) {
     const copy = document.createElement('p');
     copy.textContent = detail;
     state.append(copy);
   }
-
   target.append(state);
 }
 
@@ -108,18 +96,14 @@ async function currentUser() {
 function openWindow(id) {
   const win = document.getElementById(id);
   if (!win) return;
-
-  win.classList.remove('hidden');
-  win.classList.remove('minimized');
+  win.classList.remove('hidden', 'minimized');
   highestWindowLevel += 1;
   win.style.zIndex = String(highestWindowLevel);
-  windows.set(id, win);
   setActiveWindow(win);
-
   if (id === 'library') loadLibrary();
   if (id === 'notes') window.dispatchEvent(new Event('kolpotuli-notes-open'));
-  if (id === 'stories' || id === 'art' || id === 'blogs') {
-    requestAnimationFrame(() => win.querySelector('input[type="search"], input[data-search], input')?.focus({ preventScroll: true }));
+  if (['stories', 'art'].includes(id)) {
+    requestAnimationFrame(() => win.querySelector('[data-search]')?.focus({ preventScroll: true }));
   }
 }
 
@@ -142,14 +126,10 @@ function zoomWindow(id) {
   const win = document.getElementById(id);
   if (!win) return;
 
-  const zoomed = win.dataset.zoomed === 'true';
-  win.dataset.zoomed = String(!zoomed);
-  if (zoomed) {
-    win.style.left = '';
-    win.style.top = '';
-    win.style.width = '';
-    win.style.height = '';
-    win.style.transform = '';
+  const isZoomed = win.dataset.zoomed === 'true';
+  win.dataset.zoomed = String(!isZoomed);
+  if (isZoomed) {
+    ['left', 'top', 'width', 'height', 'maxHeight', 'transform'].forEach(property => { win.style[property] = ''; });
   } else {
     win.style.left = '12px';
     win.style.top = '12px';
@@ -173,85 +153,78 @@ function setActiveWindow(activeWin) {
   });
 }
 
-function toggleCommandPalette(show = !commandPalette?.classList.contains('hidden')) {
+function toggleCommandPalette(show) {
   if (!commandPalette) return;
-
-  if (show) {
-    commandPalette.classList.remove('hidden');
+  const shouldShow = typeof show === 'boolean' ? show : commandPalette.classList.contains('hidden');
+  commandPalette.classList.toggle('hidden', !shouldShow);
+  if (shouldShow) {
     commandInput.value = '';
     updateCommandResults('');
     requestAnimationFrame(() => commandInput.focus());
   } else {
-    commandPalette.classList.add('hidden');
     commandInput.blur();
   }
 }
 
-function getSearchableItems() {
+function searchableContent() {
   return contentItems.filter(item => item.status === 'published');
 }
 
-function matchingItems(query, limit = 30) {
-  const normalized = query.trim().toLocaleLowerCase();
-  const searchable = getSearchableItems();
+function findContent(query, limit = 30) {
+  const term = query.trim().toLocaleLowerCase();
+  const list = searchableContent();
+  if (!term) return list.slice(0, limit);
+  return list.filter(item => [item.title, item.excerpt, item.body, item.type, item.language, item.slug]
+    .some(value => String(value || '').toLocaleLowerCase().includes(term))).slice(0, limit);
+}
 
-  if (!normalized) return searchable.slice(0, limit);
-
-  return searchable.filter(item => {
-    const fields = [item.title, item.excerpt, item.body, item.type, item.language, item.slug];
-    return fields.some(value => String(value || '').toLocaleLowerCase().includes(normalized));
-  }).slice(0, limit);
+function commandActions(query) {
+  const actions = [
+    { title: t('Stories'), type: 'Open folder', icon: 'folderStories', run: () => openWindow('stories') },
+    { title: t('Art'), type: 'Open folder', icon: 'folderArt', run: () => openWindow('art') },
+    { title: t('Library'), type: 'Open folder', icon: 'folderLibrary', run: () => openWindow('library') },
+    { title: t('Notes'), type: 'Open folder', icon: 'note', run: () => openWindow('notes') },
+    { title: t('Settings'), type: 'Preferences', icon: 'settings', run: () => openWindow('settings') }
+  ];
+  return actions.filter(item => !query || item.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
 }
 
 function updateCommandResults(query) {
   if (!commandResults) return;
 
-  commandItems = matchingItems(query, 12).map(item => ({
-    id: item.id,
-    title: item.title,
-    type: item.type,
-    action: () => openReader(item.id)
-  }));
+  const term = query.trim();
+  const results = term
+    ? findContent(term, 12).map(item => ({
+        title: item.title,
+        type: item.type === 'art' ? 'Art' : item.type === 'blog' ? 'Blog' : 'Story',
+        icon: item.type === 'art' ? 'folderArt' : item.type === 'blog' ? 'folderBlogs' : 'folderStories',
+        run: () => openReader(item.id)
+      }))
+    : commandActions('');
 
-  const actions = [
-    { title: t('Stories'), type: 'Open folder', action: () => openWindow('stories'), icon: 'folderStories' },
-    { title: t('Art'), type: 'Open folder', action: () => openWindow('art'), icon: 'folderArt' },
-    { title: t('Library'), type: 'Open folder', action: () => openWindow('library'), icon: 'folderLibrary' },
-    { title: t('Notes'), type: 'Open folder', action: () => openWindow('notes'), icon: 'note' },
-    { title: t('Settings'), type: 'Preferences', action: () => openWindow('settings'), icon: 'settings' }
-  ].filter(item => !query || item.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
+  commandItems = results;
+  commandIndex = 0;
 
-  const results = query ? commandItems : actions;
   if (!results.length) {
-    commandResults.innerHTML = '<p class="command-hint">No matching stories or actions.</p>';
-    commandIndex = 0;
+    setEmptyState(commandResults, 'No matches found', 'Try another title, phrase or content type.');
     return;
   }
 
-  commandResults.innerHTML = results.map((item, index) => {
-    const icon = item.icon || (item.type === 'art' ? 'folderArt' : item.type === 'blog' ? 'folderBlogs' : 'folderStories');
-    return `<button type="button" class="command-result ${index === 0 ? 'active' : ''}" role="option" aria-selected="${index === 0}" data-command-index="${index}">${svgIcon(icon, 18)}<strong>${escapeHtml(item.title)}</strong><span class="command-type">${escapeHtml(item.type)}</span></button>`;
-  }).join('');
+  commandResults.innerHTML = results.map((item, index) => `
+    <button type="button" class="command-result ${index === 0 ? 'active' : ''}" role="option" aria-selected="${index === 0}" data-command-index="${index}">
+      ${svgIcon(item.icon, 18)}<strong>${escapeHtml(item.title)}</strong><span class="command-type">${escapeHtml(item.type)}</span>
+    </button>`).join('');
 
-  commandIndex = 0;
   commandResults.querySelectorAll('[data-command-index]').forEach(button => {
-    button.addEventListener('click', () => runCommand(Number(button.dataset.commandIndex), query));
+    button.addEventListener('click', () => runCommand(Number(button.dataset.commandIndex)));
   });
 }
 
-function runCommand(index, query = commandInput.value) {
-  const results = query ? commandItems : [
-    { title: t('Stories'), action: () => openWindow('stories') },
-    { title: t('Art'), action: () => openWindow('art') },
-    { title: t('Library'), action: () => openWindow('library') },
-    { title: t('Notes'), action: () => openWindow('notes') },
-    { title: t('Settings'), action: () => openWindow('settings') }
-  ].filter(item => !query || item.title.toLocaleLowerCase().includes(query.toLocaleLowerCase()));
-
-  const selected = results[index];
-  if (!selected) return;
+function runCommand(index) {
+  const item = commandItems[index];
+  if (!item) return;
   toggleCommandPalette(false);
-  selected.action();
+  item.run();
 }
 
 function moveCommandSelection(direction) {
@@ -267,8 +240,7 @@ function moveCommandSelection(direction) {
 }
 
 function applyAppearance(appearance) {
-  const allowed = ['system', 'light', 'dark'];
-  const selected = allowed.includes(appearance) ? appearance : 'system';
+  const selected = ['system', 'light', 'dark'].includes(appearance) ? appearance : 'system';
   document.documentElement.dataset.appearance = selected;
   localStorage.setItem('kolpotuli-appearance', selected);
   document.querySelectorAll('[data-appearance-choice]').forEach(button => {
@@ -287,7 +259,6 @@ function applyWallpaper(key) {
   const selected = wallpapers[key] ? key : 'main';
   const layer = desktop.querySelector('.desktop-wallpaper');
   if (!layer) return;
-
   layer.style.backgroundImage = wallpapers[selected];
   document.querySelectorAll('[data-wallpaper]').forEach(button => {
     const active = button.dataset.wallpaper === selected;
@@ -329,7 +300,6 @@ function setupIconography() {
     const name = element.dataset.icon;
     const size = Number(element.dataset.iconSize || 20);
     if (!ICONS[name]) return;
-
     const target = element.matches('button') ? element.querySelector(':scope > span') : element;
     if (target) target.innerHTML = svgIcon(name, size);
   });
@@ -342,52 +312,6 @@ function updateClock() {
   document.getElementById('clockTime')?.replaceChildren(time);
   document.getElementById('menuTime')?.replaceChildren(time);
   document.getElementById('clockDate')?.replaceChildren(date);
-}
-
-function setupDynamicWallpaper() {
-  const mode = localStorage.getItem('kolpotuli-wallpaper-mode') || 'still';
-  applyWallpaperMode(mode);
-}
-
-const weatherCode = code => {
-  if (code === 0) return 'Clear';
-  if ([1, 2, 3].includes(code)) return 'Partly cloudy';
-  if ([45, 48].includes(code)) return 'Mist';
-  if ([51, 53, 55, 56, 57].includes(code)) return 'Drizzle';
-  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'Rain';
-  if ([71, 73, 75, 77, 85, 86].includes(code)) return 'Snow';
-  if ([95, 96, 99].includes(code)) return 'Storm';
-  return 'Current weather';
-};
-
-async function setupWeather() {
-  const temp = document.getElementById('weatherTemp');
-  const summary = document.getElementById('weatherSummary');
-  const icon = document.querySelector('.weather-widget .widget-main span');
-  if (!temp || !summary) return;
-
-  try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FKolkata&forecast_days=1';
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Weather request failed');
-
-    const data = await response.json();
-    const current = data.current;
-    const daily = data.daily;
-    if (!current || !daily?.temperature_2m_max?.length || !daily?.temperature_2m_min?.length) {
-      throw new Error('Weather response is incomplete');
-    }
-
-    temp.textContent = `${Math.round(current.temperature_2m)}°`;
-    summary.textContent = `Jaipur · ${Math.round(daily.temperature_2m_max[0])}° / ${Math.round(daily.temperature_2m_min[0])}° · ${weatherCode(current.weather_code)}`;
-    if (icon) {
-      const iconName = [61,63,65,80,81,82].includes(current.weather_code) ? 'cloud' : 'cloud';
-      icon.innerHTML = svgIcon(iconName, 26);
-    }
-  } catch (error) {
-    console.warn('Weather unavailable:', error);
-    summary.textContent = 'Jaipur · Weather unavailable';
-  }
 }
 
 function setupBengaliDate() {
@@ -405,33 +329,68 @@ function setupBengaliDate() {
   sub.textContent = gregorianDate;
 }
 
-function renderContent(windowId, items, type) {
-  const grid = document.querySelector(`[data-grid="${windowId}"]`);
-  const count = document.querySelector(`[data-count="${windowId}"]`);
+function setupWeather() {
+  const temp = document.getElementById('weatherTemp');
+  const summary = document.getElementById('weatherSummary');
+  const icon = document.querySelector('.weather-widget .widget-main span');
+  if (!temp || !summary) return;
+
+  fetch('https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FKolkata&forecast_days=1')
+    .then(response => response.ok ? response.json() : Promise.reject(new Error('Weather request failed')))
+    .then(data => {
+      const current = data.current;
+      const daily = data.daily;
+      if (!current || !daily?.temperature_2m_max?.length || !daily?.temperature_2m_min?.length) {
+        throw new Error('Weather response is incomplete');
+      }
+      temp.textContent = `${Math.round(current.temperature_2m)}°`;
+      const description = weatherCode(current.weather_code);
+      summary.textContent = `Jaipur · ${Math.round(daily.temperature_2m_max[0])}° / ${Math.round(daily.temperature_2m_min[0])}° · ${description}`;
+      if (icon) icon.innerHTML = svgIcon([61, 63, 65, 80, 81, 82].includes(current.weather_code) ? 'cloud' : 'cloud', 26);
+    })
+    .catch(error => {
+      console.warn('Weather unavailable:', error);
+      summary.textContent = 'Jaipur · Weather unavailable';
+    });
+}
+
+const weatherCode = code => {
+  if (code === 0) return 'Clear';
+  if ([1, 2, 3].includes(code)) return 'Partly cloudy';
+  if ([45, 48].includes(code)) return 'Mist';
+  if ([51, 53, 55, 56, 57].includes(code)) return 'Drizzle';
+  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'Rain';
+  if ([71, 73, 75, 77, 85, 86].includes(code)) return 'Snow';
+  if ([95, 96, 99].includes(code)) return 'Storm';
+  return 'Current weather';
+};
+
+function renderContent(section, items, type) {
+  const grid = document.querySelector(`[data-grid="${section}"]`);
+  const count = document.querySelector(`[data-count="${section}"]`);
   if (!grid) return;
 
-  const query = searches[windowId] || '';
-  const filter = filters[windowId] || 'all';
-  let visible = items.filter(item => {
+  const query = searches[section] || '';
+  const filter = filters[section] || 'all';
+  const visible = items.filter(item => {
     const matchesQuery = !query || [item.title, item.excerpt, item.language, item.slug]
       .some(value => String(value || '').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
     const matchesFilter =
       filter === 'all'
       || (filter === 'bn' && item.language === 'bn')
       || (filter === 'en' && item.language === 'en')
-      || (filter === 'featured' && Boolean(item.featured))
-      || (filter === 'new' && true);
+      || (filter === 'featured' && Boolean(item.featured));
     return matchesQuery && matchesFilter;
   });
 
   if (count) count.textContent = `${visible.length} ${visible.length === 1 ? 'item' : 'items'}`;
+  grid.classList.toggle('list-view', viewModes[section] === 'list');
 
   if (!visible.length) {
     setEmptyState(grid, query ? 'No matches found' : 'Nothing here yet', query ? 'Try another title or word.' : `Published ${type === 'story' ? 'stories' : 'artwork'} will appear here.`);
     return;
   }
 
-  grid.classList.toggle('list-view', viewModes[windowId] === 'list');
   grid.innerHTML = visible.slice(0, 48).map(item => {
     const contentType = item.type === 'blog' ? 'Blog' : item.type === 'art' ? 'Art' : 'Story';
     const cover = item.cover_image_url ? `background-image:url("${escapeHtml(item.cover_image_url)}")` : '';
@@ -468,11 +427,9 @@ function renderContent(windowId, items, type) {
   });
 }
 
-async function renderBlogs(items) {
+function renderBlogs(items) {
   const list = document.querySelector('.blog-links');
   if (!list) return;
-  list.replaceChildren();
-
   if (!items.length) {
     setEmptyState(list, 'No blog posts yet', 'Thoughts on literature, culture and everyday life will appear here.');
     return;
@@ -482,6 +439,7 @@ async function renderBlogs(items) {
     <button type="button" data-content-id="${escapeHtml(item.id)}">
       <span>${escapeHtml(item.title)}</span><span aria-hidden="true">↗</span>
     </button>`).join('');
+
   list.querySelectorAll('[data-content-id]').forEach(button => {
     button.addEventListener('click', () => openReader(button.dataset.contentId));
   });
@@ -498,12 +456,12 @@ async function loadContent() {
       .limit(120);
 
     if (error) throw error;
-
     contentItems = data || [];
     window.kolpotuliContent = contentItems;
+
     renderContent('stories', contentItems.filter(item => item.type === 'story'), 'story');
     renderContent('art', contentItems.filter(item => item.type === 'art'), 'art');
-    await renderBlogs(contentItems.filter(item => item.type === 'blog'));
+    renderBlogs(contentItems.filter(item => item.type === 'blog'));
     await renderRecent();
   } catch (error) {
     console.error('Could not load Kolpotuli content:', error);
@@ -552,26 +510,13 @@ async function renderRecent() {
 async function markOpened(contentId) {
   const user = await currentUser();
   if (!user) return;
-
   const { error } = await supabase.from('recently_opened').upsert({
     user_id: user.id,
     content_id: contentId,
     opened_at: new Date().toISOString()
   }, { onConflict: 'user_id,content_id' });
-
   if (error) console.warn('Could not save reading history:', error.message);
   await renderRecent();
-}
-
-async function isFavorite(contentId, userId) {
-  const { data, error } = await supabase.from('favorites')
-    .select('content_id')
-    .eq('user_id', userId)
-    .eq('content_id', contentId)
-    .maybeSingle();
-
-  if (error) throw error;
-  return Boolean(data);
 }
 
 async function toggleFavorite(contentId, button) {
@@ -583,8 +528,6 @@ async function toggleFavorite(contentId, button) {
 
   const wasSaved = button.getAttribute('aria-pressed') === 'true';
   button.disabled = true;
-
-  // Give immediate feedback, but roll it back if the server rejects the change.
   button.setAttribute('aria-pressed', String(!wasSaved));
   button.innerHTML = svgIcon(!wasSaved ? FAVORITE_ICON : 'heart', 15);
 
@@ -595,11 +538,11 @@ async function toggleFavorite(contentId, button) {
       if (error) throw error;
     } else {
       const { error } = await supabase.from('favorites').insert({
-        user_id: user.id,
-        content_id: contentId
+        user_id: user.id, content_id: contentId
       });
       if (error) throw error;
     }
+
     const item = contentItems.find(row => String(row.id) === String(contentId));
     if (item) item.is_favorite = !wasSaved;
     notify(!wasSaved ? 'Saved to your Library.' : 'Removed from your Library.', 'success');
@@ -613,14 +556,30 @@ async function toggleFavorite(contentId, button) {
   }
 }
 
+async function setupFavorites() {
+  const user = await currentUser();
+  if (!user) return;
+
+  const { data, error } = await supabase.from('favorites').select('content_id').eq('user_id', user.id);
+  if (error) {
+    console.warn('Could not load favorite state:', error.message);
+    return;
+  }
+
+  const favoriteIds = new Set((data || []).map(row => String(row.content_id)));
+  contentItems.forEach(item => { item.is_favorite = favoriteIds.has(String(item.id)); });
+
+  renderContent('stories', contentItems.filter(item => item.type === 'story'), 'story');
+  renderContent('art', contentItems.filter(item => item.type === 'art'), 'art');
+}
+
 async function loadLibrary() {
   const panel = document.querySelector('[data-library-panel]');
   if (!panel) return;
   setEmptyState(panel, 'Loading Library…');
-
   try {
-    const lib = await import('./library.js');
-    await lib.loadLibrary();
+    const library = await import('./library.js');
+    await library.loadLibrary();
   } catch (error) {
     console.warn('Library could not be loaded:', error);
     setEmptyState(panel, 'Library unavailable', 'Please try again when the connection is restored.');
@@ -635,7 +594,6 @@ function applySearch(section, query) {
 function setupSearch() {
   document.querySelectorAll('[data-search]').forEach(input => {
     input.addEventListener('input', () => applySearch(input.dataset.search, input.value));
-
     input.addEventListener('keydown', event => {
       if (event.key === 'Escape') {
         input.value = '';
@@ -675,16 +633,15 @@ function setupFilters() {
   document.querySelectorAll('[data-window-view]').forEach(button => {
     button.addEventListener('click', () => {
       const win = button.closest('[data-app-window]');
-      const name = win?.id;
-      if (!name || !['stories', 'art'].includes(name)) return;
-
-      viewModes[name] = button.dataset.windowView;
+      const section = win?.id;
+      if (!section || !['stories', 'art'].includes(section)) return;
+      viewModes[section] = button.dataset.windowView;
       win.querySelectorAll('[data-window-view]').forEach(item => {
-        item.classList.toggle('selected', item === button);
-        item.setAttribute('aria-pressed', String(item === button));
+        const active = item === button;
+        item.classList.toggle('selected', active);
+        item.setAttribute('aria-pressed', String(active));
       });
-      const grid = win.querySelector('[data-grid]');
-      grid?.classList.toggle('list-view', viewModes[name] === 'list');
+      win.querySelector('[data-grid]')?.classList.toggle('list-view', viewModes[section] === 'list');
     });
   });
 }
@@ -694,16 +651,23 @@ function setupInteractions() {
     const target = event.target instanceof Element ? event.target : null;
     if (!target) return;
 
+    const creator = target.closest('[data-create]');
+    if (creator) {
+      event.preventDefault();
+      const user = await currentUser();
+      if (user) location.href = creator.dataset.create || 'admin.html';
+      else openAuth();
+      return;
+    }
+
     const win = target.closest('[data-window]');
     if (win) {
-      event.preventDefault();
       openWindow(win.dataset.window);
       return;
     }
 
     const close = target.closest('[data-close]');
     if (close) {
-      event.preventDefault();
       closeWindow(close.dataset.close);
       return;
     }
@@ -721,44 +685,43 @@ function setupInteractions() {
     }
 
     const action = target.closest('[data-action]');
-    if (action) {
-      switch (action.dataset.action) {
-        case 'search':
-          toggleCommandPalette(true);
-          return;
-        case 'profile': {
-          const user = await currentUser();
-          if (user) location.href = 'profile.html';
-          else openAuth();
-          return;
-        }
-        case 'toggle-play': {
-          const button = action;
-          const playing = button.classList.toggle('playing');
-          button.setAttribute('aria-label', playing ? 'Pause' : 'Play');
-          button.innerHTML = svgIcon(playing ? 'pause' : 'play', 20);
-          notify('This widget is a visual player control; audio playback is not connected yet.');
-          return;
-        }
-        case 'previous-track':
-        case 'next-track':
-        case 'favorite-track':
-        case 'playlist':
-          notify('The music widget is visual only; connect an audio source to enable playback actions.');
-          return;
-        case 'refresh-content':
-          await loadContent();
-          notify('Content refreshed.', 'success');
-          return;
-        case 'refresh-library':
-          await loadLibrary();
-          notify('Library refreshed.', 'success');
-          return;
-        case 'new-note':
-          openWindow('notes');
-          document.querySelector('[data-note-new]')?.click();
-          return;
+    if (!action) return;
+
+    switch (action.dataset.action) {
+      case 'search':
+        toggleCommandPalette(true);
+        return;
+      case 'profile': {
+        const user = await currentUser();
+        if (user) location.href = 'profile.html';
+        else openAuth();
+        return;
       }
+      case 'toggle-play': {
+        const playing = action.classList.toggle('playing');
+        action.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+        action.innerHTML = svgIcon(playing ? 'pause' : 'play', 20);
+        notify('Music playback is not connected yet.');
+        return;
+      }
+      case 'previous-track':
+      case 'next-track':
+      case 'favorite-track':
+      case 'playlist':
+        notify('The music widget is visual only until an audio source is connected.');
+        return;
+      case 'refresh-content':
+        await loadContent();
+        notify('Content refreshed.', 'success');
+        return;
+      case 'refresh-library':
+        await loadLibrary();
+        notify('Library refreshed.', 'success');
+        return;
+      case 'new-note':
+        openWindow('notes');
+        document.querySelector('[data-note-new]')?.click();
+        return;
     }
   });
 
@@ -768,8 +731,7 @@ function setupInteractions() {
   });
 
   document.addEventListener('keydown', event => {
-    const isMac = /Mac|iPhone|iPad/.test(navigator.platform);
-    const modifier = isMac ? event.metaKey : event.ctrlKey;
+    const modifier = /Mac|iPhone|iPad/.test(navigator.platform) ? event.metaKey : event.ctrlKey;
 
     if (event.key === 'Escape') {
       if (!commandPalette.classList.contains('hidden')) {
@@ -788,9 +750,8 @@ function setupInteractions() {
 
     if (modifier && event.key.toLowerCase() === 'n') {
       event.preventDefault();
-      const user = currentUser();
-      user.then(value => {
-        if (value) location.href = 'admin.html';
+      currentUser().then(user => {
+        if (user) location.href = 'admin.html';
         else openAuth();
       });
     }
@@ -804,21 +765,19 @@ function setupInteractions() {
       if (event.key === 'ArrowDown') {
         event.preventDefault();
         moveCommandSelection(1);
-      }
-      if (event.key === 'ArrowUp') {
+      } else if (event.key === 'ArrowUp') {
         event.preventDefault();
         moveCommandSelection(-1);
-      }
-      if (event.key === 'Enter') {
+      } else if (event.key === 'Enter') {
         event.preventDefault();
-        runCommand(commandIndex, commandInput.value);
+        runCommand(commandIndex);
       }
     } else if (modifier && event.key.toLowerCase() === 'w') {
-      const visible = Array.from(document.querySelectorAll('[data-app-window]:not(.hidden):not(.minimized)'))
+      const topWindow = Array.from(document.querySelectorAll('[data-app-window]:not(.hidden):not(.minimized)'))
         .sort((a, b) => Number(b.style.zIndex || 0) - Number(a.style.zIndex || 0))[0];
-      if (visible) {
+      if (topWindow) {
         event.preventDefault();
-        closeWindow(visible.id);
+        closeWindow(topWindow.id);
       }
     }
   });
@@ -832,7 +791,7 @@ function setupInteractions() {
       moveCommandSelection(-1);
     } else if (event.key === 'Enter') {
       event.preventDefault();
-      runCommand(commandIndex, commandInput.value);
+      runCommand(commandIndex);
     } else if (event.key === 'Escape') {
       toggleCommandPalette(false);
     }
@@ -841,15 +800,12 @@ function setupInteractions() {
   commandPalette?.addEventListener('click', event => {
     if (event.target === commandPalette) toggleCommandPalette(false);
   });
-
-  document.querySelector('.brand-menu')?.addEventListener('dblclick', () => openWindow('home'));
 }
 
 function setupLanguage() {
   const current = initLanguage();
   const button = document.getElementById('languageToggle');
   button.textContent = current === 'bn' ? 'বাংলা / EN' : 'EN / বাংলা';
-
   button.addEventListener('click', () => {
     const next = document.documentElement.lang === 'bn' ? 'en' : 'bn';
     setLanguage(next);
@@ -857,25 +813,26 @@ function setupLanguage() {
   });
 }
 
-async function setupFavorites() {
+async function loadReadingState() {
   const user = await currentUser();
   if (!user) return;
 
-  const { data, error } = await supabase.from('favorites')
-    .select('content_id')
-    .eq('user_id', user.id);
-
+  const { data, error } = await supabase.from('favorites').select('content_id').eq('user_id', user.id);
   if (error) {
-    console.warn('Could not load favorite state:', error.message);
+    console.warn('Could not load saved-state flags:', error.message);
     return;
   }
 
-  const favoriteIds = new Set((data || []).map(row => String(row.content_id)));
-  contentItems.forEach(item => { item.is_favorite = favoriteIds.has(String(item.id)); });
+  const ids = new Set((data || []).map(row => String(row.content_id)));
+  contentItems.forEach(item => { item.is_favorite = ids.has(String(item.id)); });
+  renderContent('stories', contentItems.filter(item => item.type === 'story'), 'story');
+  renderContent('art', contentItems.filter(item => item.type === 'art'), 'art');
+}
 
-  ['stories', 'art'].forEach(section => {
-    renderContent(section, contentItems.filter(item => item.type === (section === 'stories' ? 'story' : 'art')), section === 'stories' ? 'story' : 'art');
-  });
+function openReader(id) {
+  if (!id) return;
+  markOpened(id);
+  location.href = `read.html?id=${encodeURIComponent(id)}`;
 }
 
 async function boot() {
@@ -885,7 +842,6 @@ async function boot() {
   setupFilters();
   setupSettings();
   setupLanguage();
-  setupDynamicWallpaper();
   setupWeather();
   setupBengaliDate();
   updateClock();
@@ -895,19 +851,16 @@ async function boot() {
   window.addEventListener('kolpotuli-auth-changed', async () => {
     const user = await currentUser();
     document.documentElement.dataset.auth = user ? 'signed-in' : 'signed-out';
-    await setupFavorites();
+    await loadReadingState();
     await renderRecent();
     await loadLibrary();
   });
 
   supabase.auth.onAuthStateChange(async (_event, session) => {
     document.documentElement.dataset.auth = session ? 'signed-in' : 'signed-out';
-    if (session) await setupFavorites();
+    if (session) await loadReadingState();
     await renderRecent();
   });
-
-  await loadContent();
-  await setupFavorites();
 
   try {
     const lib = await import('./library.js');
@@ -917,14 +870,10 @@ async function boot() {
   }
 
   await refreshAuthUI();
-  const params = new URLSearchParams(location.search);
-  if (params.get('auth') === '1') openAuth();
-}
+  await loadContent();
+  await loadReadingState();
 
-function openReader(id) {
-  if (!id) return;
-  markOpened(id);
-  location.href = `read.html?id=${encodeURIComponent(id)}`;
+  if (new URLSearchParams(location.search).get('auth') === '1') openAuth();
 }
 
 boot();
