@@ -113,8 +113,9 @@ function saveLocation(place) {
   localStorage.setItem(WEATHER_KEY, JSON.stringify(state.location));
   setText('[data-weather-city]', compactPlace(state.location));
   setText('[data-mobile-temp-city]', compactPlace(state.location));
-  $$('.weather-picker').forEach(panel => panel.hidden = true);
-  $$('.weather-picker-toggle').forEach(button => button.setAttribute('aria-expanded', 'false'));
+  $('.weather-picker').forEach(panel => panel.hidden = true);
+  $('.weather-picker-toggle').forEach(button => button.setAttribute('aria-expanded', 'false'));
+  window.dispatchEvent(new Event('kolpotuli-weather-location-selected'));
   updateWeather();
 }
 
