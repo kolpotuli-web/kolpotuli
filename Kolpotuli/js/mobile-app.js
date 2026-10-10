@@ -215,8 +215,8 @@ function updateClockWeather(){
   const now=new Date();
   const time=new Intl.DateTimeFormat('en-IN',{hour:'numeric',minute:'2-digit',hour12:true}).format(now);
   const date=new Intl.DateTimeFormat('en-IN',{weekday:'short',day:'numeric',month:'short'}).format(now);
-  $('[data-mobile-time]')?.replaceChildren(time); $('[data-mobile-date]')?.replaceChildren(date);
-  fetch('https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m&timezone=Asia%2FKolkata').then(r=>r.json()).then(data=>{$('[data-mobile-temp]')?.replaceChildren(`${Math.round(data.current?.temperature_2m ?? 0)}°`);}).catch(()=>{});
+  $('[data-mobile-time]')?.replaceChildren(time);
+  $('[data-mobile-date]')?.replaceChildren(date);
 }
 
 function setupSheets(){
@@ -273,15 +273,6 @@ function setupSettings(){
     closeSheet();
   });
 }
-function setupMusic(){
-  document.addEventListener('click',event=>{
-    const button=event.target.closest('[data-play]');
-    if(!button)return;
-    playing=!playing;
-    button.textContent=playing?'❚❚':'▶';
-    button.setAttribute('aria-label',playing?t('Pause'):'Play');
-  });
-}
 function setupLanguage(){
   const current=initLanguage();
   const button=$('[data-language]');
@@ -297,7 +288,7 @@ function setupLanguage(){
 
 async function boot(){
   document.documentElement.lang=initLanguage();
-  setupLanguage(); setupSheets(); setupNav(); setupFilters(); setupSearch(); setupSettings(); setupMusic(); updateClockWeather(); setInterval(updateClockWeather,60000);
+  setupLanguage(); setupSheets(); setupNav(); setupFilters(); setupSearch(); setupSettings(); updateClockWeather(); setInterval(updateClockWeather,60000);
   await loadContent();
   showView('home');
   await refreshAuthUI();
