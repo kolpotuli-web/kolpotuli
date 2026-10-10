@@ -63,3 +63,62 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .collection-content-row{display:flex;align-items:center;gap:6px}
 .collection-content-row .library-item{flex:1;min-width:0}
 .collection-remove{border:0;border-radius:6px;padding:7px 9px;background:rgba(150,70,70,.1);color:#8f3737;font-size:10px}
+
+
+/* Local weather: explicit location permission or a manual city search. */
+.mobile-weather-stat { position: relative; padding-right: 48px; }
+.mobile-weather-stat-head { display: flex; align-items: center; justify-content: space-between; gap: 5px; }
+.mobile-weather-stat-head button { padding: 5px 7px; border-radius: 7px; color: var(--mobile-ink,#14202a); background: rgba(20,40,61,.07); font-size: 10px; }
+.mobile-weather-stat > strong[data-mobile-temp] { display: block; margin-top: 7px; font-size: 28px; line-height: 1.1; }
+.mobile-weather-stat > span { display: block; margin-top: 4px; line-height: 1.4; overflow-wrap: anywhere; }
+.mobile-weather-stat > [data-mobile-temp-city] { font-weight: 650; font-size: 11px; }
+.mobile-weather-stat > [data-mobile-weather-summary] { font-size: 10px; opacity: .72; }
+.mobile-weather-icon { position: absolute; right: 15px; top: 42px; font-size: 24px; }
+.weather-privacy-note { margin: 0 0 14px; color: var(--mobile-muted,#66747c); font-size: 12px; line-height: 1.5; }
+.mobile-weather-search { margin-bottom: 8px; }
+.mobile-weather-search input { min-height: 42px; border: 1px solid rgba(20,32,42,.13); border-radius: 10px; padding: 10px 12px; background: var(--mobile-paper,#fffaf0); color: var(--mobile-ink,#14202a); font-size: 14px; }
+.mobile-weather-search button { min-width: 66px; border: 0; border-radius: 10px; padding: 10px; background: var(--mobile-blue,#315e78); color: #fff; font-size: 12px; font-weight: 650; }
+.mobile-use-location { margin-top: 7px; }
+.weather-status,.music-status { margin: 9px 0; color: var(--mobile-muted,#66747c); font-size: 11px; line-height: 1.5; }
+.weather-status[data-state="error"],.music-status[data-state="error"] { color: #a83b3b; }
+.weather-city-results { display: grid; gap: 5px; max-height: 30vh; overflow: auto; margin-top: 8px; }
+.city-result { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 49px; border: 1px solid rgba(20,32,42,.09); border-radius: 10px; padding: 8px 10px; background: rgba(255,250,240,.8); color: var(--mobile-ink,#14202a); text-align: left; }
+.city-result:active { background: rgba(218,166,46,.2); }
+.city-result-icon { display: grid; place-items: center; width: 31px; height: 31px; border-radius: 9px; background: rgba(80,125,148,.12); }
+.city-result > span:nth-child(2) { display: grid; min-width: 0; gap: 3px; }
+.city-result strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.city-result small { color: var(--mobile-muted,#66747c); font-size: 10px; }
+.city-result-arrow { margin-left: auto; }
+.picker-empty,.music-empty { margin: 0; padding: 12px; font-size: 12px; line-height: 1.5; color: var(--mobile-muted,#66747c); }
+
+/* YouTube player stays in a mobile sheet with large, touch-friendly controls. */
+.mobile-youtube-search-form { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px; }
+.mobile-youtube-search-form input { min-height: 43px; border: 1px solid rgba(20,32,42,.13); border-radius: 10px; padding: 10px 12px; background: var(--mobile-paper,#fffaf0); color: var(--mobile-ink,#14202a); font-size: 14px; }
+.mobile-youtube-search-form button,.youtube-url-form button { min-height: 43px; border: 0; border-radius: 10px; padding: 10px 13px; background: var(--mobile-blue,#315e78); color: white; font-size: 12px; font-weight: 650; }
+.mobile-youtube-results { display: grid; gap: 6px; max-height: 26vh; overflow: auto; margin: 10px 0 14px; }
+.mobile-youtube-results .youtube-result { display: grid; grid-template-columns: 83px minmax(0,1fr) auto; gap: 9px; align-items: center; width: 100%; min-height: 60px; border: 1px solid rgba(20,32,42,.09); border-radius: 10px; padding: 7px; background: rgba(255,250,240,.82); color: var(--mobile-ink,#14202a); text-align: left; }
+.mobile-youtube-results .youtube-result.selected { border-color: rgba(218,166,46,.7); background: rgba(218,166,46,.12); }
+.mobile-youtube-results .youtube-result img { display: block; width: 83px; aspect-ratio: 16/9; object-fit: cover; border-radius: 6px; background: #d7d7d2; }
+.youtube-result-copy { display: grid; gap: 4px; min-width: 0; }
+.youtube-result-copy strong { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 11px; line-height: 1.35; }
+.youtube-result-copy small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--mobile-muted,#66747c); font-size: 10px; }
+.youtube-result-play { font-size: 12px; color: var(--mobile-blue,#315e78); }
+.mobile-youtube-player { padding-top: 12px; border-top: 1px solid rgba(20,32,42,.1); }
+.mobile-current-track { display: grid; gap: 4px; margin-bottom: 10px; }
+.mobile-current-track strong { font-size: 13px; line-height: 1.35; }
+.mobile-current-track small { font-size: 11px; color: var(--mobile-muted,#66747c); }
+.mobile-music-controls { display: flex; gap: 7px; margin: 10px 0; }
+.mobile-music-controls button { flex: 1; min-height: 44px; border: 1px solid rgba(20,32,42,.12); border-radius: 10px; background: rgba(255,250,240,.9); color: var(--mobile-ink,#14202a); font-size: 12px; font-weight: 650; }
+.mobile-music-controls button[data-youtube-play] { background: var(--mobile-blue,#315e78); border-color: transparent; color: #fff; }
+.mobile-music-controls button:disabled { opacity: .42; }
+.mobile-youtube-player .youtube-player-frame { width: 100%; max-width: 680px; min-height: 200px; aspect-ratio: 16/9; overflow: hidden; border-radius: 10px; background: #0d1720; }
+.mobile-youtube-player [data-youtube-player] { width: 100%; height: 100%; min-height: 200px; }
+.mobile-youtube-player [data-youtube-player] > div,.mobile-youtube-player [data-youtube-player] iframe { width: 100% !important; height: 100% !important; min-height: 200px; border: 0; display: block; }
+.mobile-youtube-player .youtube-player-placeholder { display: grid; place-items: center; min-height: 200px; margin: 0; padding: 20px; text-align: center; color: rgba(255,255,255,.65); font-size: 11px; }
+.mobile-youtube-player .youtube-url-form { display: grid; gap: 7px; margin-top: 12px; }
+.mobile-youtube-player .youtube-url-form label { font-size: 11px; font-weight: 650; }
+.mobile-youtube-player .youtube-url-form > div { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 7px; }
+.mobile-youtube-player .youtube-url-form input { width: 100%; min-width: 0; min-height: 43px; border: 1px solid rgba(20,32,42,.13); border-radius: 10px; padding: 10px 12px; background: var(--mobile-paper,#fffaf0); color: var(--mobile-ink,#14202a); font-size: 12px; }
+.mobile-youtube-player .youtube-url-form button { min-width: 76px; }
+.mobile-sheet[data-sheet="weather"],.mobile-sheet[data-sheet="music"] { padding-bottom: max(16px,env(safe-area-inset-bottom)); }
+.mobile-sheet[data-sheet="weather"] .mobile-sheet-body,.mobile-sheet[data-sheet="music"] .mobile-sheet-body { overflow-y: auto; }
