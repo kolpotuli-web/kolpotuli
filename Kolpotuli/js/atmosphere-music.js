@@ -258,7 +258,7 @@ function setupWeatherPicker() {
     form.addEventListener('submit', async event => {
       event.preventDefault();
       const input = form.querySelector('[data-weather-city-query]');
-      const target = form.querySelector('[data-weather-city-results]');
+      const target = form.closest('.weather-picker, .mobile-sheet-body')?.querySelector('[data-weather-city-results]');
       const query = input?.value.trim();
       if (!query || !target) {
         showStatus('[data-weather-status]', 'Enter a city name first.', 'error');
@@ -510,12 +510,12 @@ async function playSong(song) {
       return;
     }
 
-    // YT.Player can target a div and replace it with its official iframe.
-    playerNode.innerHTML = '<div id="kolpotuliYoutubeFrame"></div>';
+    // Destroy the existing player before replacing its DOM target.
     if (state.player) {
       try { state.player.destroy(); } catch {}
       state.player = null;
     }
+    playerNode.innerHTML = '<div id="kolpotuliYoutubeFrame"></div>';
     state.playerReady = false;
 
     state.player = new window.YT.Player('kolpotuliYoutubeFrame', {
@@ -533,16 +533,19 @@ async function playSong(song) {
         onReady: event => {
           state.playerReady = true;
           setMusicMessage('Ready. Press Play to listen.');
-          $$('[data-youtube-play],[data-youtube-pause],[data-youtube-next],[data-youtube-previous]').forEach(button => button.disabled = false);
+          $('[data-youtube-play],[data-youtube-pause]').forEach(button => button.disabled = false);
+          $('[data-youtube-previous]').forEach(button => button.disabled = state.activeSongIndex <= 0);
+          $('[data-youtube-next]').forEach(button => button.disabled = state.activeSongIndex < 0 || state.activeSongIndex >= state.songResults.length - 1);
           event.target.setVolume(70);
         },
         onStateChange: event => {
           const playing = event.data === window.YT.PlayerState.PLAYING;
-          $$('[data-youtube-play]').forEach(button => {
+          $('[data-youtube-play]').forEach(button => {
             button.disabled = false;
             button.setAttribute('aria-label', playing ? 'Playing' : 'Play');
             button.textContent = playing ? 'Playing' : 'Play';
           });
+          $('[data-youtube-pause]').forEach(button => { button.disabled = !playing; });
           if (event.data === window.YT.PlayerState.ENDED) {
             setMusicMessage('Track finished. Choose another result or replay it.');
           }
@@ -621,7 +624,12 @@ function setupMusicControls() {
   const initialTitle = 'Search for a song';
   setText('[data-current-track-title]', initialTitle);
   setText('[data-current-track-artist]', 'Search YouTube to start listening');
-  $$('[data-youtube-play],[data-youtube-pause],[data-youtube-next],[data-youtube-previous]').forEach(button => button.disabled = true);
+  $('[data-youtube-play],[data-youtube-pause],[data-youtube-next],[data-youtube-previous]').forEach(button => button.disabled = true);
+  if (!YOUTUBE_KEY) {
+    $('[data-youtube-results]').forEach(target => {
+      target.innerHTML = '<p class="music-empty">In-app search needs a restricted YouTube Data API key. Use Search to open YouTube, then paste the video link below to play it here.</p>';
+    });
+  }
 }
 
 setupWeatherPicker();
