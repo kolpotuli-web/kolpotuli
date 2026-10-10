@@ -173,6 +173,14 @@ async function loadContent() {
     .limit(60);
   if (error) {
     console.warn('Kolpotuli content load:', error.message);
+
+    const message = `<div class="library-empty">${t('Unable to load content.')}</div>`;
+    document.querySelectorAll('.card-grid').forEach(grid => { grid.innerHTML = message; });
+
+    const blogLinks = document.querySelector('.blog-links');
+    if (blogLinks) blogLinks.innerHTML = message;
+
+    await renderRecent();
     return;
   }
   window.kolpotuliContent = data || [];
@@ -275,10 +283,14 @@ function setupSearch() {
     if (!input) return;
     const run = async () => {
       const query = input.value.trim();
-      if (!query) return;
+      const area = row.parentElement;
+      if (!query) {
+        area.querySelector('.search-results')?.classList.remove('show');
+        return;
+      }
       const safe = query.replace(/[%_]/g, match => `\\${match}`);
       const { data } = await supabase.from('content_items').select('id,type,title,excerpt,cover_image_url,language,read_time_minutes').eq('status', 'published').or(`title.ilike.%${safe}%,excerpt.ilike.%${safe}%`).order('published_at', { ascending: false }).limit(30);
-      renderSearchResults(data || [], row.parentElement);
+      renderSearchResults(data || [], area);
     };
     button?.addEventListener('click', run);
     input.addEventListener('keydown', event => { if (event.key === 'Enter') run(); });
