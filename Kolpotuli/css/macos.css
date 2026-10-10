@@ -341,3 +341,98 @@ button { -webkit-tap-highlight-color: transparent; }
   .dock button { min-width: 49px; }
   .dock small { font-size: 8px; }
 }
+
+
+/* Local atmosphere: city search is a popover anchored to the weather widget. */
+.weather-widget { position: relative !important; z-index: 18; overflow: visible !important; }
+.desktop-widgets .weather-widget { overflow: visible !important; }
+.weather-widget .widget-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.weather-picker-toggle { flex: none; padding: 4px 7px; border-radius: 5px; color: rgba(255,255,255,.86); background: rgba(255,255,255,.09); font-size: 10px; }
+.weather-picker-toggle:hover { background: rgba(255,255,255,.17); }
+.weather-location-row { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin: 9px 0 1px; }
+.weather-location-row strong { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 600; }
+.weather-location-row .location-pin { display: grid; place-items: center; width: 25px; height: 25px; font-size: 15px; }
+.weather-widget .widget-main { align-items: center; justify-content: space-between; gap: 8px; }
+.weather-widget .widget-main strong { font-size: 34px; line-height: 1; }
+.weather-widget [data-weather-icon] { font-size: 27px; line-height: 1; }
+.weather-mini-details { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 6px; color: rgba(255,255,255,.66); font-size: 9px; }
+.weather-mini-details:empty { display: none; }
+.weather-picker[hidden] { display: none !important; }
+.weather-picker { position: absolute; z-index: 120; top: calc(100% + 8px); right: 0; width: 286px; max-width: calc(100vw - 24px); padding: 13px; border: .5px solid var(--mac-line-strong); border-radius: 11px; color: var(--mac-ink); background: var(--mac-content); box-shadow: var(--mac-shadow-lg); }
+.weather-picker-heading { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; }
+.weather-picker-heading strong { font-size: 13px; }
+.weather-picker-close { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; font-size: 20px; color: var(--mac-secondary); }
+.weather-picker-close:hover { background: rgba(120,130,135,.12); }
+.weather-picker form,.mobile-weather-search { display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 6px; }
+.weather-picker input,.mobile-weather-search input,.youtube-search-form input,.youtube-url-form input { width: 100%; min-width: 0; padding: 9px 10px; border: .5px solid var(--mac-line-strong); border-radius: 7px; background: var(--mac-panel); color: var(--mac-ink); font-size: 12px; outline: none; }
+.weather-picker form button,.mobile-weather-search button,.youtube-search-form button,.youtube-url-form button { padding: 8px 11px; border-radius: 7px; background: var(--mac-blue); color: white; font-size: 11px; font-weight: 650; }
+.weather-use-location { width: 100%; margin-top: 8px; padding: 9px; border-radius: 7px; color: var(--mac-ink); background: rgba(125,137,144,.1); text-align: left; font-size: 11px; }
+.weather-use-location:hover { background: rgba(125,137,144,.18); }
+.weather-status,.music-status { min-height: 14px; margin: 8px 0 0; font-size: 10px; line-height: 1.45; color: var(--mac-secondary); }
+.weather-status[data-state="error"],.music-status[data-state="error"] { color: #b64c4c; }
+.weather-city-results { display: grid; gap: 3px; max-height: 220px; overflow: auto; margin-top: 7px; }
+.city-result { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px; border-radius: 7px; color: var(--mac-ink); background: transparent; text-align: left; }
+.city-result:hover { background: rgba(218,166,46,.15); }
+.city-result-icon { display: grid; place-items: center; width: 25px; height: 25px; border-radius: 7px; color: var(--mac-blue); background: rgba(80,125,148,.1); }
+.city-result > span:nth-child(2) { display: grid; min-width: 0; gap: 2px; }
+.city-result strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; }
+.city-result small { color: var(--mac-secondary); font-size: 9px; }
+.city-result-arrow { margin-left: auto; color: var(--mac-muted); }
+.picker-empty,.music-empty { margin: 0; padding: 12px; color: var(--mac-secondary); font-size: 11px; line-height: 1.5; }
+
+/* The music window uses the official YouTube player and the app's own controls. */
+.music-widget { overflow: hidden !important; }
+.music-widget [data-current-track-title] { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.music-widget [data-current-track-artist] { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.music-open-button { display: inline-flex; align-self: flex-start; align-items: center; width: 100%; padding: 9px 10px; margin-top: 11px; border: .5px solid rgba(255,255,255,.16); border-radius: 7px; background: rgba(255,255,255,.1); }
+.music-open-button:hover { background: rgba(255,255,255,.16); }
+.window-layer .music-app-window { width: min(820px, calc(100% - 24px)); }
+.music-app-body { display: grid; gap: 14px; padding: 22px; }
+.music-app-intro { padding-bottom: 13px; border-bottom: .5px solid var(--mac-line); }
+.music-app-eyebrow { display: block; color: var(--mac-secondary); font-size: 9px; font-weight: 700; letter-spacing: .12em; }
+.music-app-intro h2 { margin: 8px 0 5px; color: var(--mac-ink); font: 600 23px/1.25 "Noto Serif Bengali", Georgia, serif; }
+.music-app-intro p { margin: 0; color: var(--mac-secondary); font-size: 12px; line-height: 1.5; }
+.youtube-search-form { display: grid; grid-template-columns: auto minmax(0,1fr) auto; align-items: center; gap: 8px; padding: 7px; border: .5px solid var(--mac-line-strong); border-radius: 9px; background: var(--mac-panel); }
+.youtube-search-form > span { color: var(--mac-secondary); padding-left: 5px; font-size: 21px; }
+.youtube-search-form input { border: 0; background: transparent; }
+.youtube-search-form input:focus-visible,.weather-picker input:focus-visible,.mobile-weather-search input:focus-visible,.youtube-url-form input:focus-visible { outline: 2px solid var(--mac-blue); outline-offset: 1px; }
+.youtube-results { display: grid; gap: 5px; max-height: 202px; overflow: auto; }
+.youtube-result { display: grid; grid-template-columns: 96px minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 7px; border: .5px solid transparent; border-radius: 8px; background: transparent; color: var(--mac-ink); text-align: left; }
+.youtube-result:hover,.youtube-result.selected { background: rgba(218,166,46,.13); border-color: var(--mac-line); }
+.youtube-result img { display: block; width: 96px; aspect-ratio: 16/9; object-fit: cover; border-radius: 5px; background: var(--mac-bg); }
+.youtube-result-copy { display: grid; gap: 4px; min-width: 0; }
+.youtube-result-copy strong { display: -webkit-box; overflow: hidden; -webkit-line-clamp: 2; -webkit-box-orient: vertical; font-size: 11px; line-height: 1.35; }
+.youtube-result-copy small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--mac-secondary); font-size: 10px; }
+.youtube-result-play { color: var(--mac-blue); font-size: 13px; }
+.youtube-player-section { border-top: .5px solid var(--mac-line); padding-top: 15px; }
+.music-current-track { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 11px; }
+.music-current-track > div:first-child { min-width: 0; }
+.music-current-track h3 { overflow: hidden; margin: 5px 0 3px; color: var(--mac-ink); font-size: 14px; text-overflow: ellipsis; }
+.music-current-track p { margin: 0; color: var(--mac-secondary); font-size: 10px; }
+.music-player-controls { display: flex; align-items: center; gap: 5px; flex: none; }
+.music-player-controls button { min-height: 31px; padding: 7px 10px; border: .5px solid var(--mac-line); border-radius: 7px; color: var(--mac-ink); background: rgba(128,138,142,.08); font-size: 11px; }
+.music-player-controls button[data-youtube-play] { min-width: 58px; color: #fff; background: var(--mac-blue); border-color: var(--mac-blue); }
+.music-player-controls button:disabled { opacity: .42; cursor: not-allowed; }
+.youtube-player-frame { width: 100%; max-width: 680px; aspect-ratio: 16/9; min-height: 200px; overflow: hidden; margin: 0 auto; border-radius: 9px; background: #101820; box-shadow: var(--mac-shadow-sm); }
+[data-youtube-player] { width: 100%; height: 100%; min-height: 200px; }
+[data-youtube-player] > div { width: 100% !important; height: 100% !important; min-height: 200px; }
+[data-youtube-player] iframe { display: block; width: 100% !important; height: 100% !important; min-height: 200px; border: 0; }
+.youtube-player-placeholder { display: grid; place-items: center; min-height: 200px; margin: 0; padding: 18px; color: rgba(255,255,255,.65); text-align: center; font-size: 11px; }
+.youtube-url-form { display: grid; gap: 7px; margin-top: 12px; }
+.youtube-url-form label { color: var(--mac-secondary); font-size: 10px; font-weight: 650; }
+.youtube-url-form > div { display: flex; gap: 7px; }
+.youtube-url-form input { flex: 1; }
+.music-provider-label { padding: 5px 8px; border-radius: 5px; background: rgba(210,0,0,.08); color: #b32323; font-size: 10px; font-weight: 700; }
+:root[data-appearance="dark"] .weather-picker input,:root[data-appearance="dark"] .youtube-search-form,:root[data-appearance="dark"] .youtube-url-form input { background: rgba(255,255,255,.045); }
+@media (max-width: 800px) {
+  .weather-widget { overflow: visible !important; }
+}
+@media (max-width: 560px) {
+  .music-app-body { padding: 14px; }
+  .music-app-intro h2 { font-size: 20px; }
+  .music-current-track { align-items: flex-start; flex-direction: column; }
+  .music-player-controls { width: 100%; }
+  .music-player-controls button { flex: 1; min-height: 40px; }
+  .youtube-result { grid-template-columns: 82px minmax(0,1fr) auto; gap: 8px; }
+  .youtube-result img { width: 82px; }
+}
