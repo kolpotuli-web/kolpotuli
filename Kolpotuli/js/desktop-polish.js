@@ -1,19 +1,6 @@
 // Small browser-facing enhancements that are independent of the content UI.
 // Window actions and wallpaper settings are owned by app.js so there is one source of truth.
 
-const desktop = document.getElementById('desktop');
-
-const weatherCode = code => {
-  if (code === 0) return 'Clear';
-  if ([1, 2, 3].includes(code)) return 'Partly cloudy';
-  if ([45, 48].includes(code)) return 'Mist';
-  if ([51, 53, 55, 56, 57].includes(code)) return 'Drizzle';
-  if ([61, 63, 65, 66, 67, 80, 81, 82].includes(code)) return 'Rain';
-  if ([71, 73, 75, 77, 85, 86].includes(code)) return 'Snow';
-  if ([95, 96, 99].includes(code)) return 'Storm';
-  return 'Current weather';
-};
-
 function updateClock() {
   const now = new Date();
   const time = new Intl.DateTimeFormat('en-IN', {
@@ -31,29 +18,6 @@ function updateClock() {
   document.getElementById('clockTime')?.replaceChildren(time);
   document.getElementById('menuTime')?.replaceChildren(time);
   document.getElementById('clockDate')?.replaceChildren(date);
-}
-
-async function updateWeather() {
-  const temperature = document.getElementById('weatherTemp');
-  const summary = document.getElementById('weatherSummary');
-  if (!temperature || !summary) return;
-
-  try {
-    const url = 'https://api.open-meteo.com/v1/forecast?latitude=26.9124&longitude=75.7873&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min&timezone=Asia%2FKolkata&forecast_days=1';
-    const response = await fetch(url);
-    if (!response.ok) throw new Error('Weather request failed');
-
-    const data = await response.json();
-    if (!data.current || !data.daily?.temperature_2m_max?.length || !data.daily?.temperature_2m_min?.length) {
-      throw new Error('Weather response is incomplete');
-    }
-
-    temperature.textContent = `${Math.round(data.current.temperature_2m)}°`;
-    summary.textContent = `Jaipur · ${Math.round(data.daily.temperature_2m_max[0])}° / ${Math.round(data.daily.temperature_2m_min[0])}° · ${weatherCode(data.current.weather_code)}`;
-  } catch (error) {
-    console.warn('Weather unavailable:', error);
-    summary.textContent = 'Jaipur · Weather unavailable';
-  }
 }
 
 function updateBengaliDate() {
@@ -167,8 +131,8 @@ function setupWindowDragging() {
   });
 }
 
+
 updateClock();
 window.setInterval(updateClock, 1000);
-updateWeather();
 updateBengaliDate();
 setupWindowDragging();
