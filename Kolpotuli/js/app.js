@@ -720,7 +720,7 @@ function setupInteractions() {
         return;
       case 'new-note':
         openWindow('notes');
-        document.querySelector('[data-note-new]')?.click();
+        window.dispatchEvent(new Event('kolpotuli-note-new'));
         return;
     }
   });
@@ -829,9 +829,9 @@ async function loadReadingState() {
   renderContent('art', contentItems.filter(item => item.type === 'art'), 'art');
 }
 
-function openReader(id) {
+async function openReader(id) {
   if (!id) return;
-  markOpened(id);
+  await markOpened(id);
   location.href = `read.html?id=${encodeURIComponent(id)}`;
 }
 
