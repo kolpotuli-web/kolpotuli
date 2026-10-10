@@ -162,13 +162,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, "DM Sans", "Helvetica Neu
 .window-title-group { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .window-title-group > span { font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 .lights { display: flex; align-items: center; gap: 7px; flex: none; }
-.lights button,.lights i { border: 1px solid #c8cdd2; padding: 0; width: 14px; height: 14px; border-radius: 50%; display: grid; place-items: center; background: #f2f2f2; color: #4b5563; box-shadow: inset 0 1px 0 rgba(255,255,255,.85), 0 1px 1px rgba(0,0,0,.06); position: relative; }
-.lights button:hover { background: #e5e7eb; border-color: #9ca3af; }
-.lights button[data-window-control="close"]::after { content: "×"; position: absolute; inset: 0; display: grid; place-items: center; color: #4b5563; font-size: 13px; line-height: 1; font-weight: 700; }
-.lights button:focus-visible { outline: 2px solid #64748b; outline-offset: 2px; }
+.lights button,.lights i { border: 0; padding: 0; width: 12px; height: 12px; border-radius: 50%; display: block; box-shadow: inset 0 .5px rgba(0,0,0,.18), 0 .5px rgba(255,255,255,.25); position: relative; }
+.lights button:nth-child(1),.lights i:nth-child(1) { background: #ff5f57; }
+.lights button:nth-child(2),.lights i:nth-child(2) { background: #febc2e; }
+.lights button:nth-child(3),.lights i:nth-child(3) { background: #28c840; }
+.lights button:hover:after { position: absolute; inset: 0; content: "×"; color: rgba(0,0,0,.68); font-size: 10px; line-height: 12px; font-weight: 800; text-align: center; }
 .window-toolbar { display: flex; align-items: center; gap: 3px; padding-right: 1px; }
 .window-toolbar button { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 6px; color: var(--mac-secondary); }
 .window-toolbar button:hover,.window-toolbar button.selected { color: var(--mac-ink); background: rgba(100,110,115,.12); }
+.window-close-top { display: grid; place-items: center; flex: 0 0 28px; width: 28px; height: 28px; margin-left: 6px; padding: 0; border: 1px solid #d1d5db; border-radius: 7px; background: #f2f2f2; color: #4b5563; font-size: 19px; line-height: 1; cursor: pointer; }
+.window-close-top:hover { background: #e5e7eb; border-color: #aeb4bb; color: #374151; }
+.window-close-top:focus-visible { outline: 2px solid #9ca3af; outline-offset: 2px; }
 .window-close { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 6px; color: var(--mac-secondary); }
 .window-close:hover { background: rgba(100,110,115,.12); }
 .window-body { min-height: 0; flex: 1; overflow: auto; background: var(--mac-content); }
@@ -435,3 +439,9 @@ button { -webkit-tap-highlight-color: transparent; }
   .youtube-result { grid-template-columns: 82px minmax(0,1fr) auto; gap: 8px; }
   .youtube-result img { width: 82px; }
 }
+
+
+/* Neutral gray action buttons. Brand folders and the original traffic lights keep their existing appearance. */
+.desktop button:not(.brand-menu):not(.desktop-icon):not([data-window-control]) { background-color: #f2f2f2; color: #4b5563; border-color: #d1d5db; }
+.desktop button:not(.brand-menu):not(.desktop-icon):not([data-window-control]):hover:not(:disabled) { background-color: #e5e7eb; color: #374151; border-color: #aeb4bb; }
+.desktop button:not(.brand-menu):not(.desktop-icon):not([data-window-control]):disabled { opacity: .48; cursor: not-allowed; }

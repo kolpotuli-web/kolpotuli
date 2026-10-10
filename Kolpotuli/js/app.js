@@ -591,6 +591,23 @@ function setupFilters() {
   });
 }
 
+function installWindowCloseButtons() {
+  document.querySelectorAll('[data-app-window] .window-bar').forEach(bar => {
+    const win = bar.closest('[data-app-window]');
+    if (!win || bar.querySelector('.window-close-top')) return;
+
+    const title = win.querySelector('.window-title-group > span')?.textContent.trim() || win.id;
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'window-close-top';
+    button.dataset.close = win.id;
+    button.setAttribute('aria-label', `Close ${title}`);
+    button.title = 'Close window';
+    button.textContent = '×';
+    bar.append(button);
+  });
+}
+
 function setupInteractions() {
   document.addEventListener('click', async event => {
     const target = event.target instanceof Element ? event.target : null;
@@ -769,6 +786,7 @@ async function openReader(id) {
 
 async function boot() {
   setupIconography();
+  installWindowCloseButtons();
   setupInteractions();
   setupSearch();
   setupFilters();

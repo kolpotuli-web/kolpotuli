@@ -15,10 +15,9 @@ body{background:radial-gradient(circle at 20% 0,rgba(91,139,159,.24),transparent
 .field input::placeholder,.field textarea::placeholder{color:rgba(255,255,255,.42)}
 .field input:focus-visible,.field textarea:focus-visible,.actions button:focus-visible{outline:2px solid #f4b52c;outline-offset:3px}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
-.actions button{min-height:34px;padding:9px 13px;border:.5px solid rgba(255,255,255,.18);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
-.save{background:#f4b52c;color:#10283d}
-.out{background:rgba(255,255,255,.08);color:#fff}
-.actions button:hover{filter:brightness(1.07)}
+.actions button{min-height:34px;padding:9px 13px;border:1px solid #d1d5db;border-radius:7px;background:#f2f2f2;color:#4b5563;font-size:12px;font-weight:600;cursor:pointer}
+.actions button:hover{background:#e5e7eb;border-color:#aeb4bb;color:#374151}
+.actions button:focus-visible{outline:2px solid #9ca3af;outline-offset:3px}
 .status{min-height:22px;margin-top:12px;color:#f6edd9;font-size:12px}
 @media(max-width:560px){.wrap{padding:22px 12px}.card{padding:20px}.card h1{font-size:23px}.actions{display:grid;grid-template-columns:1fr}.actions button{width:100%}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}

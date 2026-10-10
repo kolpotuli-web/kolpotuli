@@ -122,3 +122,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .mobile-youtube-player .youtube-url-form button { min-width: 76px; }
 .mobile-sheet[data-sheet="weather"],.mobile-sheet[data-sheet="music"] { padding-bottom: max(16px,env(safe-area-inset-bottom)); }
 .mobile-sheet[data-sheet="weather"] .mobile-sheet-body,.mobile-sheet[data-sheet="music"] .mobile-sheet-body { overflow-y: auto; }
+
+
+/* Neutral gray mobile button palette. */
+.mobile-app button { background-color: #f2f2f2 !important; color: #4b5563 !important; border-color: #d1d5db !important; }
+.mobile-app button:hover:not(:disabled),.mobile-app button:active:not(:disabled) { background-color: #e5e7eb !important; color: #374151 !important; border-color: #aeb4bb !important; }
+.mobile-app button:disabled { opacity: .48; cursor: not-allowed; }
