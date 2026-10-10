@@ -56,20 +56,20 @@
           <article class="widget glass weather-widget" data-weather-widget>
             <div class="widget-row">
               <div class="widget-kicker" data-i18n="widget.weather">LOCAL ATMOSPHERE</div>
-              <button class="weather-picker-toggle" type="button" data-weather-picker-target="#desktopWeatherPicker" aria-expanded="false">Change</button>
+              <button class="weather-picker-toggle" type="button" data-weather-picker-target="#desktopWeatherPicker" aria-expanded="false" data-i18n="weather.change">Change</button>
             </div>
             <div class="weather-location-row"><strong data-weather-city>Choose a city</strong><button class="weather-picker-toggle location-pin" type="button" data-weather-picker-target="#desktopWeatherPicker" aria-label="Choose weather location" aria-expanded="false">⌖</button></div>
             <div class="widget-main"><strong data-weather-temp>—°</strong><span data-weather-icon aria-hidden="true">☁</span></div>
             <div class="widget-sub" data-weather-summary>Choose a city or use your location.</div>
             <div class="weather-mini-details"><span data-weather-humidity></span><span data-weather-wind></span></div>
             <div id="desktopWeatherPicker" class="weather-picker" hidden>
-              <div class="weather-picker-heading"><strong>Local atmosphere</strong><button type="button" class="weather-picker-close" aria-label="Close location picker">×</button></div>
+              <div class="weather-picker-heading"><strong data-i18n="weather.sheetTitle">Local atmosphere</strong><button type="button" class="weather-picker-close" aria-label="Close location picker">×</button></div>
               <form data-weather-search-form>
                 <label class="visually-hidden" for="desktopCityQuery">Search a city</label>
-                <input id="desktopCityQuery" type="search" data-weather-city-query placeholder="Search any city…" autocomplete="off">
-                <button type="submit">Search</button>
+                <input id="desktopCityQuery" type="search" data-weather-city-query data-i18n-placeholder="weather.searchPlaceholder" placeholder="Search any city…" autocomplete="off">
+                <button type="submit" data-i18n="Search">Search</button>
               </form>
-              <button class="weather-use-location" type="button" data-weather-use-location>⌖ Use my location</button>
+              <button class="weather-use-location" type="button" data-weather-use-location>⌖ <span data-i18n="weather.useLocation">Use my location</span></button>
               <p class="weather-status" data-weather-status aria-live="polite">Location is only requested when you choose this option.</p>
               <div class="weather-city-results" data-weather-city-results></div>
             </div>
@@ -146,12 +146,12 @@
             <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="home" aria-label="Close Home"></button><button type="button" data-window-control="minimize" data-minimize="home" aria-label="Minimize Home"></button><button type="button" data-window-control="zoom" data-zoom="home" aria-label="Zoom Home"></button></div><span>Kolpotuli</span></div></div><div class="window-body simple-body"><p>A quiet place for stories, art and writing.</p><button class="primary-action" type="button" data-window="stories">Browse stories</button></div>
           </article>
           <article id="music" class="app-window glass hidden music-app-window" data-app-window>
-            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="music" aria-label="Close Music"></button><button type="button" data-window-control="minimize" data-minimize="music" aria-label="Minimize Music"></button><button type="button" data-window-control="zoom" data-zoom="music" aria-label="Zoom Music"></button></div><span>Kolpotuli Music</span></div><div class="window-toolbar"><span class="music-provider-label">YouTube</span></div></div>
+            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="music" aria-label="Close Music"></button><button type="button" data-window-control="minimize" data-minimize="music" aria-label="Minimize Music"></button><button type="button" data-window-control="zoom" data-zoom="music" aria-label="Zoom Music"></button></div><span data-i18n="music.sheetTitle">Kolpotuli Music</span></div><div class="window-toolbar"><span class="music-provider-label">YouTube</span></div></div>
             <div class="window-body music-app-body">
               <div class="music-app-intro"><span class="music-app-eyebrow">YOUR SOUNDTRACK</span><h2>Find a song. Stay in your story.</h2><p>Search YouTube and play a selected video inside Kolpotuli.</p></div>
               <form class="youtube-search-form" data-music-search-form>
                 <label class="visually-hidden" for="desktopYoutubeSearch">Search YouTube songs</label>
-                <span aria-hidden="true">⌕</span><input id="desktopYoutubeSearch" data-youtube-search type="search" placeholder="Search songs, artists, film music…" autocomplete="off">
+                <span aria-hidden="true">⌕</span><input id="desktopYoutubeSearch" data-youtube-search data-i18n-placeholder="music.searchPlaceholder" type="search" placeholder="Search songs, artists, film music…" autocomplete="off">
                 <button type="submit">Search</button>
               </form>
               <div class="youtube-results" data-youtube-results aria-live="polite"><p class="music-empty">Search YouTube to find a song. If in-app results are not configured, you can paste a video link below.</p></div>
