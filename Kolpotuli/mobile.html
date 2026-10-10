@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#081725">
+<meta name="youtube-api-key" content="">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Kolpotuli — Mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/mobile.css">
+</head>
+<body>
+<main class="mobile-app">
+  <div class="mobile-wallpaper" aria-hidden="true"></div>
+  <div class="mobile-content">
+    <header class="mobile-topbar">
+      <div class="mobile-brand"><span class="mobile-mark" aria-hidden="true">ক</span><div><strong>Kolpotuli</strong><small>Stories · Art · Memory</small></div></div>
+      <div class="mobile-top-actions">
+        <button class="mobile-icon-btn" data-sheet-open="search" aria-label="Search"><svg class="mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button>
+        <button class="mobile-icon-btn" data-sheet-open="settings" aria-label="Open settings">⚙</button>
+        <button class="mobile-icon-btn" data-language aria-label="Change language">EN</button>
+      </div>
+    </header>
+
+    <section class="mobile-view active" data-view="home" aria-label="Home">
+      <section class="mobile-hero" data-mobile-featured>
+        <span class="mobile-kicker">Kolpotuli</span><h1>Stories, art, memory.</h1><p>Explore the living archive.</p>
+      </section>
+      <section class="mobile-stat-row">
+        <article class="mobile-stat"><small>Local time</small><strong data-mobile-time>--:--</strong><span data-mobile-date>Loading…</span></article>
+        <article class="mobile-stat mobile-weather-stat">
+          <div class="mobile-weather-stat-head"><small data-i18n="widget.weather">Local atmosphere</small><button type="button" data-sheet-open="weather" data-i18n="weather.change">Change</button></div>
+          <strong data-mobile-temp>—°</strong>
+          <span data-mobile-temp-city>Choose a city</span>
+          <span data-mobile-weather-summary>Choose your city for local weather.</span>
+          <span class="mobile-weather-icon" data-mobile-weather-icon aria-hidden="true">☁</span>
+        </article>
+      </section>
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Recently opened</h2><button data-view="library">Library</button></div>
+        <div data-mobile-recent></div>
+      </section>
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>For you</h2><button data-view="explore">Explore all</button></div>
+        <div class="mobile-grid" data-mobile-home-grid></div>
+      </section>
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Notes</h2><button data-sheet-open="notes">Open Notes</button></div>
+        <article class="mobile-note-preview"><strong>Keep a thought close.</strong><span>Write, save, and return without leaving the Kolpotuli environment.</span><button class="mobile-note-action" data-sheet-open="notes">New note</button></article>
+      </section>
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Now playing</h2><span class="mobile-kicker">YouTube</span></div>
+        <article class="mobile-note-preview"><strong data-current-track-title>Search for a song</strong><span data-current-track-artist>Search YouTube to start listening</span><button class="mobile-note-action" data-sheet-open="music">⌕ Search YouTube</button></article>
+      </section>
+    </section>
+
+    <section class="mobile-view" data-view="explore" aria-label="Explore">
+      <section class="mobile-section">
+        <div class="mobile-section-head"><h2>Explore</h2><button data-sheet-open="search">Search</button></div>
+        <div class="mobile-tabs" aria-label="Content filters"><button class="mobile-tab active" data-filter="all">All</button><button class="mobile-tab" data-filter="story">Stories</button><button class="mobile-tab" data-filter="art">Art</button><button class="mobile-tab" data-filter="blog">Blogs</button></div>
+      </section>
+      <section class="mobile-section"><div class="mobile-grid" data-mobile-explore-grid></div></section>
+    </section>
+
+    <section class="mobile-view" data-view="library" aria-label="Library">
+      <section class="mobile-section" data-mobile-library><div class="mobile-spinner" aria-label="Loading"></div></section>
+    </section>
+
+    <section class="mobile-view" data-view="profile" aria-label="Profile">
+      <section class="mobile-section" data-mobile-profile><div class="mobile-spinner" aria-label="Loading"></div></section>
+    </section>
+  </div>
+
+  <div class="mobile-sheet-backdrop"></div>
+
+  <section class="mobile-sheet" data-sheet="weather" aria-hidden="true" aria-label="Local weather">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3 data-i18n="weather.sheetTitle">Local atmosphere</h3><button class="mobile-close" data-sheet-close aria-label="Close local weather">×</button></div>
+    <div class="mobile-sheet-body">
+      <p class="weather-privacy-note" data-i18n="weather.permissionNote">Choose a city or grant location permission. Your selection stays in this browser.</p>
+      <form class="mobile-weather-search" data-weather-search-form>
+        <label class="visually-hidden" for="mobileCityQuery">Search a city</label>
+        <input id="mobileCityQuery" type="search" data-weather-city-query data-i18n-placeholder="weather.searchPlaceholder" placeholder="Search any city…" autocomplete="off">
+        <button type="submit">Search</button>
+      </form>
+      <button class="mobile-list-item mobile-use-location" type="button" data-weather-use-location><span class="mobile-list-icon">⌖</span><span class="mobile-list-copy"><strong data-i18n="weather.useLocation">Use my location</strong><small>Ask the browser for location permission</small></span><span>›</span></button>
+      <p class="weather-status" data-weather-status role="status" aria-live="polite"></p>
+      <div class="weather-city-results" data-weather-city-results></div>
+    </div>
+  </section>
+
+  <section class="mobile-sheet" data-sheet="search" aria-hidden="true" aria-label="Search">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Search Kolpotuli</h3><button class="mobile-close" data-sheet-close aria-label="Close search">×</button></div>
+    <div class="mobile-sheet-body"><div class="mobile-search"><input data-mobile-search type="search" placeholder="Search stories, art, blogs…" aria-label="Search content"><button data-mobile-search-btn aria-label="Search"><svg class="mobile-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg></button></div><div data-mobile-search-results></div></div>
+  </section>
+
+  <section class="mobile-sheet" data-sheet="library" aria-hidden="true" aria-label="Library options">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Library</h3><button class="mobile-close" data-sheet-close aria-label="Close library">×</button></div>
+    <div class="mobile-sheet-body"><button class="mobile-list-item" data-library-tab-mobile="saved"><span class="mobile-list-icon">♡</span><span class="mobile-list-copy"><strong>Saved</strong><small>Your favorite pieces</small></span><span>›</span></button><button class="mobile-list-item" data-library-tab-mobile="reading"><span class="mobile-list-icon">◷</span><span class="mobile-list-copy"><strong>Reading</strong><small>Your in-progress pieces</small></span><span>›</span></button><button class="mobile-list-item" data-library-tab-mobile="collections"><span class="mobile-list-icon">▤</span><span class="mobile-list-copy"><strong>Collections</strong><small>Organize what you keep</small></span><span>›</span></button></div>
+  </section>
+
+  <section class="mobile-sheet" data-sheet="notes" aria-hidden="true" aria-label="Notes">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Notes</h3><button class="mobile-close" data-sheet-close aria-label="Close notes">×</button></div>
+    <div class="mobile-sheet-body">
+      <div class="mobile-note-preview"><strong>Quick note</strong><span>Capture a thought without leaving the mobile environment.</span><button class="mobile-note-action" data-note-new>New note</button></div>
+      <div class="mobile-list" data-mobile-notes-list></div>
+      <div class="mobile-note-preview"><label for="mobileNoteTitle">Title</label><input id="mobileNoteTitle" data-mobile-note-title aria-label="Note title" value="Untitled Note" style="width:100%;margin-top:7px;border:1px solid rgba(20,32,42,.12);border-radius:12px;padding:11px;background:#fffaf0;color:#14202a"><label for="mobileNoteBody" style="display:block;margin-top:10px">Note</label><textarea id="mobileNoteBody" data-mobile-note-body aria-label="Note body" placeholder="Start writing…" style="width:100%;min-height:150px;margin-top:7px;border:1px solid rgba(20,32,42,.12);border-radius:12px;padding:11px;background:#fffaf0;color:#14202a;resize:vertical"></textarea><button class="mobile-note-action" data-note-save style="margin-top:10px">Save note</button><span data-mobile-note-status aria-live="polite"></span></div>
+    </div>
+  </section>
+
+  <section class="mobile-sheet mobile-music-sheet" data-sheet="music" aria-hidden="true" aria-label="YouTube music player">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3 data-i18n="music.sheetTitle">Kolpotuli Music</h3><button class="mobile-close" data-sheet-close aria-label="Close music player">×</button></div>
+    <div class="mobile-sheet-body">
+      <p class="weather-privacy-note">Search YouTube and play a selected video here. In-app search results need a restricted YouTube Data API key; pasting a video link works without one.</p>
+      <form class="youtube-search-form mobile-youtube-search-form" data-music-search-form>
+        <label class="visually-hidden" for="mobileYoutubeSearch">Search songs on YouTube</label>
+        <input id="mobileYoutubeSearch" data-youtube-search data-i18n-placeholder="music.searchPlaceholder" type="search" placeholder="Song, artist, soundtrack…" autocomplete="off">
+        <button type="submit">Search</button>
+      </form>
+      <div class="youtube-results mobile-youtube-results" data-youtube-results aria-live="polite"><p class="music-empty">Search for a song, or paste a YouTube video link below.</p></div>
+      <section class="mobile-youtube-player" aria-label="Embedded YouTube player">
+        <div class="mobile-current-track"><strong data-current-track-name>Nothing playing yet</strong><small data-current-track-channel>Choose a song to begin.</small></div>
+        <div class="youtube-player-frame"><div data-youtube-player><p class="youtube-player-placeholder">Your selected video will appear here.</p></div></div>
+        <div class="music-player-controls mobile-music-controls"><button type="button" data-youtube-previous disabled aria-label="Previous result">‹</button><button type="button" data-youtube-play disabled>Play</button><button type="button" data-youtube-pause disabled>Pause</button><button type="button" data-youtube-next disabled aria-label="Next result">›</button></div>
+        <p class="music-status" data-music-status role="status" aria-live="polite">Playback stays inside this sheet after you choose a video.</p>
+        <form class="youtube-url-form" data-youtube-url-form>
+          <label for="mobileYoutubeUrl">Paste a YouTube video link</label>
+          <div><input id="mobileYoutubeUrl" data-youtube-url type="url" inputmode="url" placeholder="https://youtu.be/…" autocomplete="url"><button type="submit">Play link</button></div>
+        </form>
+      </section>
+    </div>
+  </section>
+
+  <section class="mobile-sheet" data-sheet="settings" aria-hidden="true" aria-label="Settings">
+    <div class="mobile-sheet-handle"></div>
+    <div class="mobile-sheet-head"><h3>Atmosphere</h3><button class="mobile-close" data-sheet-close aria-label="Close settings">×</button></div>
+    <div class="mobile-sheet-body">
+      <h4>Wallpaper</h4>
+      <button class="mobile-list-item mobile-wallpaper-choice" data-wallpaper="main"><span class="mobile-list-icon">◎</span><span class="mobile-list-copy"><strong>Ganga Ghat</strong><small>Original Kolpotuli</small></span><span>›</span></button>
+      <button class="mobile-list-item mobile-wallpaper-choice" data-wallpaper="dusk"><span class="mobile-list-icon">◐</span><span class="mobile-list-copy"><strong>Dusk</strong><small>Blue hour</small></span><span>›</span></button>
+      <button class="mobile-list-item mobile-wallpaper-choice" data-wallpaper="paper"><span class="mobile-list-icon">▱</span><span class="mobile-list-copy"><strong>Paper</strong><small>Quiet morning</small></span><span>›</span></button>
+      <h4>Appearance</h4>
+      <div class="mobile-tabs" aria-label="Appearance">
+        <button type="button" data-mobile-appearance="system">System</button>
+        <button type="button" data-mobile-appearance="light">Light</button>
+        <button type="button" data-mobile-appearance="dark">Dark</button>
+      </div>
+    </div>
+  </section>
+
+  <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+    <button class="mobile-nav-item active" data-view="home"><span>⌂</span><small>Home</small></button>
+    <button class="mobile-nav-item" data-view="explore"><span>⌕</span><small>Explore</small></button>
+    <button class="mobile-nav-item primary" data-create><span>✦</span><small>Create</small></button>
+    <button class="mobile-nav-item" data-view="library"><span>▤</span><small>Library</small></button>
+    <button class="mobile-nav-item" data-view="profile"><span>●</span><small>Profile</small></button>
+  </nav>
+</main>
+<script type="module" src="js/mobile-app.js"></script>
+<script type="module" src="js/atmosphere-music.js"></script>
+<script type="module" src="js/mobile-notes.js"></script>
+</body>
+</html>

@@ -1,28 +1,199 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-appearance="system">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#14283D">
-<title>Kolpotuli</title>
-<link rel="stylesheet" href="css/base.css">
-<link rel="stylesheet" href="css/desktop.css">
-<link rel="stylesheet" href="css/desktop-reference.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#10283d">
+  <meta name="youtube-api-key" content="">
+  <meta name="description" content="Kolpotuli — stories, art and notes from Bengal.">
+  <title>Kolpotuli</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/desktop.css">
+  <link rel="stylesheet" href="css/desktop-reference.css">
+  <link rel="stylesheet" href="css/macos.css">
 </head>
 <body>
-<div id="desktop" class="desktop">
-<header class="menu-bar"><div class="menu-left"><button class="brand-menu" aria-label="Kolpotuli">ক</button><span class="brand-name">Kolpotuli</span><button data-i18n="menu.file">File</button><button data-i18n="menu.explore">Explore</button><button data-i18n="menu.create">Create</button><button data-i18n="menu.view">View</button><button data-i18n="menu.window">Window</button><button data-i18n="menu.help">Help</button></div><div class="menu-right"><button id="languageToggle" class="pill">EN / বাংলা</button><span data-icon="signal" data-icon-size="16" aria-hidden="true"></span><span data-icon="search" data-icon-size="16" aria-hidden="true"></span><span id="menuTime">--:--</span></div></header>
-<main class="desktop-stage">
-<section class="desktop-icons"><button class="desktop-icon" data-window="stories"><span class="icon folder"><b>▦</b></span><span data-i18n="nav.stories">Stories</span></button><button class="desktop-icon" data-window="library"><span class="icon folder"><b>▤</b></span><span data-i18n="nav.library">Library</span></button><button class="desktop-icon" data-window="art"><span class="icon folder"><b>◆</b></span><span data-i18n="nav.art">Art</span></button><button class="desktop-icon" data-window="blogs"><span class="icon folder"><b>▱</b></span><span data-i18n="nav.blogs">Blogs</span></button><button class="desktop-icon" data-window="notes"><span class="icon file"><b>✎</b></span><span data-i18n="nav.notes">Notes</span></button></section>
-<section class="desktop-widgets"><article class="widget glass clock-widget"><div class="widget-kicker" data-i18n="widget.localTime">LOCAL TIME</div><div id="clockTime" class="clock-time">--:--</div><div id="clockDate" class="widget-sub">Loading…</div></article><article class="widget glass weather-widget"><div class="widget-kicker" data-i18n="widget.weather">WEATHER</div><div class="widget-main"><strong id="weatherTemp">--°</strong><span data-icon="cloud" data-icon-size="27" aria-hidden="true">☁</span></div><div id="weatherSummary" class="widget-sub">Jaipur · Loading…</div></article><article class="widget paper-widget"><div id="bengaliDay" class="bengali-date">আজ</div><div id="bengaliDate" class="bengali-date small">লোড হচ্ছে…</div><div id="bengaliDateSub" class="widget-sub">Loading…</div></article><article class="widget glass music-widget"><div class="widget-row"><span class="widget-kicker" data-i18n="widget.nowPlaying">NOW PLAYING</span><span data-icon="heart" data-icon-size="18" aria-hidden="true">♡</span></div><strong>Saving Grace</strong><span class="widget-sub">KIRBY</span><input type="range" min="0" max="100" value="36" aria-label="Volume"><div class="music-controls"><button aria-label="Previous track"><span data-icon="previous" data-icon-size="17" aria-hidden="true"></span></button><button class="play" aria-label="Play"><span data-icon="play" data-icon-size="18" aria-hidden="true"></span></button><button aria-label="Next track"><span data-icon="next" data-icon-size="17" aria-hidden="true"></span></button></div><button class="playlist-button" data-i18n="music.add">＋ Add to playlist</button></article><article class="widget glass recent-widget"><div class="widget-kicker" data-i18n="widget.recent">RECENTLY OPENED</div><div class="widget-sub">Loading…</div></article></section>
-<section class="window-layer">
-<article id="stories" class="app-window glass hidden"><div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span data-i18n="nav.stories">Stories</span><button class="window-close" data-close="stories" aria-label="Close Stories"><span data-icon="close" data-icon-size="18" aria-hidden="true"></span></button></div><div class="window-body content-window"><aside class="sidebar"><button class="active">All Stories</button><button>Bengali</button><button>English</button><button>Featured</button><button>New</button><button>Most Read</button><button>Poetry</button></aside><section class="content-area"><div class="search-row"><input data-i18n-placeholder="search.stories" placeholder="Search stories…"><button aria-label="Search stories"><span data-icon="search" data-icon-size="18" aria-hidden="true"></span></button></div><div class="card-grid"></div></section></div></article>
-<article id="library" class="app-window glass hidden"><div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span data-i18n="nav.library">Library</span><button class="window-close" data-close="library" aria-label="Close Library"><span data-icon="close" data-icon-size="18" aria-hidden="true"></span></button></div><div class="library-tabs"><button class="active" data-library-tab="saved">Saved</button><button data-library-tab="reading">Reading</button><button data-library-tab="collections">Collections</button><button data-library-tab="recent">Recently Opened</button></div><div class="library-panel" data-library-panel></div></article>
-<article id="art" class="app-window glass hidden"><div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span data-i18n="nav.art">Art</span><button class="window-close" data-close="art" aria-label="Close Art"><span data-icon="close" data-icon-size="18" aria-hidden="true"></span></button></div><div class="window-body content-window"><aside class="sidebar"><button class="active">All Art</button><button>Pattachitra</button><button>Illustration</button><button>Photography</button><button>Posters</button></aside><section class="content-area"><div class="search-row"><input data-i18n-placeholder="search.art" placeholder="Search art…"><button aria-label="Search art"><span data-icon="search" data-icon-size="18" aria-hidden="true"></span></button></div><div class="card-grid"></div></section></div></article>
-<article id="blogs" class="app-window glass hidden"><div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span data-i18n="nav.blogs">Blogs</span><button class="window-close" data-close="blogs" aria-label="Close Blogs"><span data-icon="close" data-icon-size="18" aria-hidden="true"></span></button></div><div class="window-body simple-body"><div class="blog-hero"><span class="tag">FEATURED</span><h2>Notes from the edges of the page.</h2><p>Culture, literature, people and places.</p></div><div class="blog-links"></div></div></article>
-<article id="notes" class="app-window paper-widget hidden notes-window"><div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span data-i18n="nav.notes">Notes</span><button class="window-close" data-close="notes" aria-label="Close Notes"><span data-icon="close" data-icon-size="18" aria-hidden="true"></span></button></div><div id="notesApp" class="notes-shell"><aside class="notes-list" data-notes-list></aside><section class="note-editor"><input data-note-title data-i18n-placeholder="notes.title" placeholder="Untitled Note" aria-label="Note title"><textarea data-note-body data-i18n-placeholder="notes.body" placeholder="Start writing…" aria-label="Note body"></textarea><div class="note-toolbar"><span class="note-status" data-note-status></span><div><button data-note-new data-i18n="notes.new">New note</button> <button data-note-save data-i18n="notes.save">Save</button></div></div></section></div></article>
-<article id="settings" class="app-window glass hidden settings-window"><div class="window-bar"><div class="lights"><i></i><i></i><i></i></div><span data-i18n="settings.title">Settings</span><button class="window-close" data-close="settings" aria-label="Close Settings"><span data-icon="close" data-icon-size="18" aria-hidden="true"></span></button></div><div class="window-body simple-body"><h2 data-i18n="settings.heading">Kolpotuli Settings</h2><p class="settings-intro" data-i18n="settings.intro">Choose the atmosphere for your desktop.</p><h3 data-i18n="settings.wallpaper">Wallpaper</h3><div class="wallpaper-grid"><button class="wallpaper-card" data-wallpaper="main"><span class="wallpaper-preview main-preview"></span><strong>Ganga Ghat</strong><small>Original Kolpotuli</small></button><button class="wallpaper-card" data-wallpaper="dusk"><span class="wallpaper-preview dusk-preview"></span><strong>Dusk</strong><small>Blue hour</small></button><button class="wallpaper-card" data-wallpaper="paper"><span class="wallpaper-preview paper-preview"></span><strong>Paper</strong><small>Quiet morning</small></button></div><div class="wallpaper-mode-row"><button data-wallpaper-mode="still">Still</button><button data-wallpaper-mode="dynamic">Dynamic</button></div></div></article>
-</section><div class="quote quote-one">“Stories live in the spaces between us.”<span>— Kolpotuli</span></div></main>
-<nav class="dock glass"><button data-icon="search" aria-label="Search"><span>⌕</span><small data-i18n="nav.search">Search</small></button><button data-create="admin.html" data-icon="sparkle" aria-label="Create"><span>✦</span><small>Create</small></button><button data-icon="profile" aria-label="Profile"><span>●</span><small data-i18n="nav.profile">Profile</small></button><button data-window="settings" data-icon="settings" aria-label="Settings"><span>⚙</span><small data-i18n="nav.settings">Settings</small></button><button data-icon="trash" aria-label="Trash"><span>▢</span><small data-i18n="nav.trash">Trash</small></button></nav></div>
-<script type="module" src="js/app.js"></script><script type="module" src="js/notes.js"></script><script type="module" src="js/desktop-polish.js"></script>
-</body></html>
+  <div id="desktop" class="desktop" data-wallpaper-mode="still">
+    <div class="desktop-wallpaper" aria-hidden="true"></div>
+
+    <header class="menu-bar" aria-label="Global menu">
+      <div class="menu-left">
+        <button class="brand-menu" data-window="home" aria-label="Kolpotuli Home">ক</button>
+        <span class="brand-name">Kolpotuli</span>
+        <button data-menu="file" data-i18n="menu.file">File</button>
+        <button data-menu="explore" data-i18n="menu.explore">Explore</button>
+        <button data-create="admin.html" data-i18n="menu.create">Create</button>
+        <button data-menu="view" data-i18n="menu.view">View</button>
+        <button data-menu="window" data-i18n="menu.window">Window</button>
+        <button data-menu="help" data-i18n="menu.help">Help</button>
+      </div>
+      <div class="menu-right">
+        <button id="languageToggle" class="pill" type="button" aria-label="Change language">EN / বাংলা</button>
+        <button class="menu-icon-button" data-action="search" aria-label="Search Kolpotuli" title="Search (⌘F)" data-icon="search" data-icon-size="17"><span></span></button>
+        <span id="menuTime" class="menu-time">--:--</span>
+      </div>
+    </header>
+
+    <div class="desktop-workspace">
+      <aside class="desktop-icons" aria-label="Desktop folders">
+        <button class="desktop-icon" data-window="stories"><span class="icon folder"><span data-icon="folderStories" data-icon-size="23" aria-hidden="true"></span></span><span data-i18n="nav.stories">Stories</span></button>
+        <button class="desktop-icon" data-window="library"><span class="icon folder"><span data-icon="folderLibrary" data-icon-size="23" aria-hidden="true"></span></span><span data-i18n="nav.library">Library</span></button>
+        <button class="desktop-icon" data-window="art"><span class="icon folder"><span data-icon="folderArt" data-icon-size="23" aria-hidden="true"></span></span><span data-i18n="nav.art">Art</span></button>
+        <button class="desktop-icon" data-window="blogs"><span class="icon folder"><span data-icon="folderBlogs" data-icon-size="23" aria-hidden="true"></span></span><span data-i18n="nav.blogs">Blogs</span></button>
+        <button class="desktop-icon" data-window="notes"><span class="icon file"><span data-icon="note" data-icon-size="22" aria-hidden="true"></span></span><span data-i18n="nav.notes">Notes</span></button>
+      </aside>
+
+      <main class="desktop-stage" id="workspace" aria-label="Kolpotuli workspace">
+        <section class="desktop-widgets" aria-label="Widgets">
+          <article class="widget glass clock-widget">
+            <div class="widget-kicker" data-i18n="widget.localTime">LOCAL TIME</div>
+            <div id="clockTime" class="clock-time">--:--</div>
+            <div id="clockDate" class="widget-sub">Loading…</div>
+          </article>
+          <article class="widget glass weather-widget" data-weather-widget>
+            <div class="widget-row">
+              <div class="widget-kicker" data-i18n="widget.weather">LOCAL ATMOSPHERE</div>
+              <button class="weather-picker-toggle" type="button" data-weather-picker-target="#desktopWeatherPicker" aria-expanded="false" data-i18n="weather.change">Change</button>
+            </div>
+            <div class="weather-location-row"><strong data-weather-city>Choose a city</strong><button class="weather-picker-toggle location-pin" type="button" data-weather-picker-target="#desktopWeatherPicker" aria-label="Choose weather location" aria-expanded="false">⌖</button></div>
+            <div class="widget-main"><strong data-weather-temp>—°</strong><span data-weather-icon aria-hidden="true">☁</span></div>
+            <div class="widget-sub" data-weather-summary>Choose a city or use your location.</div>
+            <div class="weather-mini-details"><span data-weather-humidity></span><span data-weather-wind></span></div>
+            <div id="desktopWeatherPicker" class="weather-picker" hidden>
+              <div class="weather-picker-heading"><strong data-i18n="weather.sheetTitle">Local atmosphere</strong><button type="button" class="weather-picker-close" aria-label="Close location picker">×</button></div>
+              <form data-weather-search-form>
+                <label class="visually-hidden" for="desktopCityQuery">Search a city</label>
+                <input id="desktopCityQuery" type="search" data-weather-city-query data-i18n-placeholder="weather.searchPlaceholder" placeholder="Search any city…" autocomplete="off">
+                <button type="submit" data-i18n="Search">Search</button>
+              </form>
+              <button class="weather-use-location" type="button" data-weather-use-location>⌖ <span data-i18n="weather.useLocation">Use my location</span></button>
+              <p class="weather-status" data-weather-status data-i18n="weather.permissionNote" aria-live="polite">Choose a city or allow location access. The choice is saved in this browser; coordinates are sent to weather services to fetch conditions.</p>
+              <div class="weather-city-results" data-weather-city-results></div>
+            </div>
+          </article>
+          <article class="widget paper-widget">
+            <div id="bengaliDay" class="bengali-date">আজ</div>
+            <div id="bengaliDate" class="bengali-date small">—</div>
+            <div id="bengaliDateSub" class="widget-sub">—</div>
+          </article>
+          <article class="widget glass music-widget">
+            <div class="widget-row"><span class="widget-kicker" data-i18n="widget.nowPlaying">NOW PLAYING</span><span data-icon="music" data-icon-size="17" aria-hidden="true"></span></div>
+            <strong data-current-track-title>Search for a song</strong>
+            <span class="widget-sub" data-current-track-artist>Search YouTube to start listening</span>
+            <button class="playlist-button music-open-button" type="button" data-window="music">⌕ Search YouTube</button>
+          </article>
+          <article class="widget glass recent-widget">
+            <div class="widget-kicker" data-i18n="widget.recent">RECENTLY OPENED</div>
+            <div class="widget-sub">Loading…</div>
+          </article>
+        </section>
+
+        <section class="welcome-surface" id="homeView">
+          <div class="welcome-copy">
+            <div class="welcome-eyebrow" data-i18n="home.eyebrow">A small world for stories and art</div>
+            <h1 data-i18n="home.title">Stories live in the spaces between us.</h1>
+            <p data-i18n="home.copy">A personal literary universe shaped by Bengal, memory, art and everyday life.</p>
+            <div class="welcome-actions">
+              <button class="primary-action" type="button" data-window="stories" data-i18n="home.browse">Browse stories</button>
+              <button class="secondary-action" type="button" data-window="art" data-i18n="home.art">Explore art</button>
+            </div>
+          </div>
+          <div class="welcome-quote" aria-label="Kolpotuli quote">
+            <span class="quote-mark">“</span>
+            <p>যে যায় মনের চলে যায়,<br>যে রয় সে রয় যায়<br>গল্পে, শিল্পে, মানুষের মধ্যে।</p>
+            <span class="quote-credit">— Kolpotuli</span>
+          </div>
+        </section>
+
+        <section class="window-layer" aria-label="App windows">
+          <article id="stories" class="app-window glass hidden" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights" aria-label="Window controls"><button type="button" data-window-control="close" data-close="stories" aria-label="Close Stories"></button><button type="button" data-window-control="minimize" data-minimize="stories" aria-label="Minimize Stories"></button><button type="button" data-window-control="zoom" data-zoom="stories" aria-label="Zoom Stories"></button></div><span data-i18n="nav.stories">Stories</span></div><div class="window-toolbar"><button type="button" data-window-view="grid" aria-label="Grid view" class="selected" data-icon="grid" data-icon-size="17"><span></span></button><button type="button" data-window-view="list" aria-label="List view" data-icon="list" data-icon-size="17"><span></span></button><button type="button" data-action="refresh-content" aria-label="Refresh stories" data-icon="refresh" data-icon-size="17"><span></span></button></div></div>
+            <div class="window-body content-window">
+              <aside class="sidebar"><div class="sidebar-heading">BROWSE</div><button class="active" data-filter="all" data-target="stories">All Stories</button><button data-filter="bn" data-target="stories">Bengali</button><button data-filter="en" data-target="stories">English</button><button data-filter="featured" data-target="stories">Featured</button><button data-filter="new" data-target="stories">Recently Added</button></aside>
+              <section class="content-area"><div class="content-heading"><div><h2 data-i18n="stories.heading">The story shelf</h2><p data-i18n="stories.subheading">Writing to wander through, slowly.</p></div><span class="result-count" data-count="stories"></span></div><div class="search-row"><label class="visually-hidden" for="storySearch">Search stories</label><span data-icon="search" data-icon-size="17" aria-hidden="true"></span><input id="storySearch" data-search="stories" data-i18n-placeholder="search.stories" placeholder="Search stories…"><button type="button" data-search-clear="stories" aria-label="Clear search">×</button></div><div class="card-grid" data-grid="stories" aria-live="polite"><div class="library-empty">Loading stories…</div></div></section>
+            </div>
+          </article>
+
+          <article id="library" class="app-window glass hidden" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights" aria-label="Window controls"><button type="button" data-window-control="close" data-close="library" aria-label="Close Library"></button><button type="button" data-window-control="minimize" data-minimize="library" aria-label="Minimize Library"></button><button type="button" data-window-control="zoom" data-zoom="library" aria-label="Zoom Library"></button></div><span data-i18n="nav.library">Library</span></div><div class="window-toolbar"><button type="button" data-action="refresh-library" aria-label="Refresh library" data-icon="refresh" data-icon-size="17"><span></span></button></div></div>
+            <div class="library-tabs" role="tablist" aria-label="Personal library"><button role="tab" aria-selected="true" class="active" data-library-tab="saved">Saved</button><button role="tab" aria-selected="false" data-library-tab="reading">Reading</button><button role="tab" aria-selected="false" data-library-tab="collections">Collections</button><button role="tab" aria-selected="false" data-library-tab="recent">Recently Opened</button></div><div class="library-panel" data-library-panel></div>
+          </article>
+
+          <article id="art" class="app-window glass hidden" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights" aria-label="Window controls"><button type="button" data-window-control="close" data-close="art" aria-label="Close Art"></button><button type="button" data-window-control="minimize" data-minimize="art" aria-label="Minimize Art"></button><button type="button" data-window-control="zoom" data-zoom="art" aria-label="Zoom Art"></button></div><span data-i18n="nav.art">Art</span></div><div class="window-toolbar"><button type="button" data-window-view="grid" aria-label="Grid view" class="selected" data-icon="grid" data-icon-size="17"><span></span></button><button type="button" data-window-view="list" aria-label="List view" data-icon="list" data-icon-size="17"><span></span></button></div></div>
+            <div class="window-body content-window"><aside class="sidebar"><div class="sidebar-heading">COLLECTION</div><button class="active" data-filter="all" data-target="art">All Art</button><button data-filter="featured" data-target="art">Featured</button><button data-filter="new" data-target="art">Recently Added</button></aside><section class="content-area"><div class="content-heading"><div><h2 data-i18n="art.heading">Art &amp; image-making</h2><p data-i18n="art.subheading">Studies, illustrations, posters and photographs.</p></div><span class="result-count" data-count="art"></span></div><div class="search-row"><label class="visually-hidden" for="artSearch">Search art</label><span data-icon="search" data-icon-size="17" aria-hidden="true"></span><input id="artSearch" data-search="art" data-i18n-placeholder="search.art" placeholder="Search art…"><button type="button" data-search-clear="art" aria-label="Clear search">×</button></div><div class="card-grid" data-grid="art" aria-live="polite"><div class="library-empty">Loading artwork…</div></div></section></div>
+          </article>
+
+          <article id="blogs" class="app-window glass hidden" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="blogs" aria-label="Close Blogs"></button><button type="button" data-window-control="minimize" data-minimize="blogs" aria-label="Minimize Blogs"></button><button type="button" data-window-control="zoom" data-zoom="blogs" aria-label="Zoom Blogs"></button></div><span data-i18n="nav.blogs">Blogs</span></div><div class="window-toolbar"><button type="button" data-action="refresh-content" aria-label="Refresh blogs" data-icon="refresh" data-icon-size="17"><span></span></button></div></div>
+            <div class="window-body simple-body"><div class="blog-hero"><span class="tag" data-i18n="blog.featured">FEATURED</span><h2 data-i18n="blog.title">Notes from the edges of the page.</h2><p data-i18n="blog.copy">Culture, literature, people and places.</p></div><div class="blog-links" aria-live="polite"></div></div>
+          </article>
+
+          <article id="notes" class="app-window paper-widget hidden notes-window" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="notes" aria-label="Close Notes"></button><button type="button" data-window-control="minimize" data-minimize="notes" aria-label="Minimize Notes"></button><button type="button" data-window-control="zoom" data-zoom="notes" aria-label="Zoom Notes"></button></div><span data-i18n="nav.notes">Notes</span></div><div class="window-toolbar"><button type="button" data-action="new-note" aria-label="New note" data-icon="plus" data-icon-size="17"><span></span></button></div></div>
+            <div id="notesApp" class="notes-shell"><aside class="notes-list" data-notes-list></aside><section class="note-editor"><label class="visually-hidden" for="noteTitle">Note title</label><input id="noteTitle" data-note-title data-i18n-placeholder="notes.title" placeholder="Untitled Note"><label class="visually-hidden" for="noteBody">Note body</label><textarea id="noteBody" data-note-body data-i18n-placeholder="notes.body" placeholder="Start writing…"></textarea><div class="note-toolbar"><span class="note-status" data-note-status aria-live="polite"></span><button type="button" data-note-save data-i18n="notes.save">Save</button></div></section></div>
+          </article>
+
+          <article id="settings" class="app-window glass hidden settings-window" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="settings" aria-label="Close Settings"></button><button type="button" data-window-control="minimize" data-minimize="settings" aria-label="Minimize Settings"></button><button type="button" data-window-control="zoom" data-zoom="settings" aria-label="Zoom Settings"></button></div><span data-i18n="settings.title">Settings</span></div></div>
+            <div class="window-body simple-body settings-body"><h2 data-i18n="settings.heading">Kolpotuli Settings</h2><p class="settings-intro" data-i18n="settings.intro">Choose the atmosphere for your desktop.</p><h3 data-i18n="settings.wallpaper">Wallpaper</h3><div class="wallpaper-grid"><button class="wallpaper-card" data-wallpaper="main"><span class="wallpaper-preview main-preview"></span><strong>Ganga Ghat</strong><small>Original Kolpotuli</small></button><button class="wallpaper-card" data-wallpaper="dusk"><span class="wallpaper-preview dusk-preview"></span><strong>Dusk</strong><small>Blue hour</small></button><button class="wallpaper-card" data-wallpaper="paper"><span class="wallpaper-preview paper-preview"></span><strong>Paper</strong><small>Quiet morning</small></button></div><h3 data-i18n="settings.appearance">Appearance</h3><div class="appearance-choice" role="group" aria-label="Appearance"><button type="button" data-appearance-choice="system">System</button><button type="button" data-appearance-choice="light">Light</button><button type="button" data-appearance-choice="dark">Dark</button></div><h3 data-i18n="settings.motion">Wallpaper motion</h3><div class="wallpaper-mode-row"><button type="button" data-wallpaper-mode="still">Still</button><button type="button" data-wallpaper-mode="dynamic">Dynamic</button></div></div>
+          </article>
+
+          <article id="home" class="app-window glass hidden" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="home" aria-label="Close Home"></button><button type="button" data-window-control="minimize" data-minimize="home" aria-label="Minimize Home"></button><button type="button" data-window-control="zoom" data-zoom="home" aria-label="Zoom Home"></button></div><span>Kolpotuli</span></div></div><div class="window-body simple-body"><p>A quiet place for stories, art and writing.</p><button class="primary-action" type="button" data-window="stories">Browse stories</button></div>
+          </article>
+          <article id="music" class="app-window glass hidden music-app-window" data-app-window>
+            <div class="window-bar"><div class="window-title-group"><div class="lights"><button type="button" data-window-control="close" data-close="music" aria-label="Close Music"></button><button type="button" data-window-control="minimize" data-minimize="music" aria-label="Minimize Music"></button><button type="button" data-window-control="zoom" data-zoom="music" aria-label="Zoom Music"></button></div><span data-i18n="music.sheetTitle">Kolpotuli Music</span></div><div class="window-toolbar"><span class="music-provider-label">YouTube</span></div></div>
+            <div class="window-body music-app-body">
+              <div class="music-app-intro"><span class="music-app-eyebrow">YOUR SOUNDTRACK</span><h2>Find a song. Stay in your story.</h2><p>Search YouTube and play a selected video inside Kolpotuli.</p></div>
+              <form class="youtube-search-form" data-music-search-form>
+                <label class="visually-hidden" for="desktopYoutubeSearch">Search YouTube songs</label>
+                <span aria-hidden="true">⌕</span><input id="desktopYoutubeSearch" data-youtube-search data-i18n-placeholder="music.searchPlaceholder" type="search" placeholder="Search songs, artists, film music…" autocomplete="off">
+                <button type="submit">Search</button>
+              </form>
+              <div class="youtube-results" data-youtube-results aria-live="polite"><p class="music-empty">Search YouTube to find a song. If in-app results are not configured, you can paste a video link below.</p></div>
+              <section class="youtube-player-section" aria-label="YouTube player">
+                <div class="music-current-track"><div><span class="music-app-eyebrow">NOW PLAYING</span><h3 data-current-track-name>Nothing playing yet</h3><p data-current-track-channel>Choose a search result or paste a video link.</p></div><div class="music-player-controls"><button type="button" data-youtube-previous disabled aria-label="Previous result">‹</button><button type="button" data-youtube-play disabled>Play</button><button type="button" data-youtube-pause disabled>Pause</button><button type="button" data-youtube-next disabled aria-label="Next result">›</button></div></div>
+                <div class="youtube-player-frame"><div data-youtube-player><p class="youtube-player-placeholder">Your selected YouTube video will appear here.</p></div></div>
+                <p class="music-status" data-music-status role="status" aria-live="polite">Search results require a restricted YouTube Data API key; video links can always be played here.</p>
+                <form class="youtube-url-form" data-youtube-url-form>
+                  <label for="desktopYoutubeUrl">Or paste a YouTube video link</label>
+                  <div><input id="desktopYoutubeUrl" data-youtube-url type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=…" autocomplete="url"><button type="submit">Play link</button></div>
+                </form>
+              </section>
+            </div>
+          </article>
+        </section>
+
+        <div class="quote quote-one">“Stories live in the spaces between us.”<span>— Kolpotuli</span></div>
+      </main>
+    </div>
+
+    <nav class="dock glass" aria-label="Dock">
+      <button type="button" data-action="search" aria-label="Search" title="Search (⌘F)" data-icon="search" data-icon-size="21"><span></span><small data-i18n="nav.search">Search</small></button>
+      <button type="button" data-create="admin.html" aria-label="Create content" title="Create (⌘N)" data-icon="sparkle" data-icon-size="21"><span></span><small data-i18n="nav.create">Create</small></button>
+      <button type="button" data-action="profile" aria-label="Profile" title="Profile" data-icon="profile" data-icon-size="21"><span></span><small data-i18n="nav.profile">Profile</small></button>
+      <button type="button" data-window="settings" aria-label="Settings" title="Settings (⌘,)" data-icon="settings" data-icon-size="21"><span></span><small data-i18n="nav.settings">Settings</small></button>
+    </nav>
+
+    <div id="commandPalette" class="command-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="commandTitle">
+      <section class="command-palette">
+        <h2 id="commandTitle" class="visually-hidden">Search Kolpotuli</h2>
+        <div class="command-input-row"><span data-icon="search" data-icon-size="20" aria-hidden="true"></span><input id="commandInput" type="search" placeholder="Search stories, art and blogs…" autocomplete="off"><kbd>ESC</kbd></div>
+        <div id="commandResults" class="command-results" role="listbox" aria-label="Search results"><p class="command-hint">Search by title, words or content type.</p></div>
+        <footer><span>↑ ↓ to navigate</span><span>↵ to open</span><span>⌘F to search</span></footer>
+      </section>
+    </div>
+
+    <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+  <script type="module" src="js/atmosphere-music.js"></script>
+  <script type="module" src="js/notes.js"></script>
+  <script type="module" src="js/desktop-polish.js"></script>
+</body>
+</html>
