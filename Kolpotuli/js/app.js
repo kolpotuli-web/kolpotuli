@@ -372,11 +372,15 @@ function renderContent(section, items, type) {
 
   const query = searches[section] || '';
   const filter = filters[section] || 'all';
-  const visible = items.filter(item => {
+  // The query uses the text people can see in the shelf. "Recently Added"
+  // starts with the first twelve rows from the date-sorted content query.
+  const baseItems = filter === 'new' ? items.slice(0, 12) : items;
+  const visible = baseItems.filter(item => {
     const matchesQuery = !query || [item.title, item.excerpt, item.language, item.slug]
       .some(value => String(value || '').toLocaleLowerCase().includes(query.toLocaleLowerCase()));
     const matchesFilter =
       filter === 'all'
+      || filter === 'new'
       || (filter === 'bn' && item.language === 'bn')
       || (filter === 'en' && item.language === 'en')
       || (filter === 'featured' && Boolean(item.featured));
