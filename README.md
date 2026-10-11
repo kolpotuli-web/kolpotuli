@@ -51,7 +51,7 @@ There is no compile/bundle step right now: the browser runs the source files dir
 
 - The atmosphere widget asks for browser location permission only when a reader presses **Use my location**. Readers can instead search for any city. The selected place is stored in that browser's local storage and weather is retrieved from Open-Meteo.
 - YouTube links can be played inside the desktop Music window or mobile Music sheet using YouTube's official embedded player and the in-page Play/Pause controls.
-- To enable **in-app YouTube search results**, enable **YouTube Data API v3** in a Google Cloud project and create an API key restricted to your deployed website's HTTP referrers and that API. Set the value of `<meta name="youtube-api-key" content="">` in both `Kolpotuli/index.html` and `Kolpotuli/mobile.html`. Do not put an unrestricted API key in the site. Without this key, the search form opens YouTube search in a new tab, and a reader can paste a video link back into Kolpotuli to play it here.
+- YouTube search uses the Data API v3 if a restricted key is configured; otherwise it tries public Invidious search instances. Selected results play inside Kolpotuli with the official YouTube embedded player. Public search instances can occasionally be unavailable, and some videos may block embedding.
 
 ## Configuration and safety
 

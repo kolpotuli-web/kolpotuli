@@ -1,8 +1,6 @@
 /* Shared local weather and YouTube music controls for desktop + mobile.
-   Weather uses Open-Meteo geocoding/forecast APIs. YouTube search uses the
-   official YouTube Data API when a restricted browser key is configured.
-   Without that key, people can still open YouTube search and paste a video URL
-   to play it in the embedded IFrame player. */
+   Search uses the YouTube Data API when configured, with public Invidious search
+   fallbacks when no key is present. Selected videos play in YouTube's embedded player. */
 
 const $ = (selector, root = document) => root.querySelector(selector);
 const $$ = (selector, root = document) => [...root.querySelectorAll(selector)];
@@ -406,9 +404,44 @@ async function searchYouTube(query) {
   }
 
   if (!YOUTUBE_KEY) {
-    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(normalized)}`;
-    window.open(searchUrl, '_blank', 'noopener,noreferrer');
-    setMusicMessage('YouTube search opened in a new tab. Paste a video link below to play it here. To show results inside Kolpotuli, configure a restricted YouTube Data API key.', 'info');
+    setMusicMessage('Searching YouTube…');
+    $('[data-youtube-results]').forEach(target => { target.innerHTML = '<p class="music-empty">Searching…</p>'; });
+
+    for (const endpoint of [
+      'https://invidious.nerdvpn.de',
+      'https://yt.chocolatemoo53.com',
+      'https://invidious.tiekoetter.com',
+      'https://inv.nadeko.net'
+    ]) {
+      try {
+        const params = new URLSearchParams({ q: normalized, type: 'video' });
+        const response = await fetch(`${endpoint}/api/v1/search?${params}`);
+        if (!response.ok) continue;
+        const data = await response.json();
+        const songs = (Array.isArray(data) ? data : [])
+          .filter(item => item.type === 'video')
+          .map(item => formatVideo({
+            id: item.videoId,
+            title: item.title,
+            channel: item.author,
+            thumbnail: item.videoThumbnails?.find(image => /medium|high/i.test(image.quality))?.url || item.videoThumbnails?.[0]?.url
+          }))
+          .filter(Boolean)
+          .slice(0, 10);
+        if (!songs.length) continue;
+        state.songResults = songs;
+        renderSongResults(songs);
+        setMusicMessage(`Found ${songs.length} results. Choose a song to start playback here.`);
+        return;
+      } catch (error) {
+        console.warn('In-page YouTube search service failed:', error);
+      }
+    }
+
+    setMusicMessage('In-page song search is temporarily unavailable. Please try again shortly.', 'error');
+    $('[data-youtube-results]').forEach(target => {
+      target.innerHTML = '<p class="music-empty">Search is temporarily unavailable. Please try again shortly.</p>';
+    });
     return;
   }
 
@@ -441,7 +474,7 @@ async function searchYouTube(query) {
     console.warn('YouTube search failed:', error);
     setMusicMessage(error.message || 'YouTube search failed. Check the configured API key.', 'error');
     $$('[data-youtube-results]').forEach(target => {
-      target.innerHTML = '<p class="music-empty">Try another search, or open YouTube in a new tab and paste a video link below.</p>';
+      target.innerHTML = '<p class="music-empty">Try another search, or paste a video link to play it here.</p>';
     });
   }
 }
@@ -524,7 +557,7 @@ async function playSong(song) {
       height: '100%',
       videoId: validSong.id,
       playerVars: {
-        autoplay: 0,
+        autoplay: 1,
         controls: 0,
         playsinline: 1,
         rel: 0,
@@ -533,11 +566,12 @@ async function playSong(song) {
       events: {
         onReady: event => {
           state.playerReady = true;
-          setMusicMessage('Ready. Press Play to listen.');
+          setMusicMessage('Starting playback…');
           $('[data-youtube-play],[data-youtube-pause]').forEach(button => button.disabled = false);
           $('[data-youtube-previous]').forEach(button => button.disabled = state.activeSongIndex <= 0);
           $('[data-youtube-next]').forEach(button => button.disabled = state.activeSongIndex < 0 || state.activeSongIndex >= state.songResults.length - 1);
           event.target.setVolume(70);
+          event.target.playVideo();
         },
         onStateChange: event => {
           const playing = event.data === window.YT.PlayerState.PLAYING;
@@ -616,19 +650,13 @@ function setupMusicControls() {
     }
   }));
 
-  $$('[data-open-youtube-search]').forEach(button => button.addEventListener('click', () => {
-    const query = button.dataset.openYoutubeSearch || $('[data-youtube-search]')?.value || '';
-    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
-    window.open(url, '_blank', 'noopener,noreferrer');
-  }));
-
   const initialTitle = 'Search for a song';
   setText('[data-current-track-title]', initialTitle);
   setText('[data-current-track-artist]', 'Search YouTube to start listening');
   $('[data-youtube-play],[data-youtube-pause],[data-youtube-next],[data-youtube-previous]').forEach(button => button.disabled = true);
   if (!YOUTUBE_KEY) {
     $('[data-youtube-results]').forEach(target => {
-      target.innerHTML = '<p class="music-empty">In-app search needs a restricted YouTube Data API key. Use Search to open YouTube, then paste the video link below to play it here.</p>';
+      target.innerHTML = '<p class="music-empty">Search for a song to see results here. Choose one to start playback inside Kolpotuli.</p>';
     });
   }
 }
