@@ -14,6 +14,10 @@ const state = {
   weatherRequest: 0,
   songResults: [],
   activeSongIndex: -1,
+  songSearchRequest: 0,
+  songSearchController: null,
+  songSearchTimer: null,
+  songSearchQuery: '',
   player: null,
   playerReady: false,
   playerReadyPromise: null,
@@ -363,15 +367,15 @@ function setMusicMessage(message, kind = '') {
 }
 
 function renderSongResults(songs) {
-  $$('[data-youtube-results]').forEach(target => {
+  $('[data-youtube-results]').forEach(target => {
     if (!songs.length) {
-      target.innerHTML = '<p class="music-empty">No videos found for that search.</p>';
+      target.innerHTML = '<p class="music-empty">No songs found. Try another title or artist.</p>';
       return;
     }
 
     target.innerHTML = songs.map((song, index) => `
       <button type="button" class="youtube-result" data-song-index="${index}">
-        <img src="${escapeHtml(song.thumbnail || '')}" alt="" loading="lazy">
+        <img src="${escapeHtml(song.thumbnail || `https://i.ytimg.com/vi/${encodeURIComponent(song.id)}/mqdefault.jpg`)}" alt="" loading="lazy">
         <span class="youtube-result-copy"><strong>${escapeHtml(song.title)}</strong><small>${escapeHtml(song.channel)}</small></span>
         <span class="youtube-result-play" aria-hidden="true">▶</span>
       </button>`).join('');
@@ -398,68 +402,95 @@ function formatVideo(song) {
 
 async function searchYouTube(query) {
   const normalized = query.trim();
-  if (!normalized) {
-    setMusicMessage('Enter a song, artist or soundtrack to search.', 'error');
-    return;
-  }
-
-  if (!YOUTUBE_KEY) {
-    setMusicMessage('Searching YouTube…');
-    $('[data-youtube-results]').forEach(target => { target.innerHTML = '<p class="music-empty">Searching…</p>'; });
-
-    for (const endpoint of [
-      'https://invidious.nerdvpn.de',
-      'https://yt.chocolatemoo53.com',
-      'https://invidious.tiekoetter.com',
-      'https://inv.nadeko.net'
-    ]) {
-      try {
-        const params = new URLSearchParams({ q: normalized, type: 'video' });
-        const response = await fetch(`${endpoint}/api/v1/search?${params}`);
-        if (!response.ok) continue;
-        const data = await response.json();
-        const songs = (Array.isArray(data) ? data : [])
-          .filter(item => item.type === 'video')
-          .map(item => formatVideo({
-            id: item.videoId,
-            title: item.title,
-            channel: item.author,
-            thumbnail: item.videoThumbnails?.find(image => /medium|high/i.test(image.quality))?.url || item.videoThumbnails?.[0]?.url
-          }))
-          .filter(Boolean)
-          .slice(0, 10);
-        if (!songs.length) continue;
-        state.songResults = songs;
-        renderSongResults(songs);
-        setMusicMessage(`Found ${songs.length} results. Choose a song to start playback here.`);
-        return;
-      } catch (error) {
-        console.warn('In-page YouTube search service failed:', error);
-      }
-    }
-
-    setMusicMessage('In-page song search is temporarily unavailable. Please try again shortly.', 'error');
+  if (normalized.length < 2) {
     $('[data-youtube-results]').forEach(target => {
-      target.innerHTML = '<p class="music-empty">Search is temporarily unavailable. Please try again shortly.</p>';
+      target.innerHTML = '<p class="music-empty">Type at least 2 characters to see song suggestions.</p>';
     });
     return;
   }
+  if (normalized === state.songSearchQuery && (state.songResults.length || state.songSearchController)) return;
 
-  setMusicMessage('Searching YouTube…');
-  $$('[data-youtube-results]').forEach(target => { target.innerHTML = '<p class="music-empty">Searching…</p>'; });
+  const requestId = ++state.songSearchRequest;
+  state.songSearchController?.abort();
+  const controller = new AbortController();
+  state.songSearchController = controller;
+  state.songSearchQuery = normalized;
+  state.activeSongIndex = -1;
+  let hadValidResponse = false;
+  let timedOut = false;
+  const timeout = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, 1800);
+
+  setMusicMessage('Finding songs…');
+  $('[data-youtube-results]').forEach(target => {
+    target.innerHTML = '<p class="music-empty">Finding songs…</p>';
+  });
 
   try {
+    if (!YOUTUBE_KEY) {
+      const endpoints = [
+        'https://invidious.nerdvpn.de',
+        'https://yt.chocolatemoo53.com',
+        'https://invidious.tiekoetter.com',
+        'https://inv.nadeko.net'
+      ];
+      const fastest = await Promise.any(endpoints.map(async endpoint => {
+        const params = new URLSearchParams({ q: normalized, type: 'video' });
+        const response = await fetch(`${endpoint}/api/v1/search?${params}`, {
+          signal: controller.signal,
+          cache: 'no-store'
+        });
+        if (!response.ok) throw new Error('Search instance unavailable.');
+        const data = await response.json();
+        if (!Array.isArray(data)) throw new Error('Invalid search response.');
+        hadValidResponse = true;
+        const songs = data
+          .filter(item => item.type === 'video')
+          .map(item => {
+            const thumbnails = item.videoThumbnails || [];
+            const thumbnail = thumbnails.find(image => /medium|high/i.test(image.quality))?.url
+              || thumbnails[0]?.url
+              || '';
+            let imageUrl = '';
+            try { imageUrl = thumbnail ? new URL(thumbnail, endpoint).href : ''; } catch {}
+            return formatVideo({
+              id: item.videoId,
+              title: item.title,
+              channel: item.author,
+              thumbnail: imageUrl
+            });
+          })
+          .filter(Boolean)
+          .slice(0, 8);
+        if (!songs.length) throw new Error('No matching videos on this instance.');
+        return songs;
+      }));
+
+      if (requestId !== state.songSearchRequest) return;
+      window.clearTimeout(timeout);
+      controller.abort();
+      state.songResults = fastest;
+      renderSongResults(fastest);
+      setMusicMessage(`Found ${fastest.length} songs. Choose one to play it here.`);
+      return;
+    }
+
     const params = new URLSearchParams({
       part: 'snippet',
       type: 'video',
-      maxResults: '10',
+      maxResults: '8',
       q: normalized,
       key: YOUTUBE_KEY,
       safeSearch: 'moderate'
     });
-    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`);
+    const response = await fetch(`https://www.googleapis.com/youtube/v3/search?${params}`, {
+      signal: controller.signal
+    });
     const data = await response.json();
     if (!response.ok) throw new Error(data.error?.message || 'YouTube search failed.');
+    if (requestId !== state.songSearchRequest) return;
 
     state.songResults = (data.items || []).map(item => formatVideo({
       id: item.id?.videoId,
@@ -469,13 +500,26 @@ async function searchYouTube(query) {
     })).filter(Boolean);
 
     renderSongResults(state.songResults);
-    setMusicMessage(state.songResults.length ? `Found ${state.songResults.length} results.` : 'No videos found.');
+    setMusicMessage(state.songResults.length ? `Found ${state.songResults.length} songs. Choose one to play it here.` : 'No songs found.');
   } catch (error) {
-    console.warn('YouTube search failed:', error);
-    setMusicMessage(error.message || 'YouTube search failed. Check the configured API key.', 'error');
-    $$('[data-youtube-results]').forEach(target => {
-      target.innerHTML = '<p class="music-empty">Try another search, or paste a video link to play it here.</p>';
+    if (requestId !== state.songSearchRequest) return;
+    if (controller.signal.aborted && !timedOut) return;
+
+    console.warn('Song suggestions could not load:', error);
+    const message = hadValidResponse
+      ? 'No songs found. Try another title or artist.'
+      : timedOut
+        ? 'Search is taking too long. Keep typing or try again in a moment.'
+        : 'Song suggestions are temporarily unavailable. Please try again.';
+    setMusicMessage(message, hadValidResponse ? '' : 'error');
+    $('[data-youtube-results]').forEach(target => {
+      target.innerHTML = `<p class="music-empty">${escapeHtml(message)}</p>`;
     });
+  } finally {
+    window.clearTimeout(timeout);
+    if (requestId === state.songSearchRequest && state.songSearchController === controller) {
+      state.songSearchController = null;
+    }
   }
 }
 
@@ -604,9 +648,31 @@ async function playSong(song) {
 }
 
 function setupMusicControls() {
-  $$('[data-music-search-form]').forEach(form => {
+  $('[data-youtube-search]').forEach(input => {
+    input.addEventListener('input', () => {
+      window.clearTimeout(state.songSearchTimer);
+      const query = input.value.trim();
+      if (query.length < 2) {
+        state.songSearchRequest += 1;
+        state.songSearchController?.abort();
+        state.songSearchController = null;
+        state.songSearchQuery = '';
+        state.songResults = [];
+        state.activeSongIndex = -1;
+        $('[data-youtube-results]').forEach(target => {
+          target.innerHTML = '<p class="music-empty">Type a song or artist to see matching videos.</p>';
+        });
+        setMusicMessage('Start typing a song or artist.');
+        return;
+      }
+      state.songSearchTimer = window.setTimeout(() => searchYouTube(query), 260);
+    });
+  });
+
+  $('[data-music-search-form]').forEach(form => {
     form.addEventListener('submit', event => {
       event.preventDefault();
+      window.clearTimeout(state.songSearchTimer);
       searchYouTube(form.querySelector('[data-youtube-search]')?.value || '');
     });
   });
